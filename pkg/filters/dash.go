@@ -84,6 +84,10 @@ func (d *DASHFilter) getFilters(filters *parsers.MediaFilters) []execFilter {
 		filterList = append(filterList, d.filterCaptionTypes)
 	}
 
+	if filters.DefinesBitrateFilter() {
+		filterList = append(filterList, d.filterBandwidth)
+	}
+
 	return filterList
 }
 
@@ -198,6 +202,36 @@ func isCodecSupported(codec string, ct ContentType, supportedCodecs map[string]s
 	}
 
 	return false
+}
+
+func (d *DASHFilter) filterBandwidth(filters *parsers.MediaFilters, manifest *mpd.MPD) {
+	for _, period := range manifest.Periods {
+		var filteredAdaptationSets []*mpd.AdaptationSet
+
+		for _, as := range period.AdaptationSets {
+			var filteredRepresentations []*mpd.Representation
+
+			for _, r := range as.Representations {
+				if r.Bandwidth == nil {
+					continue
+				}
+				if *r.Bandwidth <= int64(filters.MaxBitrate) && *r.Bandwidth >= int64(filters.MinBitrate) {
+					filteredRepresentations = append(filteredRepresentations, r)
+				}
+			}
+			as.Representations = filteredRepresentations
+			if len(as.Representations) != 0 {
+				filteredAdaptationSets = append(filteredAdaptationSets, as)
+			}
+		}
+
+		period.AdaptationSets = filteredAdaptationSets
+
+		// Recalculate AdaptationSet id numbers
+		for index, as := range period.AdaptationSets {
+			as.ID = strptr(strconv.Itoa(index))
+		}
+	}
 }
 
 func strptr(s string) *string {

@@ -79,6 +79,116 @@ func TestDASHFilter_FilterManifest_baseURL(t *testing.T) {
 		})
 	}
 }
+func TestDASHFilter_FilterManifest_audioCodecs(t *testing.T) {
+	manifestWithEAC3AndEAC3AudioCodec := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video">
+      <Representation bandwidth="256" codecs="avc" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="audio">
+      <Representation bandwidth="256" codecs="ec-3" id="0"></Representation>
+      <Representation bandwidth="256" codecs="ac-3" id="1"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	manifestWithEAC3AudioCodec := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video">
+      <Representation bandwidth="256" codecs="avc" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="audio">
+      <Representation bandwidth="256" codecs="ec-3" id="0"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	manifestWithAC3AudioCodec := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video">
+      <Representation bandwidth="256" codecs="avc" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="audio">
+      <Representation bandwidth="256" codecs="ac-3" id="1"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	manifestWithoutAudio := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video">
+      <Representation bandwidth="256" codecs="avc" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="audio"></AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	tests := []struct {
+		name                  string
+		filters               *parsers.MediaFilters
+		manifestContent       string
+		expectManifestContent string
+		expectErr             bool
+	}{
+		{
+			name:                  "when an empty audio filter list is supplied, audio is stripped from a manifest",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{}},
+			manifestContent:       manifestWithEAC3AndEAC3AudioCodec,
+			expectManifestContent: manifestWithoutAudio,
+		},
+		{
+			name:                  "when an audio filter is supplied with Enhanced AC-3 codec, AC-3 is stripped out",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ec-3"}},
+			manifestContent:       manifestWithEAC3AndEAC3AudioCodec,
+			expectManifestContent: manifestWithEAC3AudioCodec,
+		},
+		{
+			name:                  "when an audio filter is supplied with AC-3 codec, Enhanced AC-3 is stripped out",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ac-3"}},
+			manifestContent:       manifestWithEAC3AndEAC3AudioCodec,
+			expectManifestContent: manifestWithAC3AudioCodec,
+		},
+		{
+			name:                  "when no audio filters are supplied, nothing is stripped from manifest",
+			filters:               &parsers.MediaFilters{},
+			manifestContent:       manifestWithEAC3AndEAC3AudioCodec,
+			expectManifestContent: manifestWithEAC3AndEAC3AudioCodec,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
+
+			manifest, err := filter.FilterManifest(tt.filters)
+			if err != nil && !tt.expectErr {
+				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				return
+			} else if err == nil && tt.expectErr {
+				t.Error("FilterManifest() expected an error, got nil")
+				return
+			}
+
+			if g, e := manifest, tt.expectManifestContent; g != e {
+				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+					cmp.Diff(g, e))
+			}
+		})
+	}
+}
 
 func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 	manifestWithWVTTAndSTPPCaptions := `<?xml version="1.0" encoding="UTF-8"?>

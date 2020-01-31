@@ -2,6 +2,7 @@ github.com/akrylysov/algnhsa v0.12.1 h1:A9Ojt4hZrL77mhBc3qGO3Sn9reyf+tvM3DmR0SfX
 github.com/akrylysov/algnhsa v0.12.1/go.mod h1:xAcJ/X8DV+81e+dUjIoB/r5CbISrSXV9//leoMDHcdk=
 github.com/aws/aws-lambda-go v1.9.0 h1:r9TWtk8ozLYdMW+aelUeWny8z2mjghJCMx6/uUwOLNo=
 github.com/aws/aws-lambda-go v1.9.0/go.mod h1:zUsUQhAUjYzR8AuduJPCfhBuKWUaDbQiPOG+ouzmE1A=
+github.com/cbsinteractive/go-dash v0.0.0-20191219165709-22110e3d5350 h1:0VFhRCVafUr3RIKzitpH21ljG2cC+TQtPlWmH97z1eI=
 github.com/cbsinteractive/go-dash v0.0.0-20200108003006-ba709501f98e h1:pew+BKpTNrGkoCckDFgwLbj72fzSp9RzLzED0YRvVBk=
 github.com/cbsinteractive/go-dash v0.0.0-20200108003006-ba709501f98e/go.mod h1:c8Gxxfmh0jmZ6G+ISlpa315WBVkzd8mEhu6gN9mn5Qg=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

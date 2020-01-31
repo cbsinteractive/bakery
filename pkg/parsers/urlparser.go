@@ -36,6 +36,8 @@ const (
 	videoH264        VideoType = "avc"
 
 	audioAAC                AudioType = "aac"
+	audioAC3                AudioType = "ac-3"
+	audioEnhacedAC3         AudioType = "ec-3"
 	audioNoAudioDescription AudioType = "noAd"
 
 	audioLangPTBR AudioLanguage = "pt-BR"

@@ -12,7 +12,9 @@ import (
 	"github.com/zencoder/go-dash/mpd"
 )
 
-const adaptationSetTypeText = "text"
+const captionContentType = "text"
+const audioContentType = "audio"
+const videoContentType = "video"
 
 // DASHFilter implements the Filter interface for DASH manifests
 type DASHFilter struct {
@@ -62,6 +64,14 @@ func (d *DASHFilter) FilterManifest(filters *parsers.MediaFilters) (string, erro
 		d.filterAdaptationSetType(filters, manifest)
 	}
 
+	if filters.Videos != nil {
+		d.filterAudioTypes(filters, manifest)
+	}
+
+	if filters.Audios != nil {
+		d.filterAudioTypes(filters, manifest)
+	}
+
 	if filters.CaptionTypes != nil {
 		d.filterCaptionTypes(filters, manifest)
 	}
@@ -69,32 +79,48 @@ func (d *DASHFilter) FilterManifest(filters *parsers.MediaFilters) (string, erro
 	return manifest.WriteToString()
 }
 
-func (d *DASHFilter) filterCaptionTypes(filters *parsers.MediaFilters, manifest *mpd.MPD) {
-	supportedCaptionTypes := map[parsers.CaptionType]struct{}{}
-	for _, captionType := range filters.CaptionTypes {
-		supportedCaptionTypes[captionType] = struct{}{}
+func (d *DASHFilter) filterVideoTypes(filters *parsers.MediaFilters, manifest *mpd.MPD) {
+	supportedVideoTypes := map[string]struct{}{}
+	for _, videoType := range filters.Videos {
+		supportedVideoTypes[string(videoType)] = struct{}{}
 	}
 
+	filterContentType(captionContentType, supportedVideoTypes, manifest)
+}
+
+func (d *DASHFilter) filterAudioTypes(filters *parsers.MediaFilters, manifest *mpd.MPD) {
+	supportedAudioTypes := map[string]struct{}{}
+	for _, audioType := range filters.Audios {
+		supportedAudioTypes[string(audioType)] = struct{}{}
+	}
+
+	filterContentType(audioContentType, supportedAudioTypes, manifest)
+}
+
+func (d *DASHFilter) filterCaptionTypes(filters *parsers.MediaFilters, manifest *mpd.MPD) {
+	supportedCaptionTypes := map[string]struct{}{}
+	for _, captionType := range filters.CaptionTypes {
+		supportedCaptionTypes[string(captionType)] = struct{}{}
+	}
+
+	filterContentType(captionContentType, supportedCaptionTypes, manifest)
+}
+
+func filterContentType(filter string, supportedContentTypes map[string]struct{}, manifest *mpd.MPD) {
 	for _, period := range manifest.Periods {
 		for _, as := range period.AdaptationSets {
-			if as.ContentType == nil {
-				continue
-			}
-
-			if *as.ContentType == adaptationSetTypeText {
+			if as.ContentType != nil && *as.ContentType == filter {
 				var filteredReps []*mpd.Representation
-
 				for _, r := range as.Representations {
 					if r.Codecs == nil {
 						filteredReps = append(filteredReps, r)
 						continue
 					}
 
-					if _, supported := supportedCaptionTypes[parsers.CaptionType(*r.Codecs)]; supported {
+					if _, supported := supportedContentTypes[*r.Codecs]; supported {
 						filteredReps = append(filteredReps, r)
 					}
 				}
-
 				as.Representations = filteredReps
 			}
 		}

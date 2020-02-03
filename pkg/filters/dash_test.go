@@ -2,6 +2,7 @@ package filters
 
 import (
 	"fmt"
+	"math"
 	"testing"
 
 	"github.com/cbsinteractive/bakery/pkg/config"
@@ -591,6 +592,148 @@ func TestDASHFilter_FilterManifest_filterStreams(t *testing.T) {
 			if g, e := manifest, tt.expectManifestContent; g != e {
 				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
+			}
+		})
+	}
+}
+
+func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
+	baseManifest := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video">
+      <Representation bandwidth="2048" codecs="avc" id="0"></Representation>
+      <Representation bandwidth="4096" codecs="avc" id="1"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="audio">
+      <Representation bandwidth="256" codecs="ac-3" id="0"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	filteredManifestHittingUpperBound := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video">
+      <Representation bandwidth="4096" codecs="avc" id="1"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	filteredManifestWithBothAS := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video">
+      <Representation bandwidth="2048" codecs="avc" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="audio">
+      <Representation bandwidth="256" codecs="ac-3" id="0"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	filteredManifestWithOneAS := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="audio">
+      <Representation bandwidth="256" codecs="ac-3" id="0"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	tests := []struct {
+		name                  string
+		filters               *parsers.MediaFilters
+		manifestContent       string
+		expectManifestContent string
+		expectErr             bool
+	}{
+		{
+			name:                  "when no filters are given, nothing is stripped from manifest",
+			filters:               &parsers.MediaFilters{MinBitrate: 0, MaxBitrate: math.MaxInt32},
+			manifestContent:       baseManifest,
+			expectManifestContent: baseManifest,
+		},
+		{
+			name:                  "when negative bitrates are entered, nothing is stripped from manifest",
+			filters:               &parsers.MediaFilters{MinBitrate: -100, MaxBitrate: -10},
+			manifestContent:       baseManifest,
+			expectManifestContent: baseManifest,
+		},
+		{
+			name:                  "when both bounds are exceeeded, expect nothing is stripped from manifest",
+			filters:               &parsers.MediaFilters{MinBitrate: -100, MaxBitrate: math.MaxInt32 + 1},
+			manifestContent:       baseManifest,
+			expectManifestContent: baseManifest,
+		},
+		{
+			name:                  "when lower bitrate bound is larger than upper bound, expect nothing is stripped from manifest",
+			filters:               &parsers.MediaFilters{MinBitrate: 10000, MaxBitrate: 100},
+			manifestContent:       baseManifest,
+			expectManifestContent: baseManifest,
+		},
+		{
+			name:                  "when hitting lower boundary (minBitrate = 0), expect results to be filtered",
+			filters:               &parsers.MediaFilters{MinBitrate: 0, MaxBitrate: 4000},
+			manifestContent:       baseManifest,
+			expectManifestContent: filteredManifestWithBothAS,
+		},
+		{
+			name:                  "when hitting upper bounary (maxBitrate = math.MaxInt32), expect results to be filtered",
+			filters:               &parsers.MediaFilters{MinBitrate: 4000, MaxBitrate: math.MaxInt32},
+			manifestContent:       baseManifest,
+			expectManifestContent: filteredManifestHittingUpperBound,
+		},
+		{
+			name:                  "when invalid minimum bitrate and valid maximum bitrate, expect nothing is filtered from the manifest",
+			filters:               &parsers.MediaFilters{MinBitrate: -1000, MaxBitrate: 1000},
+			manifestContent:       baseManifest,
+			expectManifestContent: baseManifest,
+		},
+		{
+			name:                  "when valid minimum bitrate and invalid maximum bitrate, expect nothing is filtered from manifest",
+			filters:               &parsers.MediaFilters{MinBitrate: 100, MaxBitrate: math.MaxInt32 + 1},
+			manifestContent:       baseManifest,
+			expectManifestContent: baseManifest,
+		},
+		{
+			name:                  "when valid input, expect filtered results with no adaptation sets removed",
+			filters:               &parsers.MediaFilters{MinBitrate: 10, MaxBitrate: 4000},
+			manifestContent:       baseManifest,
+			expectManifestContent: filteredManifestWithBothAS,
+		},
+		{
+			name:                  "when valid input, expect filtered results with one adaptation set removed",
+			filters:               &parsers.MediaFilters{MinBitrate: 100, MaxBitrate: 1000},
+			manifestContent:       baseManifest,
+			expectManifestContent: filteredManifestWithOneAS,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
+
+			manifest, err := filter.FilterManifest(tt.filters)
+			if err != nil && !tt.expectErr {
+				t.Errorf("FilterManifest() didn't expect error to be returned, got: %v", err)
+				return
+			} else if err == nil && tt.expectErr {
+				t.Error("FilterManifest() expected an error, got nil")
+				return
+			}
+
+			if g, e := manifest, tt.expectManifestContent; g != e {
+				t.Errorf("FilterManifest() returned wrong manifest\ngot %v\nexpected %v\ndiff: %v", g, e, cmp.Diff(g, e))
 			}
 		})
 	}

@@ -79,6 +79,204 @@ func TestDASHFilter_FilterManifest_baseURL(t *testing.T) {
 		})
 	}
 }
+
+func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
+	manifestWithMultiVideoCodec := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video">
+      <Representation bandwidth="256" codecs="hvc1.2.4.L93.90" id="0"></Representation>
+      <Representation bandwidth="256" codecs="hvc1.2.4.L90.90" id="1"></Representation>
+      <Representation bandwidth="256" codecs="hvc1.2.4.L120.90" id="2"></Representation>
+      <Representation bandwidth="256" codecs="hvc1.2.4.L63.90" id="3"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="video">
+      <Representation bandwidth="256" codecs="dvh1.05.01" id="0"></Representation>
+      <Representation bandwidth="256" codecs="dvh1.05.03" id="1"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="2" lang="en" contentType="video">
+      <Representation bandwidth="256" codecs="avc1.640028" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="3" lang="en" contentType="audio">
+      <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="4" lang="en" contentType="text">
+      <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	manifestWithHEVCAndAVCVideoCodec := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video">
+      <Representation bandwidth="256" codecs="hvc1.2.4.L93.90" id="0"></Representation>
+      <Representation bandwidth="256" codecs="hvc1.2.4.L90.90" id="1"></Representation>
+      <Representation bandwidth="256" codecs="hvc1.2.4.L120.90" id="2"></Representation>
+      <Representation bandwidth="256" codecs="hvc1.2.4.L63.90" id="3"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="video"></AdaptationSet>
+    <AdaptationSet id="2" lang="en" contentType="video">
+      <Representation bandwidth="256" codecs="avc1.640028" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="3" lang="en" contentType="audio">
+      <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="4" lang="en" contentType="text">
+      <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	manifestWithDolbyVideoVisionCodec := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video"></AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="video">
+      <Representation bandwidth="256" codecs="dvh1.05.01" id="0"></Representation>
+      <Representation bandwidth="256" codecs="dvh1.05.03" id="1"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="2" lang="en" contentType="video"></AdaptationSet>
+    <AdaptationSet id="3" lang="en" contentType="audio">
+      <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="4" lang="en" contentType="text">
+      <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	manifestWithHEVCVideoCodec := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video">
+      <Representation bandwidth="256" codecs="hvc1.2.4.L93.90" id="0"></Representation>
+      <Representation bandwidth="256" codecs="hvc1.2.4.L90.90" id="1"></Representation>
+      <Representation bandwidth="256" codecs="hvc1.2.4.L120.90" id="2"></Representation>
+      <Representation bandwidth="256" codecs="hvc1.2.4.L63.90" id="3"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="video"></AdaptationSet>
+    <AdaptationSet id="2" lang="en" contentType="video"></AdaptationSet>
+    <AdaptationSet id="3" lang="en" contentType="audio">
+      <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="4" lang="en" contentType="text">
+      <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	manifestWithAVCVideoCodec := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video"></AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="video"></AdaptationSet>
+    <AdaptationSet id="2" lang="en" contentType="video">
+      <Representation bandwidth="256" codecs="avc1.640028" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="3" lang="en" contentType="audio">
+      <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="4" lang="en" contentType="text">
+      <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	manifestWithoutVideo := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video"></AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="video"></AdaptationSet>
+    <AdaptationSet id="2" lang="en" contentType="video"></AdaptationSet>
+    <AdaptationSet id="3" lang="en" contentType="audio">
+      <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="4" lang="en" contentType="text">
+      <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	tests := []struct {
+		name                  string
+		filters               *parsers.MediaFilters
+		manifestContent       string
+		expectManifestContent string
+		expectErr             bool
+	}{
+		{
+			name:                  "when an empty video filter list is supplied, video is stripped from a manifest",
+			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{}},
+			manifestContent:       manifestWithMultiVideoCodec,
+			expectManifestContent: manifestWithoutVideo,
+		},
+		{
+			name:                  "when a video filter is supplied with HEVC and AVC, all video except for HEVC and AVC is stripped",
+			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{"hvc", "avc"}},
+			manifestContent:       manifestWithMultiVideoCodec,
+			expectManifestContent: manifestWithHEVCAndAVCVideoCodec,
+		},
+		{
+			name:                  "when a video filter is suplied with Dolby Vision ID, all video except for dolby vision is stripped",
+			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{"dvh"}},
+			manifestContent:       manifestWithMultiVideoCodec,
+			expectManifestContent: manifestWithDolbyVideoVisionCodec,
+		},
+		{
+			name:                  "when a video filter is suplied with HEVC ID, all video except for HEVC is stripped",
+			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{"hvc"}},
+			manifestContent:       manifestWithMultiVideoCodec,
+			expectManifestContent: manifestWithHEVCVideoCodec,
+		},
+		{
+			name:                  "when a video filter is suplied with AVC, all video except for AVC is stripped",
+			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{"avc"}},
+			manifestContent:       manifestWithMultiVideoCodec,
+			expectManifestContent: manifestWithAVCVideoCodec,
+		},
+		{
+			name:                  "when no video filters are supplied, nothing is stripped from manifest",
+			filters:               &parsers.MediaFilters{},
+			manifestContent:       manifestWithMultiVideoCodec,
+			expectManifestContent: manifestWithMultiVideoCodec,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
+
+			manifest, err := filter.FilterManifest(tt.filters)
+			if err != nil && !tt.expectErr {
+				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				return
+			} else if err == nil && tt.expectErr {
+				t.Error("FilterManifest() expected an error, got nil")
+				return
+			}
+
+			if g, e := manifest, tt.expectManifestContent; g != e {
+				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+					cmp.Diff(g, e))
+			}
+		})
+	}
+}
+
 func TestDASHFilter_FilterManifest_audioCodecs(t *testing.T) {
 	manifestWithEAC3AndEAC3AudioCodec := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">

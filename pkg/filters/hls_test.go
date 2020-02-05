@@ -20,11 +20,17 @@ http://existing.base/uri/link_1.m3u8
 http://existing.base/uri/link_2.m3u8
 `
 
-	manifestWithOneFilteredOut := `#EXTM3U
+	manifestRemovedLowerBW := `#EXTM3U
 #EXT-X-VERSION:4
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/"
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CLOSED-CAPTIONS="CC"
 http://existing.base/uri/link_1.m3u8
+`
+
+	manifestRemovedHigherBW := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CLOSED-CAPTIONS="CC"
+http://existing.base/uri/link_2.m3u8
 `
 
 	tests := []struct {
@@ -47,10 +53,40 @@ http://existing.base/uri/link_1.m3u8
 			expectManifestContent: baseManifest,
 		},
 		{
-			name:                  "when valid input, expect filtered results",
-			filters:               &parsers.MediaFilters{MinBitrate: 100, MaxBitrate: 2000},
+			name:                  "when both bitrate bounds are exceeded, expect unfiltered manifest",
+			filters:               &parsers.MediaFilters{MinBitrate: -100, MaxBitrate: math.MaxInt32 + 1},
 			manifestContent:       baseManifest,
-			expectManifestContent: manifestWithOneFilteredOut,
+			expectManifestContent: baseManifest,
+		},
+		{
+			name:                  "when lower bitrate bound is greater than upper bound, expect unfiltered manifest",
+			filters:               &parsers.MediaFilters{MinBitrate: 1000, MaxBitrate: 100},
+			manifestContent:       baseManifest,
+			expectManifestContent: baseManifest,
+		},
+		{
+			name:                  "when only hitting lower boundary (MinBitrate = 0), expect results to be filtered",
+			filters:               &parsers.MediaFilters{MinBitrate: 0, MaxBitrate: 3000},
+			manifestContent:       baseManifest,
+			expectManifestContent: manifestRemovedLowerBW,
+		},
+		{
+			name:                  "when only hitting upper boundary (MaxBitrate = math.MaxInt32), expect results to be filtered",
+			filters:               &parsers.MediaFilters{MinBitrate: 3000, MaxBitrate: math.MaxInt32},
+			manifestContent:       baseManifest,
+			expectManifestContent: manifestRemovedHigherBW,
+		},
+		{
+			name:                  "when invalid minimum bitrate and valid maximum bitrate, expect unfiltered manifest",
+			filters:               &parsers.MediaFilters{MinBitrate: -100, MaxBitrate: 2000},
+			manifestContent:       baseManifest,
+			expectManifestContent: baseManifest,
+		},
+		{
+			name:                  "when valid minimum bitrate and invlid maximum bitrate, expect unfiltered manifest",
+			filters:               &parsers.MediaFilters{MinBitrate: 3000, MaxBitrate: math.MaxInt32 + 1},
+			manifestContent:       baseManifest,
+			expectManifestContent: baseManifest,
 		},
 	}
 

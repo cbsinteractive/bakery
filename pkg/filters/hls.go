@@ -2,7 +2,6 @@ package filters
 
 import (
 	"errors"
-	"fmt"
 	"math"
 	"path/filepath"
 	"strings"
@@ -60,7 +59,7 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 func (h *HLSFilter) validateVariants(filters *parsers.MediaFilters, v *m3u8.Variant) bool {
 
 	if bandwidthInRange(filters.MinBitrate, filters.MaxBitrate) {
-		fmt.Println("Running Bandwidth Filter...")
+
 		if !(h.validateBandwidthVariant(filters.MinBitrate, filters.MaxBitrate, v)) {
 			return false
 		}
@@ -93,7 +92,7 @@ func bandwidthInRange(minBandwidth int, maxBandwidth int) bool {
 		(minBandwidth < maxBandwidth) &&
 		!(minBandwidth == 0 && maxBandwidth == math.MaxInt32) {
 		return true
-	} else {
-		return false
 	}
+
+	return false
 }

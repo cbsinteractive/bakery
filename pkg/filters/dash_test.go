@@ -118,14 +118,13 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
       <Representation bandwidth="256" codecs="hvc1.2.4.L120.90" id="2"></Representation>
       <Representation bandwidth="256" codecs="hvc1.2.4.L63.90" id="3"></Representation>
     </AdaptationSet>
-    <AdaptationSet id="1" lang="en" contentType="video"></AdaptationSet>
-    <AdaptationSet id="2" lang="en" contentType="video">
+    <AdaptationSet id="1" lang="en" contentType="video">
       <Representation bandwidth="256" codecs="avc1.640028" id="0"></Representation>
     </AdaptationSet>
-    <AdaptationSet id="3" lang="en" contentType="audio">
+    <AdaptationSet id="2" lang="en" contentType="audio">
       <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
     </AdaptationSet>
-    <AdaptationSet id="4" lang="en" contentType="text">
+    <AdaptationSet id="3" lang="en" contentType="text">
       <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
     </AdaptationSet>
   </Period>
@@ -136,16 +135,14 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
   <Period>
-    <AdaptationSet id="0" lang="en" contentType="video"></AdaptationSet>
-    <AdaptationSet id="1" lang="en" contentType="video">
+    <AdaptationSet id="0" lang="en" contentType="video">
       <Representation bandwidth="256" codecs="dvh1.05.01" id="0"></Representation>
       <Representation bandwidth="256" codecs="dvh1.05.03" id="1"></Representation>
     </AdaptationSet>
-    <AdaptationSet id="2" lang="en" contentType="video"></AdaptationSet>
-    <AdaptationSet id="3" lang="en" contentType="audio">
+    <AdaptationSet id="1" lang="en" contentType="audio">
       <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
     </AdaptationSet>
-    <AdaptationSet id="4" lang="en" contentType="text">
+    <AdaptationSet id="2" lang="en" contentType="text">
       <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
     </AdaptationSet>
   </Period>
@@ -162,12 +159,10 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
       <Representation bandwidth="256" codecs="hvc1.2.4.L120.90" id="2"></Representation>
       <Representation bandwidth="256" codecs="hvc1.2.4.L63.90" id="3"></Representation>
     </AdaptationSet>
-    <AdaptationSet id="1" lang="en" contentType="video"></AdaptationSet>
-    <AdaptationSet id="2" lang="en" contentType="video"></AdaptationSet>
-    <AdaptationSet id="3" lang="en" contentType="audio">
+    <AdaptationSet id="1" lang="en" contentType="audio">
       <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
     </AdaptationSet>
-    <AdaptationSet id="4" lang="en" contentType="text">
+    <AdaptationSet id="2" lang="en" contentType="text">
       <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
     </AdaptationSet>
   </Period>
@@ -178,15 +173,13 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
   <Period>
-    <AdaptationSet id="0" lang="en" contentType="video"></AdaptationSet>
-    <AdaptationSet id="1" lang="en" contentType="video"></AdaptationSet>
-    <AdaptationSet id="2" lang="en" contentType="video">
+    <AdaptationSet id="0" lang="en" contentType="video">
       <Representation bandwidth="256" codecs="avc1.640028" id="0"></Representation>
     </AdaptationSet>
-    <AdaptationSet id="3" lang="en" contentType="audio">
+    <AdaptationSet id="1" lang="en" contentType="audio">
       <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
     </AdaptationSet>
-    <AdaptationSet id="4" lang="en" contentType="text">
+    <AdaptationSet id="2" lang="en" contentType="text">
       <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
     </AdaptationSet>
   </Period>
@@ -197,13 +190,10 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
   <Period>
-    <AdaptationSet id="0" lang="en" contentType="video"></AdaptationSet>
-    <AdaptationSet id="1" lang="en" contentType="video"></AdaptationSet>
-    <AdaptationSet id="2" lang="en" contentType="video"></AdaptationSet>
-    <AdaptationSet id="3" lang="en" contentType="audio">
+    <AdaptationSet id="0" lang="en" contentType="audio">
       <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
     </AdaptationSet>
-    <AdaptationSet id="4" lang="en" contentType="text">
+    <AdaptationSet id="1" lang="en" contentType="text">
       <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
     </AdaptationSet>
   </Period>
@@ -278,7 +268,7 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 }
 
 func TestDASHFilter_FilterManifest_audioCodecs(t *testing.T) {
-	manifestWithEAC3AndEAC3AudioCodec := `<?xml version="1.0" encoding="UTF-8"?>
+	manifestWithEAC3AndAC3AudioCodec := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
   <Period>
@@ -328,7 +318,6 @@ func TestDASHFilter_FilterManifest_audioCodecs(t *testing.T) {
     <AdaptationSet id="0" lang="en" contentType="video">
       <Representation bandwidth="256" codecs="avc" id="0"></Representation>
     </AdaptationSet>
-    <AdaptationSet id="1" lang="en" contentType="audio"></AdaptationSet>
   </Period>
 </MPD>
 `
@@ -343,26 +332,26 @@ func TestDASHFilter_FilterManifest_audioCodecs(t *testing.T) {
 		{
 			name:                  "when an empty audio filter list is supplied, audio is stripped from a manifest",
 			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{}},
-			manifestContent:       manifestWithEAC3AndEAC3AudioCodec,
+			manifestContent:       manifestWithEAC3AndAC3AudioCodec,
 			expectManifestContent: manifestWithoutAudio,
 		},
 		{
 			name:                  "when an audio filter is supplied with Enhanced AC-3 codec, AC-3 is stripped out",
 			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ec-3"}},
-			manifestContent:       manifestWithEAC3AndEAC3AudioCodec,
+			manifestContent:       manifestWithEAC3AndAC3AudioCodec,
 			expectManifestContent: manifestWithEAC3AudioCodec,
 		},
 		{
 			name:                  "when an audio filter is supplied with AC-3 codec, Enhanced AC-3 is stripped out",
 			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ac-3"}},
-			manifestContent:       manifestWithEAC3AndEAC3AudioCodec,
+			manifestContent:       manifestWithEAC3AndAC3AudioCodec,
 			expectManifestContent: manifestWithAC3AudioCodec,
 		},
 		{
 			name:                  "when no audio filters are supplied, nothing is stripped from manifest",
 			filters:               &parsers.MediaFilters{},
-			manifestContent:       manifestWithEAC3AndEAC3AudioCodec,
-			expectManifestContent: manifestWithEAC3AndEAC3AudioCodec,
+			manifestContent:       manifestWithEAC3AndAC3AudioCodec,
+			expectManifestContent: manifestWithEAC3AndAC3AudioCodec,
 		},
 	}
 
@@ -405,7 +394,7 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
   <Period>
-    <AdaptationSet id="7357" lang="en" contentType="text">
+    <AdaptationSet id="0" lang="en" contentType="text">
       <Representation bandwidth="256" codecs="wvtt" id="subtitle_en"></Representation>
     </AdaptationSet>
   </Period>
@@ -416,7 +405,7 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
   <Period>
-    <AdaptationSet id="7357" lang="en" contentType="text">
+    <AdaptationSet id="0" lang="en" contentType="text">
       <Representation bandwidth="256" codecs="stpp" id="subtitle_en_ttml"></Representation>
     </AdaptationSet>
   </Period>
@@ -426,9 +415,7 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 	manifestWithoutCaptions := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
-  <Period>
-    <AdaptationSet id="7357" lang="en" contentType="text"></AdaptationSet>
-  </Period>
+  <Period></Period>
 </MPD>
 `
 

@@ -116,6 +116,7 @@ func (d *DASHFilter) filterCaptionTypes(filters *parsers.MediaFilters, manifest 
 
 func filterContentType(filter ContentType, supportedContentTypes map[string]struct{}, manifest *mpd.MPD) {
 	for _, period := range manifest.Periods {
+		var filteredAdaptationSets []*mpd.AdaptationSet
 		for _, as := range period.AdaptationSets {
 			if as.ContentType != nil && *as.ContentType == string(filter) {
 				var filteredReps []*mpd.Representation
@@ -125,22 +126,22 @@ func filterContentType(filter ContentType, supportedContentTypes map[string]stru
 						continue
 					}
 
-					if filter == captionContentType {
-						if _, supported := supportedContentTypes[*r.Codecs]; supported {
-							filteredReps = append(filteredReps, r)
-						}
-						continue
-					}
-
-					for supported := range supportedContentTypes {
-						if ValidCodecs(*r.Codecs, CodecFilterID(supported)) {
-							filteredReps = append(filteredReps, r)
-						}
+					if isCodecSupported(*r.Codecs, filter, supportedContentTypes) {
+						filteredReps = append(filteredReps, r)
 					}
 				}
 				as.Representations = filteredReps
 			}
+
+			if len(as.Representations) != 0 {
+				filteredAdaptationSets = append(filteredAdaptationSets, as)
+			}
 		}
+
+		for i, as := range filteredAdaptationSets {
+			as.ID = strptr(strconv.Itoa(i))
+		}
+		period.AdaptationSets = filteredAdaptationSets
 	}
 }
 
@@ -180,6 +181,26 @@ func (d *DASHFilter) filterAdaptationSetType(filters *parsers.MediaFilters, mani
 	}
 
 	manifest.Periods = filteredPeriods
+}
+
+func isCodecSupported(codec string, ct ContentType, supportedCodecs map[string]struct{}) bool {
+	//the key in supportedCodecs for captionContentType is equivalent to codec
+	//advertised in manifest. we can avoid iterating through each key
+	if ct == captionContentType {
+		if _, found := supportedCodecs[codec]; found {
+			return true
+		}
+
+		return false
+	}
+
+	for key := range supportedCodecs {
+		if ValidCodecs(codec, CodecFilterID(key)) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func strptr(s string) *string {

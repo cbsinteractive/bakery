@@ -2,7 +2,6 @@ package filters
 
 import (
 	"fmt"
-	"math"
 	"net/url"
 	"path"
 	"strconv"
@@ -232,16 +231,6 @@ func (d *DASHFilter) filterBandwidth(filters *parsers.MediaFilters, manifest *mp
 		for index, as := range period.AdaptationSets {
 			as.ID = strptr(strconv.Itoa(index))
 		}
-	}
-}
-
-func bandwidthInRange(minBandwidth int, maxBandwidth int) bool {
-	if (minBandwidth >= 0 && maxBandwidth <= math.MaxInt32) &&
-		(minBandwidth < maxBandwidth) &&
-		!(minBandwidth == 0 && maxBandwidth == math.MaxInt32) {
-		return true
-	} else {
-		return false
 	}
 }
 

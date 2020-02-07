@@ -613,7 +613,7 @@ func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
 </MPD>
 `
 
-	filteredManifestHittingUpperBound := `<?xml version="1.0" encoding="UTF-8"?>
+	manifestFiltering256And2048Representations := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
   <Period>
@@ -624,7 +624,7 @@ func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
 </MPD>
 `
 
-	filteredManifestWithBothAS := `<?xml version="1.0" encoding="UTF-8"?>
+	manifestFiltering4096Representation := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
   <Period>
@@ -638,7 +638,7 @@ func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
 </MPD>
 `
 
-	filteredManifestWithOneAS := `<?xml version="1.0" encoding="UTF-8"?>
+	manifestFiltering2048And4096Representations := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
   <Period>
@@ -684,13 +684,13 @@ func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
 			name:                  "when hitting lower boundary (minBitrate = 0), expect results to be filtered",
 			filters:               &parsers.MediaFilters{MinBitrate: 0, MaxBitrate: 4000},
 			manifestContent:       baseManifest,
-			expectManifestContent: filteredManifestWithBothAS,
+			expectManifestContent: manifestFiltering4096Representation,
 		},
 		{
 			name:                  "when hitting upper bounary (maxBitrate = math.MaxInt32), expect results to be filtered",
 			filters:               &parsers.MediaFilters{MinBitrate: 4000, MaxBitrate: math.MaxInt32},
 			manifestContent:       baseManifest,
-			expectManifestContent: filteredManifestHittingUpperBound,
+			expectManifestContent: manifestFiltering256And2048Representations,
 		},
 		{
 			name:                  "when invalid minimum bitrate and valid maximum bitrate, expect nothing is filtered from the manifest",
@@ -708,13 +708,13 @@ func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
 			name:                  "when valid input, expect filtered results with no adaptation sets removed",
 			filters:               &parsers.MediaFilters{MinBitrate: 10, MaxBitrate: 4000},
 			manifestContent:       baseManifest,
-			expectManifestContent: filteredManifestWithBothAS,
+			expectManifestContent: manifestFiltering4096Representation,
 		},
 		{
 			name:                  "when valid input, expect filtered results with one adaptation set removed",
 			filters:               &parsers.MediaFilters{MinBitrate: 100, MaxBitrate: 1000},
 			manifestContent:       baseManifest,
-			expectManifestContent: filteredManifestWithOneAS,
+			expectManifestContent: manifestFiltering2048And4096Representations,
 		},
 	}
 

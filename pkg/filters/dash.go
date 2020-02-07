@@ -187,11 +187,8 @@ func isCodecSupported(codec string, ct ContentType, supportedCodecs map[string]s
 	//the key in supportedCodecs for captionContentType is equivalent to codec
 	//advertised in manifest. we can avoid iterating through each key
 	if ct == captionContentType {
-		if _, found := supportedCodecs[codec]; found {
-			return true
-		}
-
-		return false
+		_, found := supportedCodecs[codec]
+		return found
 	}
 
 	for key := range supportedCodecs {

@@ -56,7 +56,6 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 }
 
 func (h *HLSFilter) validateVariants(filters *parsers.MediaFilters, v *m3u8.Variant) bool {
-
 	if filters.DefinesBitrateFilter() {
 		if !(h.validateBandwidthVariant(filters.MinBitrate, filters.MaxBitrate, v)) {
 			return false

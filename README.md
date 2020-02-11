@@ -41,3 +41,12 @@ The API will be available on http://localhost[:BAKERY_HTTP_PORT]
 ## Run Tests
 
     $ make  test
+
+## Help
+
+You can find the source code for Bakery at GitHub:
+[bakery][bakery]
+
+[bakery]: https://github.com/cbsinteractive/bakery
+
+If you have any questions regarding Bakery, please reach out in the [#i-vidtech-mediahub](slack://channel?team={cbs}&id={i-vidtech-mediahub}) channel.

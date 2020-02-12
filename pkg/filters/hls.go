@@ -87,11 +87,45 @@ func (h *HLSFilter) validateVariants(filters *parsers.MediaFilters, v *m3u8.Vari
 	}
 
 	if filters.Videos != nil {
-
+		videoInVariant := 0
+		matchInVariant := 0
+		for _, codec := range variantCodecs {
+			if isVideoCodec(codec) {
+				videoInVariant++
+				for _, vf := range filters.Videos {
+					if ValidCodecs(codec, CodecFilterID(vf)) {
+						matchInVariant++
+						break
+					}
+				}
+			} else {
+				continue
+			}
+		}
+		if videoInVariant != matchInVariant {
+			return false
+		}
 	}
 
 	if filters.CaptionTypes != nil {
-
+		captionsInVariant := 0
+		matchInVariant := 0
+		for _, codec := range variantCodecs {
+			if isCaptionCodec(codec) {
+				captionsInVariant++
+				for _, cf := range filters.CaptionTypes {
+					if ValidCodecs(codec, CodecFilterID(cf)) {
+						matchInVariant++
+						break
+					}
+				}
+			} else {
+				continue
+			}
+		}
+		if captionsInVariant != matchInVariant {
+			return false
+		}
 	}
 
 	// Must pass all these filter validations in order to be added to master manifest
@@ -129,8 +163,7 @@ func isAudioCodec(codec string) bool {
 func isVideoCodec(codec string) bool {
 	return (ValidCodecs(codec, CodecFilterID("hvc")) ||
 		ValidCodecs(codec, CodecFilterID("avc")) ||
-		ValidCodecs(codec, CodecFilterID("dvh")) ||
-		ValidCodecs(codec, CodecFilterID("hdr10")))
+		ValidCodecs(codec, CodecFilterID("dvh")))
 }
 
 // Returns true if goven codec is a caption codec (stpp or wvtt)

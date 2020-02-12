@@ -62,6 +62,40 @@ func (h *HLSFilter) validateVariants(filters *parsers.MediaFilters, v *m3u8.Vari
 		}
 	}
 
+	variantCodecs := strings.Split(v.Codecs, ",")
+
+	// Add something about checking for supported codecs here
+	if filters.Audios != nil {
+		audioInVariant := 0
+		matchInVariant := 0
+		for _, codec := range variantCodecs {
+			if isAudioCodec(codec) {
+				audioInVariant++
+				for _, af := range filters.Audios {
+					if ValidCodecs(codec, CodecFilterID(af)) {
+						matchInVariant++
+						break
+					}
+				}
+			} else {
+				continue
+			}
+		}
+		if audioInVariant != matchInVariant {
+			return false
+		}
+	}
+
+	if filters.Videos != nil {
+
+	}
+
+	if filters.CaptionTypes != nil {
+
+	}
+
+	// Must pass all these filter validations in order to be added to master manifest
+
 	return true
 }
 
@@ -82,4 +116,25 @@ func (h *HLSFilter) normalizeVariant(v *m3u8.Variant, absoluteURL string) *m3u8.
 	v.URI = absoluteURL + v.URI
 
 	return v
+}
+
+// Returns true if given codec is an audio codec (mp4a, ec-3, or ac-3)
+func isAudioCodec(codec string) bool {
+	return (ValidCodecs(codec, CodecFilterID("mp4a")) ||
+		ValidCodecs(codec, CodecFilterID("ec-3")) ||
+		ValidCodecs(codec, CodecFilterID("ac-3")))
+}
+
+// Returns true if given codec is a video codec (hvc, avc, dvh, or hdr10)
+func isVideoCodec(codec string) bool {
+	return (ValidCodecs(codec, CodecFilterID("hvc")) ||
+		ValidCodecs(codec, CodecFilterID("avc")) ||
+		ValidCodecs(codec, CodecFilterID("dvh")) ||
+		ValidCodecs(codec, CodecFilterID("hdr10")))
+}
+
+// Returns true if goven codec is a caption codec (stpp or wvtt)
+func isCaptionCodec(codec string) bool {
+	return (ValidCodecs(codec, CodecFilterID("stpp")) ||
+		ValidCodecs(codec, CodecFilterID("wvtt")))
 }

@@ -146,7 +146,7 @@ http://existing.base/uri/link_7.m3u8
 
 	manifestFilterInAC3 := `#EXTM3U
 #EXT-X-VERSION:3
-#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100,AVERAGE-BANDWIDTH=1100,CODECS="ac-3"	
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100,AVERAGE-BANDWIDTH=1100,CODECS="ac-3"
 http://existing.base/uri/link_2.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1500,AVERAGE-BANDWIDTH=1500,CODECS="avc1.77.30"
 http://existing.base/uri/link_6.m3u8
@@ -156,7 +156,7 @@ http://existing.base/uri/link_7.m3u8
 
 	manifestFilterInMP4A := `#EXTM3U
 #EXT-X-VERSION:3
-#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="mp4a.40.2"	
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="mp4a.40.2"
 http://existing.base/uri/link_3.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1500,AVERAGE-BANDWIDTH=1500,CODECS="avc1.77.30"
 http://existing.base/uri/link_6.m3u8
@@ -268,7 +268,7 @@ http://existing.base/uri/link_7.m3u8
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 

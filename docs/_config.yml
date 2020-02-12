@@ -1,0 +1,14 @@
+remote_theme: pmarsceill/just-the-docs
+
+title: Bakery
+description: Manifest Manipulation Service
+
+logo: http://flv.io/bakery-logo.svg
+
+aux_links:
+  "Github Repository":
+    - https://github.com/cbsinteractive/bakery
+
+exclude:
+  - .gitignore
+  - readme.md

@@ -448,5 +448,277 @@ http://existing.base/uri/link_8.m3u8
 }
 
 func TestHLSFilter_FilterManifest_CaptionsFilter(t *testing.T) {
+	manifestWithAllCaptions := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="wvtt"
+http://existing.base/uri/link_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100,AVERAGE-BANDWIDTH=1100,CODECS="stpp"
+http://existing.base/uri/link_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="wvtt,stpp"
+http://existing.base/uri/link_3.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="wvtt,ac-3"
+http://existing.base/uri/link_4.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="avc1.640029"
+http://existing.base/uri/link_5.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=6000,AVERAGE-BANDWIDTH=6000,CODECS="ec-3"
+http://existing.base/uri/link_6.m3u8
+`
+
+	manifestFilterInWVTT := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="wvtt"
+http://existing.base/uri/link_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="wvtt,ac-3"
+http://existing.base/uri/link_4.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="avc1.640029"
+http://existing.base/uri/link_5.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=6000,AVERAGE-BANDWIDTH=6000,CODECS="ec-3"
+http://existing.base/uri/link_6.m3u8
+`
+
+	manifestFilterInSTPP := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100,AVERAGE-BANDWIDTH=1100,CODECS="stpp"
+http://existing.base/uri/link_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="avc1.640029"
+http://existing.base/uri/link_5.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=6000,AVERAGE-BANDWIDTH=6000,CODECS="ec-3"
+http://existing.base/uri/link_6.m3u8
+`
+
+	manifestWithNoCaptions := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="avc1.640029"
+http://existing.base/uri/link_5.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=6000,AVERAGE-BANDWIDTH=6000,CODECS="ec-3"
+http://existing.base/uri/link_6.m3u8
+`
+	// Note to self: continue here
+	tests := []struct {
+		name                  string
+		filters               *parsers.MediaFilters
+		manifestContent       string
+		expectManifestContent string
+		expectErr             bool
+	}{
+		{
+			name:                  "when given empty caption filter list, expect manifest with no captions",
+			filters:               &parsers.MediaFilters{CaptionTypes: []parsers.CaptionType{}},
+			manifestContent:       manifestWithAllCaptions,
+			expectManifestContent: manifestWithNoCaptions,
+		},
+		{
+			name:                  "when filtering in wvtt, expect manifest with no stpp",
+			filters:               &parsers.MediaFilters{CaptionTypes: []parsers.CaptionType{"wvtt"}},
+			manifestContent:       manifestWithAllCaptions,
+			expectManifestContent: manifestFilterInWVTT,
+		},
+		{
+			name:                  "when filtering in stpp, expect manifest with no wvtt",
+			filters:               &parsers.MediaFilters{CaptionTypes: []parsers.CaptionType{"stpp"}},
+			manifestContent:       manifestWithAllCaptions,
+			expectManifestContent: manifestFilterInSTPP,
+		},
+		{
+			name:                  "when no caption filter is given, expect original manifest",
+			filters:               &parsers.MediaFilters{},
+			manifestContent:       manifestWithAllCaptions,
+			expectManifestContent: manifestWithAllCaptions,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			filter := NewHLSFilter("", tt.manifestContent, config.Config{})
+			manifest, err := filter.FilterManifest(tt.filters)
+
+			if err != nil && !tt.expectErr {
+				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				return
+			} else if err == nil && tt.expectErr {
+				t.Error("FilterManifest() expected an error, got nil")
+				return
+			}
+
+			if g, e := manifest, tt.expectManifestContent; g != e {
+				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+					cmp.Diff(g, e))
+			}
+
+		})
+	}
+}
+
+func TestHLSFilter_FilterManifest_MultiCodecFilter(t *testing.T) {
+	manifestWithAllCodecs := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="ac-3"
+http://existing.base/uri/link_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100,AVERAGE-BANDWIDTH=1100,CODECS="avc1.77.30"
+http://existing.base/uri/link_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100,AVERAGE-BANDWIDTH=1100,CODECS="ac-3,avc1.77.30,wvtt"
+http://existing.base/uri/link_3.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="ac-3,hvc1.2.4.L93.90"
+http://existing.base/uri/link_4.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="ac-3,avc1.77.30,dvh1.05.01"
+http://existing.base/uri/link_5.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="ec-3,avc1.640029"
+http://existing.base/uri/link_6.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=6000,AVERAGE-BANDWIDTH=6000,CODECS="ac-3,avc1.77.30,ec-3"
+http://existing.base/uri/link_7.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1500,AVERAGE-BANDWIDTH=1500,CODECS="ac-3,hvc1.2.4.L93.90,ec-3"
+http://existing.base/uri/link_8.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="ac-3,ec-3,mp4a.40.2,avc1.640029"
+http://existing.base/uri/link_9.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="ac-3,ec-3,wvtt"
+http://existing.base/uri/link_10.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="ac-3,wvtt"
+http://existing.base/uri/link_11.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="ec-3,wvtt"
+http://existing.base/uri/link_12.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="ac-3,stpp"
+http://existing.base/uri/link_13.m3u8
+`
+
+	manifestFilterInAC3AndAVC := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="ac-3"
+http://existing.base/uri/link_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100,AVERAGE-BANDWIDTH=1100,CODECS="avc1.77.30"
+http://existing.base/uri/link_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100,AVERAGE-BANDWIDTH=1100,CODECS="ac-3,avc1.77.30,wvtt"
+http://existing.base/uri/link_3.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="ac-3,wvtt"
+http://existing.base/uri/link_11.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="ac-3,stpp"
+http://existing.base/uri/link_13.m3u8
+`
+
+	manifestFilterInAC3AndEC3AndAVC := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="ac-3"
+http://existing.base/uri/link_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100,AVERAGE-BANDWIDTH=1100,CODECS="avc1.77.30"
+http://existing.base/uri/link_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100,AVERAGE-BANDWIDTH=1100,CODECS="ac-3,avc1.77.30,wvtt"
+http://existing.base/uri/link_3.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="ec-3,avc1.640029"
+http://existing.base/uri/link_6.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=6000,AVERAGE-BANDWIDTH=6000,CODECS="ac-3,avc1.77.30,ec-3"
+http://existing.base/uri/link_7.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="ac-3,ec-3,wvtt"
+http://existing.base/uri/link_10.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="ac-3,wvtt"
+http://existing.base/uri/link_11.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="ec-3,wvtt"
+http://existing.base/uri/link_12.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="ac-3,stpp"
+http://existing.base/uri/link_13.m3u8
+`
+
+	manifestFilterInAC3AndWVTT := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="ac-3"
+http://existing.base/uri/link_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100,AVERAGE-BANDWIDTH=1100,CODECS="avc1.77.30"
+http://existing.base/uri/link_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100,AVERAGE-BANDWIDTH=1100,CODECS="ac-3,avc1.77.30,wvtt"
+http://existing.base/uri/link_3.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="ac-3,hvc1.2.4.L93.90"
+http://existing.base/uri/link_4.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="ac-3,avc1.77.30,dvh1.05.01"
+http://existing.base/uri/link_5.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="ac-3,wvtt"
+http://existing.base/uri/link_11.m3u8
+`
+
+	manifestFilterInAC3AndAVCAndWVTT := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="ac-3"
+http://existing.base/uri/link_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100,AVERAGE-BANDWIDTH=1100,CODECS="avc1.77.30"
+http://existing.base/uri/link_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100,AVERAGE-BANDWIDTH=1100,CODECS="ac-3,avc1.77.30,wvtt"
+http://existing.base/uri/link_3.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="ac-3,wvtt"
+http://existing.base/uri/link_11.m3u8
+`
+
+	manifestNoAudioAndFilterInAVC := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100,AVERAGE-BANDWIDTH=1100,CODECS="avc1.77.30"
+http://existing.base/uri/link_2.m3u8
+`
+
+	tests := []struct {
+		name                  string
+		filters               *parsers.MediaFilters
+		manifestContent       string
+		expectManifestContent string
+		expectErr             bool
+	}{
+		{
+			name:                  "when no filters are given, expect original manifest",
+			filters:               &parsers.MediaFilters{},
+			manifestContent:       manifestWithAllCodecs,
+			expectManifestContent: manifestWithAllCodecs,
+		},
+		{
+			name:                  "when filtering in audio (ac-3) and video (avc), expect no variants with ec-3, mp4a, hevc, and/or dvh",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ac-3"}, Videos: []parsers.VideoType{"avc"}},
+			manifestContent:       manifestWithAllCodecs,
+			expectManifestContent: manifestFilterInAC3AndAVC,
+		},
+		{
+			name:                  "when filtering in audio (ac-3, ec-3) and video (avc), expect no variants with mp4a, hevc, and/or dvh",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ac-3", "ec-3"}, Videos: []parsers.VideoType{"avc"}},
+			manifestContent:       manifestWithAllCodecs,
+			expectManifestContent: manifestFilterInAC3AndEC3AndAVC,
+		},
+		{
+			name:                  "when filtering in audio (ac-3) and captions (wvtt), expect no variants with ec-3, mp4a, and/or stpp",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ac-3"}, CaptionTypes: []parsers.CaptionType{"wvtt"}},
+			manifestContent:       manifestWithAllCodecs,
+			expectManifestContent: manifestFilterInAC3AndWVTT,
+		},
+		{
+			name:                  "when filtering in audio (ac-3), video (avc), and captions (wvtt), expect no variants with ec-3, mp4a, hevc, dvh, and/or stpp",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ac-3"}, Videos: []parsers.VideoType{"avc"}, CaptionTypes: []parsers.CaptionType{"wvtt"}},
+			manifestContent:       manifestWithAllCodecs,
+			expectManifestContent: manifestFilterInAC3AndAVCAndWVTT,
+		},
+		{
+			name:                  "when filtering out all audio and filtering in video (avc), expect no variants with ac-3, ec-3, mp4a, hevc, and/or dvh",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{}, Videos: []parsers.VideoType{"avc"}},
+			manifestContent:       manifestWithAllCodecs,
+			expectManifestContent: manifestNoAudioAndFilterInAVC,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			filter := NewHLSFilter("", tt.manifestContent, config.Config{})
+			manifest, err := filter.FilterManifest(tt.filters)
+
+			if err != nil && !tt.expectErr {
+				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				return
+			} else if err == nil && tt.expectErr {
+				t.Error("FilterManifest() expected an error, got nil")
+				return
+			}
+
+			if g, e := manifest, tt.expectManifestContent; g != e {
+				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+					cmp.Diff(g, e))
+			}
+
+		})
+	}
+}
+
+func TestHLSFilter_FilterManifest_MultiFilter(t *testing.T) {
 
 }

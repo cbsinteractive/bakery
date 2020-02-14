@@ -60,7 +60,7 @@ yes | yes  |
 
 #### Supported Values
 
-| values (Kbps) | example   |
+| values (bps) | example   |
 |---------------|-----------|
 | (min, max)    | b(0,1000) |
 | (min)         | b(1000)   |

@@ -29,7 +29,7 @@ You can add mutliple codec values to each video and audio filter respecitively. 
 
 ### Stream Type
 
-Values in this filter define stream types you wish to <b>remove</b> from your manifest. The filter in this  example will filter out all audio streams from the modified manifest.
+Values in this filter define stream types you wish to <b>remove</b> from your manifest. The filter in this example will filter out all audio streams from the modified manifest.
 
 #### Protocol Support
 
@@ -56,7 +56,7 @@ An inclusive range of variant bitrates to <b>include</b> in the modified manifes
 
 hls | dash |
 ----|------|
-yes | no  |
+yes | yes  |
 
 #### Supported Values
 
@@ -66,7 +66,7 @@ yes | no  |
 | (min)         | b(1000)   |
 
 ### Caption Type
-Values in this filter define a whitelist of the caption types you want <b>include</b> in the modifed manifest. Passing an empty value for this filter will removeall caption types from the manifest.
+Values in this filter define a whitelist of the caption types you want <b>include</b> in the modifed manifest. Passing an empty value for this filter will remove all caption types from the manifest.
 
 #### Protocol Support
 

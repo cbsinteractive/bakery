@@ -130,6 +130,8 @@ http://existing.base/uri/link_5.m3u8
 http://existing.base/uri/link_6.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="wvtt"
 http://existing.base/uri/link_7.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_8.m3u8
 `
 
 	manifestFilterInEC3 := `#EXTM3U
@@ -142,6 +144,8 @@ http://existing.base/uri/link_5.m3u8
 http://existing.base/uri/link_6.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="wvtt"
 http://existing.base/uri/link_7.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_8.m3u8
 `
 
 	manifestFilterInAC3 := `#EXTM3U
@@ -152,6 +156,8 @@ http://existing.base/uri/link_2.m3u8
 http://existing.base/uri/link_6.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="wvtt"
 http://existing.base/uri/link_7.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_8.m3u8
 `
 
 	manifestFilterInMP4A := `#EXTM3U
@@ -162,6 +168,8 @@ http://existing.base/uri/link_3.m3u8
 http://existing.base/uri/link_6.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="wvtt"
 http://existing.base/uri/link_7.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_8.m3u8
 `
 
 	manifestFilterInEC3AndAC3 := `#EXTM3U
@@ -178,6 +186,8 @@ http://existing.base/uri/link_5.m3u8
 http://existing.base/uri/link_6.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="wvtt"
 http://existing.base/uri/link_7.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_8.m3u8
 `
 
 	manifestFilterInEC3AndMP4A := `#EXTM3U
@@ -192,6 +202,8 @@ http://existing.base/uri/link_5.m3u8
 http://existing.base/uri/link_6.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="wvtt"
 http://existing.base/uri/link_7.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_8.m3u8
 `
 
 	manifestWithoutAudio := `#EXTM3U
@@ -200,6 +212,8 @@ http://existing.base/uri/link_7.m3u8
 http://existing.base/uri/link_6.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="wvtt"
 http://existing.base/uri/link_7.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_8.m3u8
 `
 
 	tests := []struct {
@@ -295,6 +309,8 @@ http://existing.base/uri/link_6.m3u8
 http://existing.base/uri/link_7.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="wvtt"
 http://existing.base/uri/link_8.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_9.m3u8
 `
 
 	manifestFilterInAVC := `#EXTM3U
@@ -309,6 +325,8 @@ http://existing.base/uri/link_6.m3u8
 http://existing.base/uri/link_7.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="wvtt"
 http://existing.base/uri/link_8.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_9.m3u8
 `
 
 	manifestFilterInHEVC := `#EXTM3U
@@ -319,6 +337,8 @@ http://existing.base/uri/link_3.m3u8
 http://existing.base/uri/link_7.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="wvtt"
 http://existing.base/uri/link_8.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_9.m3u8
 `
 
 	manifestFilterInDVH := `#EXTM3U
@@ -329,6 +349,8 @@ http://existing.base/uri/link_4.m3u8
 http://existing.base/uri/link_7.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="wvtt"
 http://existing.base/uri/link_8.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_9.m3u8
 `
 
 	manifestFilterInAVCAndHEVC := `#EXTM3U
@@ -347,6 +369,8 @@ http://existing.base/uri/link_6.m3u8
 http://existing.base/uri/link_7.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="wvtt"
 http://existing.base/uri/link_8.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_9.m3u8
 `
 
 	manifestFilterInAVCAndDVH := `#EXTM3U
@@ -363,6 +387,8 @@ http://existing.base/uri/link_6.m3u8
 http://existing.base/uri/link_7.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="wvtt"
 http://existing.base/uri/link_8.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_9.m3u8
 `
 
 	manifestWithoutVideo := `#EXTM3U
@@ -371,6 +397,8 @@ http://existing.base/uri/link_8.m3u8
 http://existing.base/uri/link_7.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="wvtt"
 http://existing.base/uri/link_8.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_9.m3u8
 `
 
 	tests := []struct {
@@ -462,6 +490,8 @@ http://existing.base/uri/link_4.m3u8
 http://existing.base/uri/link_5.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=6000,AVERAGE-BANDWIDTH=6000,CODECS="ec-3"
 http://existing.base/uri/link_6.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_7.m3u8
 `
 
 	manifestFilterInWVTT := `#EXTM3U
@@ -474,6 +504,8 @@ http://existing.base/uri/link_4.m3u8
 http://existing.base/uri/link_5.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=6000,AVERAGE-BANDWIDTH=6000,CODECS="ec-3"
 http://existing.base/uri/link_6.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_7.m3u8
 `
 
 	manifestFilterInSTPP := `#EXTM3U
@@ -484,6 +516,8 @@ http://existing.base/uri/link_2.m3u8
 http://existing.base/uri/link_5.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=6000,AVERAGE-BANDWIDTH=6000,CODECS="ec-3"
 http://existing.base/uri/link_6.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_7.m3u8
 `
 
 	manifestWithNoCaptions := `#EXTM3U
@@ -492,8 +526,10 @@ http://existing.base/uri/link_6.m3u8
 http://existing.base/uri/link_5.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=6000,AVERAGE-BANDWIDTH=6000,CODECS="ec-3"
 http://existing.base/uri/link_6.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_7.m3u8
 `
-	// Note to self: continue here
+
 	tests := []struct {
 		name                  string
 		filters               *parsers.MediaFilters
@@ -579,6 +615,8 @@ http://existing.base/uri/link_11.m3u8
 http://existing.base/uri/link_12.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="ac-3,stpp"
 http://existing.base/uri/link_13.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_14.m3u8
 `
 
 	manifestFilterInAC3AndAVC := `#EXTM3U
@@ -593,6 +631,8 @@ http://existing.base/uri/link_3.m3u8
 http://existing.base/uri/link_11.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="ac-3,stpp"
 http://existing.base/uri/link_13.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_14.m3u8
 `
 
 	manifestFilterInAC3AndEC3AndAVC := `#EXTM3U
@@ -615,6 +655,8 @@ http://existing.base/uri/link_11.m3u8
 http://existing.base/uri/link_12.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="ac-3,stpp"
 http://existing.base/uri/link_13.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_14.m3u8
 `
 
 	manifestFilterInAC3AndWVTT := `#EXTM3U
@@ -631,6 +673,8 @@ http://existing.base/uri/link_4.m3u8
 http://existing.base/uri/link_5.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="ac-3,wvtt"
 http://existing.base/uri/link_11.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_14.m3u8
 `
 
 	manifestFilterInAC3AndAVCAndWVTT := `#EXTM3U
@@ -643,12 +687,16 @@ http://existing.base/uri/link_2.m3u8
 http://existing.base/uri/link_3.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="ac-3,wvtt"
 http://existing.base/uri/link_11.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_14.m3u8
 `
 
 	manifestNoAudioAndFilterInAVC := `#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100,AVERAGE-BANDWIDTH=1100,CODECS="avc1.77.30"
 http://existing.base/uri/link_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300
+http://existing.base/uri/link_14.m3u8
 `
 
 	tests := []struct {
@@ -739,6 +787,8 @@ http://existing.base/uri/link_7a.m3u8
 http://existing.base/uri/link_7b.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=500,AVERAGE-BANDWIDTH=500,CODECS="wvtt"
 http://existing.base/uri/link_14.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=5300,AVERAGE-BANDWIDTH=5300
+http://existing.base/uri/link_13.m3u8
 `
 
 	manifestFilter4000To6000BandwidthAndAC3 := `#EXTM3U
@@ -749,12 +799,16 @@ http://existing.base/uri/link_2.m3u8
 http://existing.base/uri/link_4.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4100,AVERAGE-BANDWIDTH=4100,CODECS="ac-3,avc1.77.30,dvh1.05.01"
 http://existing.base/uri/link_5.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=5300,AVERAGE-BANDWIDTH=5300
+http://existing.base/uri/link_13.m3u8
 `
 
 	manifestFilter4000To6000BandwidthAndDVH := `#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=5900,AVERAGE-BANDWIDTH=5900,CODECS="ac-3,ec-3"
 http://existing.base/uri/link_7b.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=5300,AVERAGE-BANDWIDTH=5300
+http://existing.base/uri/link_13.m3u8
 `
 
 	manifestFilter4000To6000BandwidthAndEC3AndAVC := `#EXTM3U
@@ -763,6 +817,8 @@ http://existing.base/uri/link_7b.m3u8
 http://existing.base/uri/link_2.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="ec-3,avc1.640029"
 http://existing.base/uri/link_6.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=5300,AVERAGE-BANDWIDTH=5300
+http://existing.base/uri/link_13.m3u8
 `
 
 	manifestFilter4000To6000BandwidthAndWVTT := `#EXTM3U
@@ -779,12 +835,16 @@ http://existing.base/uri/link_6.m3u8
 http://existing.base/uri/link_7a.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=5900,AVERAGE-BANDWIDTH=5900,CODECS="ac-3,ec-3"
 http://existing.base/uri/link_7b.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=5300,AVERAGE-BANDWIDTH=5300
+http://existing.base/uri/link_13.m3u8
 `
 
 	manifestFilter4000To6000BandwidthAndNoAudio := `#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4200,AVERAGE-BANDWIDTH=4200,CODECS="avc1.77.30"
 http://existing.base/uri/link_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=5300,AVERAGE-BANDWIDTH=5300
+http://existing.base/uri/link_13.m3u8
 `
 
 	tests := []struct {

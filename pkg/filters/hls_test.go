@@ -775,6 +775,20 @@ http://existing.base/uri/link_7b.m3u8
 http://existing.base/uri/link_6.m3u8
 `
 
+	manifestFilter4000To6000BandwidthAndWVTT := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="ac-3,hvc1.2.4.L93.90"
+http://existing.base/uri/link_4.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4100,AVERAGE-BANDWIDTH=4100,CODECS="ac-3,avc1.77.30,dvh1.05.01"
+http://existing.base/uri/link_5.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="ec-3,avc1.640029"
+http://existing.base/uri/link_6.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=6000,AVERAGE-BANDWIDTH=6000,CODECS="ac-3,avc1.77.30,ec-3"
+http://existing.base/uri/link_7a.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=5900,AVERAGE-BANDWIDTH=5900,CODECS="ac-3,ec-3"
+http://existing.base/uri/link_7b.m3u8	
+`
+
 	tests := []struct {
 		name                  string
 		filters               *parsers.MediaFilters
@@ -805,6 +819,12 @@ http://existing.base/uri/link_6.m3u8
 			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ec-3"}, Videos: []parsers.VideoType{"avc"}, MinBitrate: 4000, MaxBitrate: 6000},
 			manifestContent:       manifestWithAllCodecsAndBandwidths,
 			expectManifestContent: manifestFilter4000To6000BandwidthAndEC3AndAVC,
+		},
+		{
+			name:                  "when filtering in captions (wvtt) in bandwidth range 4000-6000, expect no variants with stpp and/or not in range",
+			filters:               &parsers.MediaFilters{CaptionTypes: []parsers.CaptionType{"wvtt"}, MinBitrate: 4000, MaxBitrate: 6000},
+			manifestContent:       manifestWithAllCodecsAndBandwidths,
+			expectManifestContent: manifestFilter4000To6000BandwidthAndWVTT,
 		},
 		// Todo: continue writing tests for this! Incorporate captions filters into the mix (start looking at the 1000-2000 range)
 	}

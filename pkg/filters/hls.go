@@ -55,6 +55,7 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 	return filteredManifest.String(), nil
 }
 
+// Returns true if specified variant passes all filters
 func (h *HLSFilter) validateVariants(filters *parsers.MediaFilters, v *m3u8.Variant) bool {
 	if filters.DefinesBitrateFilter() {
 		if !(h.validateBandwidthVariant(filters.MinBitrate, filters.MaxBitrate, v)) {
@@ -69,7 +70,7 @@ func (h *HLSFilter) validateVariants(filters *parsers.MediaFilters, v *m3u8.Vari
 		for _, at := range filters.Audios {
 			supportedAudioTypes[string(at)] = struct{}{}
 		}
-		res := validateCodecVariant(audioContentType, variantCodecs, supportedAudioTypes)
+		res := validateVariantCodecs(audioContentType, variantCodecs, supportedAudioTypes)
 		if !res {
 			return false
 		}
@@ -80,7 +81,7 @@ func (h *HLSFilter) validateVariants(filters *parsers.MediaFilters, v *m3u8.Vari
 		for _, vt := range filters.Videos {
 			supportedVideoTypes[string(vt)] = struct{}{}
 		}
-		res := validateCodecVariant(videoContentType, variantCodecs, supportedVideoTypes)
+		res := validateVariantCodecs(videoContentType, variantCodecs, supportedVideoTypes)
 		if !res {
 			return false
 		}
@@ -91,7 +92,7 @@ func (h *HLSFilter) validateVariants(filters *parsers.MediaFilters, v *m3u8.Vari
 		for _, ct := range filters.CaptionTypes {
 			supportedCaptionTypes[string(ct)] = struct{}{}
 		}
-		res := validateCodecVariant(captionContentType, variantCodecs, supportedCaptionTypes)
+		res := validateVariantCodecs(captionContentType, variantCodecs, supportedCaptionTypes)
 		if !res {
 			return false
 		}
@@ -101,22 +102,22 @@ func (h *HLSFilter) validateVariants(filters *parsers.MediaFilters, v *m3u8.Vari
 }
 
 // Returns true if the given variant (variantCodecs) should be allowed through the filter for supportedCodecs of filterType
-func validateCodecVariant(filterType ContentType, variantCodecs []string, supportedCodecs map[string]struct{}) bool {
-	var matchFilter func(string) bool
+func validateVariantCodecs(filterType ContentType, variantCodecs []string, supportedCodecs map[string]struct{}) bool {
+	var matchFilterType func(string) bool
 	typeInVariant := 0
 	matchInVariant := 0
 
 	switch {
 	case filterType == audioContentType:
-		matchFilter = isAudioCodec
+		matchFilterType = isAudioCodec
 	case filterType == videoContentType:
-		matchFilter = isVideoCodec
+		matchFilterType = isVideoCodec
 	case filterType == captionContentType:
-		matchFilter = isCaptionCodec
+		matchFilterType = isCaptionCodec
 	}
 
 	for _, codec := range variantCodecs {
-		if matchFilter(codec) {
+		if matchFilterType(codec) {
 			typeInVariant++
 			for sc := range supportedCodecs {
 				if ValidCodecs(codec, CodecFilterID(sc)) {

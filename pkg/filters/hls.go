@@ -64,73 +64,69 @@ func (h *HLSFilter) validateVariants(filters *parsers.MediaFilters, v *m3u8.Vari
 
 	variantCodecs := strings.Split(v.Codecs, ",")
 
-	// Add something about checking for supported codecs here
 	if filters.Audios != nil {
-		audioInVariant := 0
-		matchInVariant := 0
-		for _, codec := range variantCodecs {
-			if isAudioCodec(codec) {
-				audioInVariant++
-				for _, af := range filters.Audios {
-					if ValidCodecs(codec, CodecFilterID(af)) {
-						matchInVariant++
-						break
-					}
-				}
-			} else {
-				continue
-			}
+		supportedAudioTypes := map[string]struct{}{}
+		for _, at := range filters.Audios {
+			supportedAudioTypes[string(at)] = struct{}{}
 		}
-		if audioInVariant != matchInVariant {
+		res := validateCodecVariant(audioContentType, variantCodecs, supportedAudioTypes)
+		if !res {
 			return false
 		}
 	}
 
 	if filters.Videos != nil {
-		videoInVariant := 0
-		matchInVariant := 0
-		for _, codec := range variantCodecs {
-			if isVideoCodec(codec) {
-				videoInVariant++
-				for _, vf := range filters.Videos {
-					if ValidCodecs(codec, CodecFilterID(vf)) {
-						matchInVariant++
-						break
-					}
-				}
-			} else {
-				continue
-			}
+		supportedVideoTypes := map[string]struct{}{}
+		for _, vt := range filters.Videos {
+			supportedVideoTypes[string(vt)] = struct{}{}
 		}
-		if videoInVariant != matchInVariant {
+		res := validateCodecVariant(videoContentType, variantCodecs, supportedVideoTypes)
+		if !res {
 			return false
 		}
 	}
 
 	if filters.CaptionTypes != nil {
-		captionsInVariant := 0
-		matchInVariant := 0
-		for _, codec := range variantCodecs {
-			if isCaptionCodec(codec) {
-				captionsInVariant++
-				for _, cf := range filters.CaptionTypes {
-					if ValidCodecs(codec, CodecFilterID(cf)) {
-						matchInVariant++
-						break
-					}
-				}
-			} else {
-				continue
-			}
+		supportedCaptionTypes := map[string]struct{}{}
+		for _, ct := range filters.CaptionTypes {
+			supportedCaptionTypes[string(ct)] = struct{}{}
 		}
-		if captionsInVariant != matchInVariant {
+		res := validateCodecVariant(captionContentType, variantCodecs, supportedCaptionTypes)
+		if !res {
 			return false
 		}
 	}
 
-	// Must pass all these filter validations in order to be added to master manifest
-
 	return true
+}
+
+// Returns true if the given variant (variantCodecs) should be allowed through the filter for supportedCodecs of filterType
+func validateCodecVariant(filterType ContentType, variantCodecs []string, supportedCodecs map[string]struct{}) bool {
+	var matchFilter func(string) bool
+	typeInVariant := 0
+	matchInVariant := 0
+
+	switch {
+	case filterType == audioContentType:
+		matchFilter = isAudioCodec
+	case filterType == videoContentType:
+		matchFilter = isVideoCodec
+	case filterType == captionContentType:
+		matchFilter = isCaptionCodec
+	}
+
+	for _, codec := range variantCodecs {
+		if matchFilter(codec) {
+			typeInVariant++
+			for sc := range supportedCodecs {
+				if ValidCodecs(codec, CodecFilterID(sc)) {
+					matchInVariant++
+					break
+				}
+			}
+		}
+	}
+	return typeInVariant == matchInVariant
 }
 
 func (h *HLSFilter) validateBandwidthVariant(minBitrate int, maxBitrate int, v *m3u8.Variant) bool {
@@ -159,7 +155,7 @@ func isAudioCodec(codec string) bool {
 		ValidCodecs(codec, CodecFilterID("ac-3")))
 }
 
-// Returns true if given codec is a video codec (hvc, avc, dvh, or hdr10)
+// Returns true if given codec is a video codec (hvc, avc, or dvh)
 func isVideoCodec(codec string) bool {
 	return (ValidCodecs(codec, CodecFilterID("hvc")) ||
 		ValidCodecs(codec, CodecFilterID("avc")) ||

@@ -2,6 +2,7 @@ package filters
 
 import (
 	"errors"
+	"net/url"
 	"path/filepath"
 	"strings"
 
@@ -145,14 +146,52 @@ func (h *HLSFilter) validateBandwidthVariant(minBitrate int, maxBitrate int, v *
 	return true
 }
 
-func (h *HLSFilter) normalizeVariant(v *m3u8.Variant, absoluteURL string) *m3u8.Variant {
-	for _, a := range v.VariantParams.Alternatives {
-		a.URI = absoluteURL + a.URI
+func (h *HLSFilter) normalizeVariant(v *m3u8.Variant, absoluteURL string) (*m3u8.Variant, error) {
+	absolute, err := url.Parse(absoluteURL)
+	if err != nil {
+		return v, err
 	}
 
-	v.URI = absoluteURL + v.URI
+	for _, a := range v.VariantParams.Alternatives {
+		aUrl, aErr := combinedIfRelative(a.URI, absolute)
+		if aErr != nil {
+			return v, aErr
+		}
+		a.URI = aUrl
+	}
 
-	return v
+	vUrl, vErr := combinedIfRelative(v.URI, absolute)
+	if vErr != nil {
+		return v, vErr
+	}
+	v.URI = vUrl
+	return v, nil
+}
+
+func combinedIfRelative(uri string, absolute *url.URL) (string, error) {
+	if len(uri) == 0 {
+		return uri, nil
+	}
+	relative, err := isRelative(uri)
+	if err != nil {
+		return uri, err // subject to change, confirm with someone if this is right action to take
+	}
+	if relative {
+		combined, err := absolute.Parse(uri)
+		if err != nil {
+			return uri, err
+		}
+		return combined.String(), err
+	}
+	return uri, nil
+}
+
+func isRelative(urlStr string) (bool, error) {
+	u, e := url.Parse(urlStr)
+	if e == nil {
+		return !u.IsAbs(), nil
+	}
+	return false, e
 }
 
 // Returns true if given codec is an audio codec (mp4a, ec-3, or ac-3)

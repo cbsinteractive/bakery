@@ -279,6 +279,8 @@ http://existing.base/uri/link_8.m3u8
 			} else if err == nil && tt.expectErr {
 				t.Error("FilterManifest() expected an error, got nil")
 				return
+			} else if err != nil && tt.expectErr {
+				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
@@ -972,6 +974,14 @@ http://existing.base/uri/link_1.m3u8
 http://different.base/uri/link_2.m3u8
 `
 
+	manifestWithIllegalURLs := `#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://exist\ing.base/uri/illegal.mp3u8"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AU",VIDEO="VID",CLOSED-CAPTIONS="CC"
+http://existing.base/uri/link_1.m3u8
+`
+
 	tests := []struct {
 		name                  string
 		filters               *parsers.MediaFilters
@@ -1002,6 +1012,12 @@ http://different.base/uri/link_2.m3u8
 			filters:               &parsers.MediaFilters{},
 			manifestContent:       manifestWithDifferentAbsolute,
 			expectManifestContent: manifestWithDifferentAbsoluteExpected,
+		},
+		{
+			name:            "when manifest contains invalid urls, expect error to be returned",
+			filters:         &parsers.MediaFilters{},
+			manifestContent: manifestWithIllegalURLs,
+			expectErr:       true,
 		},
 	}
 

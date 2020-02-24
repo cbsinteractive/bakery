@@ -60,6 +60,11 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 		if err != nil {
 			return "", err
 		}
+		validatedFilters, err := h.validateVariants(filters, normalizedVariant)
+		if err != nil {
+			return "", err
+		}
+
 		if validatedFilters {
 			filteredManifest.Append(normalizedVariant.URI, normalizedVariant.Chunklist, normalizedVariant.VariantParams)
 		}

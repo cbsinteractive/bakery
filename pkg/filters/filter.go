@@ -27,6 +27,8 @@ const (
 	avcCodec   CodecFilterID = "avc"
 	dolbyCodec CodecFilterID = "dvh"
 	aacCodec   CodecFilterID = "mp4a"
+	ec3Codec   CodecFilterID = "ec-3"
+	ac3Codec   CodecFilterID = "ac-3"
 	stppCodec  CodecFilterID = "stpp"
 	wvttCodec  CodecFilterID = "wvtt"
 )

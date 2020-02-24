@@ -104,8 +104,7 @@ func (h *HLSFilter) validateVariants(filters *parsers.MediaFilters, v *m3u8.Vari
 // Returns true if the given variant (variantCodecs) should be allowed through the filter for supportedCodecs of filterType
 func validateVariantCodecs(filterType ContentType, variantCodecs []string, supportedCodecs map[string]struct{}) bool {
 	var matchFilterType func(string) bool
-	typeInVariant := 0
-	matchInVariant := 0
+	var typeInVariant, matchInVariant int
 
 	switch {
 	case filterType == audioContentType:
@@ -151,20 +150,20 @@ func (h *HLSFilter) normalizeVariant(v *m3u8.Variant, absoluteURL string) *m3u8.
 
 // Returns true if given codec is an audio codec (mp4a, ec-3, or ac-3)
 func isAudioCodec(codec string) bool {
-	return (ValidCodecs(codec, CodecFilterID("mp4a")) ||
-		ValidCodecs(codec, CodecFilterID("ec-3")) ||
-		ValidCodecs(codec, CodecFilterID("ac-3")))
+	return (ValidCodecs(codec, aacCodec) ||
+		ValidCodecs(codec, ec3Codec) ||
+		ValidCodecs(codec, ac3Codec))
 }
 
 // Returns true if given codec is a video codec (hvc, avc, or dvh)
 func isVideoCodec(codec string) bool {
-	return (ValidCodecs(codec, CodecFilterID("hvc")) ||
-		ValidCodecs(codec, CodecFilterID("avc")) ||
-		ValidCodecs(codec, CodecFilterID("dvh")))
+	return (ValidCodecs(codec, hevcCodec) ||
+		ValidCodecs(codec, avcCodec) ||
+		ValidCodecs(codec, dolbyCodec))
 }
 
 // Returns true if goven codec is a caption codec (stpp or wvtt)
 func isCaptionCodec(codec string) bool {
-	return (ValidCodecs(codec, CodecFilterID("stpp")) ||
-		ValidCodecs(codec, CodecFilterID("wvtt")))
+	return (ValidCodecs(codec, stppCodec) ||
+		ValidCodecs(codec, wvttCodec))
 }

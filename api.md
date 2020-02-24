@@ -12,7 +12,7 @@ Values in this filter define a whitelist of the codecs you want to <b>include</b
 
 hls | dash |
 ----|------|
-no  | yes  |
+yes  | yes  |
 
 #### Supported Values
 
@@ -72,7 +72,7 @@ Values in this filter define a whitelist of the caption types you want <b>includ
 
 hls | dash |
 ----|------|
-no  | yes  |
+yes  | yes  |
 
 #### Supported Values
 

@@ -18,6 +18,12 @@ type HLSFilter struct {
 	config          config.Config
 }
 
+var matchFunctions = map[ContentType]func(string) bool{
+	audioContentType:   isAudioCodec,
+	videoContentType:   isVideoCodec,
+	captionContentType: isCaptionCodec,
+}
+
 // NewHLSFilter is the HLS filter constructor
 func NewHLSFilter(manifestURL, manifestContent string, c config.Config) *HLSFilter {
 	return &HLSFilter{
@@ -68,12 +74,6 @@ func (h *HLSFilter) validateVariants(filters *parsers.MediaFilters, v *m3u8.Vari
 	}
 
 	variantCodecs := strings.Split(v.Codecs, ",")
-
-	matchFunctions := map[ContentType]func(string) bool{
-		audioContentType:   isAudioCodec,
-		videoContentType:   isVideoCodec,
-		captionContentType: isCaptionCodec,
-	}
 
 	if filters.Audios != nil {
 		supportedAudioTypes := map[string]struct{}{}

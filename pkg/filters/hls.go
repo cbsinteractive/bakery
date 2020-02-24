@@ -52,9 +52,11 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 
 	for _, v := range manifest.Variants {
 		absoluteURL, _ := filepath.Split(h.manifestURL)
-
-		normalizedVariant := h.normalizeVariant(v, absoluteURL)
-		validatedFilters, err := h.validateVariants(filters, normalizedVariant)
+		absolute, aErr := url.Parse(absoluteURL)
+		if aErr != nil {
+			return h.manifestContent, aErr
+		}
+		normalizedVariant, err := h.normalizeVariant(v, *absolute)
 		if err != nil {
 			return "", err
 		}
@@ -146,11 +148,7 @@ func (h *HLSFilter) validateBandwidthVariant(minBitrate int, maxBitrate int, v *
 	return true
 }
 
-func (h *HLSFilter) normalizeVariant(v *m3u8.Variant, absoluteURL string) (*m3u8.Variant, error) {
-	absolute, err := url.Parse(absoluteURL)
-	if err != nil {
-		return v, err
-	}
+func (h *HLSFilter) normalizeVariant(v *m3u8.Variant, absolute url.URL) (*m3u8.Variant, error) {
 
 	for _, a := range v.VariantParams.Alternatives {
 		aUrl, aErr := combinedIfRelative(a.URI, absolute)
@@ -168,7 +166,7 @@ func (h *HLSFilter) normalizeVariant(v *m3u8.Variant, absoluteURL string) (*m3u8
 	return v, nil
 }
 
-func combinedIfRelative(uri string, absolute *url.URL) (string, error) {
+func combinedIfRelative(uri string, absolute url.URL) (string, error) {
 	if len(uri) == 0 {
 		return uri, nil
 	}

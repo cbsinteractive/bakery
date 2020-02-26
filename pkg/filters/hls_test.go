@@ -1077,7 +1077,7 @@ http://existi\ng.base/uri/link_1.m3u8
 	for _, tt := range badBaseManifestTest {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			filter := NewHLSFilter("existing.base/uri/manifest_link.m3u8", tt.manifestContent, config.Config{})
+			filter := NewHLSFilter("existi\ng.base/uri/manifest_link.m3u8", tt.manifestContent, config.Config{})
 			manifest, err := filter.FilterManifest(tt.filters)
 			if err != nil && !tt.expectErr {
 				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)

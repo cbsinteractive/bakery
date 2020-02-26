@@ -974,12 +974,20 @@ http://existing.base/uri/link_1.m3u8
 http://different.base/uri/link_2.m3u8
 `
 
-	manifestWithIllegalURLs := `#EXTM3U
+	manifestWithIllegalAlternativeURLs := `#EXTM3U
 #EXT-X-VERSION:4
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
 #EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://exist\ing.base/uri/illegal.mp3u8"
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AU",VIDEO="VID",CLOSED-CAPTIONS="CC"
 http://existing.base/uri/link_1.m3u8
+`
+
+	manifestWithIllegalVariantURLs := `#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="\nillegal.mp3u8"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AU",VIDEO="VID",CLOSED-CAPTIONS="CC"
+http://existi\ng.base/uri/link_1.m3u8
 `
 
 	tests := []struct {
@@ -1014,9 +1022,15 @@ http://existing.base/uri/link_1.m3u8
 			expectManifestContent: manifestWithDifferentAbsoluteExpected,
 		},
 		{
-			name:            "when manifest contains invalid urls, expect error to be returned",
+			name:            "when manifest contains invalid absolute urls, expect error to be returned",
 			filters:         &parsers.MediaFilters{},
-			manifestContent: manifestWithIllegalURLs,
+			manifestContent: manifestWithIllegalAlternativeURLs,
+			expectErr:       true,
+		},
+		{
+			name:            "when manifest contains invalid relative urls, expect error to be returned",
+			filters:         &parsers.MediaFilters{},
+			manifestContent: manifestWithIllegalVariantURLs,
 			expectErr:       true,
 		},
 	}
@@ -1033,6 +1047,8 @@ http://existing.base/uri/link_1.m3u8
 			} else if err == nil && tt.expectErr {
 				t.Error("FilterManifest() expected an error, got nil")
 				return
+			} else if err != nil && tt.expectErr {
+				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
@@ -1040,6 +1056,43 @@ http://existing.base/uri/link_1.m3u8
 					cmp.Diff(g, e))
 			}
 
+		})
+	}
+
+	badBaseManifestTest := []struct {
+		name                  string
+		filters               *parsers.MediaFilters
+		manifestContent       string
+		expectManifestContent string
+		expectErr             bool
+	}{
+		{
+			name:            "when link to manifest is invalid, expect error",
+			filters:         &parsers.MediaFilters{},
+			manifestContent: manifestWithRelativeOnly,
+			expectErr:       true,
+		},
+	}
+
+	for _, tt := range badBaseManifestTest {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			filter := NewHLSFilter("existing.base/uri/manifest_link.m3u8", tt.manifestContent, config.Config{})
+			manifest, err := filter.FilterManifest(tt.filters)
+			if err != nil && !tt.expectErr {
+				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				return
+			} else if err == nil && tt.expectErr {
+				t.Error("FilterManifest() expected an error, got nil")
+				return
+			} else if err != nil && tt.expectErr {
+				return
+			}
+
+			if g, e := manifest, tt.expectManifestContent; g != e {
+				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+					cmp.Diff(g, e))
+			}
 		})
 	}
 }

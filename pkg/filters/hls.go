@@ -154,7 +154,6 @@ func (h *HLSFilter) validateBandwidthVariant(minBitrate int, maxBitrate int, v *
 }
 
 func (h *HLSFilter) normalizeVariant(v *m3u8.Variant, absolute url.URL) (*m3u8.Variant, error) {
-
 	for _, a := range v.VariantParams.Alternatives {
 		aUrl, aErr := combinedIfRelative(a.URI, absolute)
 		if aErr != nil {
@@ -177,7 +176,7 @@ func combinedIfRelative(uri string, absolute url.URL) (string, error) {
 	}
 	relative, err := isRelative(uri)
 	if err != nil {
-		return uri, err // subject to change, confirm with someone if this is right action to take
+		return uri, err
 	}
 	if relative {
 		combined, err := absolute.Parse(uri)

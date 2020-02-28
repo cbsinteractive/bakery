@@ -190,10 +190,10 @@ func combinedIfRelative(uri string, absolute url.URL) (string, error) {
 
 func isRelative(urlStr string) (bool, error) {
 	u, e := url.Parse(urlStr)
-	if e == nil {
-		return !u.IsAbs(), nil
+	if e != nil {
+		return false, e
 	}
-	return false, e
+	return !u.IsAbs(), nil
 }
 
 // Returns true if given codec is an audio codec (mp4a, ec-3, or ac-3)

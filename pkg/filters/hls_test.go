@@ -172,7 +172,7 @@ http://existing.base/uri/link_7.m3u8
 http://existing.base/uri/link_8.m3u8
 `
 
-	manifestFilterInEC3AndAC3 := `#EXTM3U
+	manifestFilterWithoutMP4A := `#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="ec-3"
 http://existing.base/uri/link_1.m3u8
@@ -190,7 +190,7 @@ http://existing.base/uri/link_7.m3u8
 http://existing.base/uri/link_8.m3u8
 `
 
-	manifestFilterInEC3AndMP4A := `#EXTM3U
+	manifestFilterWithoutAC3 := `#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="ec-3"
 http://existing.base/uri/link_1.m3u8
@@ -224,40 +224,40 @@ http://existing.base/uri/link_8.m3u8
 		expectErr             bool
 	}{
 		{
-			name:                  "when given empty audio filter list, expect variants with ac-3, ec-3 and/or mp4a to be stripped out",
-			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{}},
+			name:                  "when all audio codecs are supplies, expect audio to be stripped out",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"mp4a", "ec-3", "ac-3"}},
 			manifestContent:       manifestWithAllAudio,
 			expectManifestContent: manifestWithoutAudio,
 		},
 		{
-			name:                  "when filtering in ec-3, expect variants with ac-3 and/or mp4a to be stripped out",
-			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ec-3"}},
+			name:                  "when filtering in ac-3 and mp4a, expect variants with ac-3 and/or mp4a to be stripped out",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ac-3", "mp4a"}},
 			manifestContent:       manifestWithAllAudio,
 			expectManifestContent: manifestFilterInEC3,
 		},
 		{
-			name:                  "when filtering in ac-3, expect variants with ec-3 and/or mp4a to be stripped out",
+			name:                  "when filtering in ac-3, expect variants with ac-3 to be stripped out",
 			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ac-3"}},
 			manifestContent:       manifestWithAllAudio,
-			expectManifestContent: manifestFilterInAC3,
+			expectManifestContent: manifestFilterWithoutAC3,
 		},
 		{
-			name:                  "when filtering in mp4a, expect variants with ec-3 and/or ac-3 to be stripped out",
+			name:                  "when filtering in mp4a, expect variants with mp4a to be stripped out",
 			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"mp4a"}},
+			manifestContent:       manifestWithAllAudio,
+			expectManifestContent: manifestFilterWithoutMP4A,
+		},
+		{
+			name:                  "when filtering in ec-3 and ac-3, expect variants with ec-3 and ac-3 to be stripped out",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ec-3", "ac-3"}},
 			manifestContent:       manifestWithAllAudio,
 			expectManifestContent: manifestFilterInMP4A,
 		},
 		{
-			name:                  "when filtering in ec-3 and ac-3, expect variants with mp4a to be stripped out",
-			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ec-3", "ac-3"}},
-			manifestContent:       manifestWithAllAudio,
-			expectManifestContent: manifestFilterInEC3AndAC3,
-		},
-		{
-			name:                  "when filtering in ec-3 and mp4a, expect variants with ac-3 to be stripped out",
+			name:                  "when filtering in ec-3 and mp4a, expect variants with ec-3 and/or mp4a to be stripped out",
 			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ec-3", "mp4a"}},
 			manifestContent:       manifestWithAllAudio,
-			expectManifestContent: manifestFilterInEC3AndMP4A,
+			expectManifestContent: manifestFilterInAC3,
 		},
 		{
 			name:                  "when no audio filters are given, expect unfiltered manifest",
@@ -315,14 +315,12 @@ http://existing.base/uri/link_8.m3u8
 http://existing.base/uri/link_9.m3u8
 `
 
-	manifestFilterInAVC := `#EXTM3U
+	manifestFilterWithoutAVC := `#EXTM3U
 #EXT-X-VERSION:3
-#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="avc1.640020"
-http://existing.base/uri/link_1.m3u8
-#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100,AVERAGE-BANDWIDTH=1100,CODECS="avc1.77.30"
-http://existing.base/uri/link_2.m3u8
-#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=6000,AVERAGE-BANDWIDTH=6000,CODECS="avc1.77.30,ec-3"
-http://existing.base/uri/link_6.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="hvc1.2.4.L93.90"
+http://existing.base/uri/link_3.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="dvh1.05.01"
+http://existing.base/uri/link_4.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1500,AVERAGE-BANDWIDTH=1500,CODECS="ec-3"
 http://existing.base/uri/link_7.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1300,AVERAGE-BANDWIDTH=1300,CODECS="wvtt"
@@ -331,7 +329,7 @@ http://existing.base/uri/link_8.m3u8
 http://existing.base/uri/link_9.m3u8
 `
 
-	manifestFilterInHEVC := `#EXTM3U
+	manifestFilterWithoutAVCAndDVH := `#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="hvc1.2.4.L93.90"
 http://existing.base/uri/link_3.m3u8
@@ -343,7 +341,7 @@ http://existing.base/uri/link_8.m3u8
 http://existing.base/uri/link_9.m3u8
 `
 
-	manifestFilterInDVH := `#EXTM3U
+	manifestFilterWithoutAVCAndHEVC := `#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="dvh1.05.01"
 http://existing.base/uri/link_4.m3u8
@@ -355,7 +353,7 @@ http://existing.base/uri/link_8.m3u8
 http://existing.base/uri/link_9.m3u8
 `
 
-	manifestFilterInAVCAndHEVC := `#EXTM3U
+	manifestFilterWithoutDVH := `#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="avc1.640020"
 http://existing.base/uri/link_1.m3u8
@@ -375,7 +373,7 @@ http://existing.base/uri/link_8.m3u8
 http://existing.base/uri/link_9.m3u8
 `
 
-	manifestFilterInAVCAndDVH := `#EXTM3U
+	manifestFilterWithoutHEVC := `#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="avc1.640020"
 http://existing.base/uri/link_1.m3u8
@@ -411,40 +409,40 @@ http://existing.base/uri/link_9.m3u8
 		expectErr             bool
 	}{
 		{
-			name:                  "when given empty video filter list, expect variants with avc, hevc, and/or dvh to be stripped out",
-			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{}},
+			name:                  "when all video codecs are supllied, expect variants with avc, hevc, and/or dvh to be stripped out",
+			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{"avc", "hvc", "dvh"}},
 			manifestContent:       manifestWithAllVideo,
 			expectManifestContent: manifestWithoutVideo,
 		},
 		{
-			name:                  "when filtering in avc, expect variants with hevc and/or dvh to be stripped out",
+			name:                  "when filtering in avc, expect variants with avc to be stripped out",
 			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{"avc"}},
 			manifestContent:       manifestWithAllVideo,
-			expectManifestContent: manifestFilterInAVC,
+			expectManifestContent: manifestFilterWithoutAVC,
 		},
 		{
-			name:                  "when filtering in hevc, expect variants with avc and/or hevc to be stripped out",
+			name:                  "when filtering in hevc, expect hevc to be stripped out",
 			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{"hvc"}},
 			manifestContent:       manifestWithAllVideo,
-			expectManifestContent: manifestFilterInHEVC,
+			expectManifestContent: manifestFilterWithoutHEVC,
 		},
 		{
-			name:                  "when filtering in dvh, expect variants with avc and/or hevc to be stripped out",
+			name:                  "when filtering in dvh, expect dvh to be stripped out",
 			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{"dvh"}},
 			manifestContent:       manifestWithAllVideo,
-			expectManifestContent: manifestFilterInDVH,
+			expectManifestContent: manifestFilterWithoutDVH,
 		},
 		{
-			name:                  "when filtering in avc and hevc, expect variants with dvh to be stripped out",
+			name:                  "when filtering in avc and hevc, expect variants with avc and hevc to be stripped out",
 			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{"avc", "hvc"}},
 			manifestContent:       manifestWithAllVideo,
-			expectManifestContent: manifestFilterInAVCAndHEVC,
+			expectManifestContent: manifestFilterWithoutAVCAndHEVC,
 		},
 		{
-			name:                  "when filtering in avc and dvh, expect variants with hevc to be stripped out",
+			name:                  "when filtering in avc and dvh, expect variants with avc and dvh to be stripped out",
 			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{"avc", "dvh"}},
 			manifestContent:       manifestWithAllVideo,
-			expectManifestContent: manifestFilterInAVCAndDVH,
+			expectManifestContent: manifestFilterWithoutAVCAndDVH,
 		},
 		{
 			name:                  "when no video filters are given, expect unfiltered manifest",
@@ -496,7 +494,7 @@ http://existing.base/uri/link_6.m3u8
 http://existing.base/uri/link_7.m3u8
 `
 
-	manifestFilterInWVTT := `#EXTM3U
+	manifestFilterWithoutSTPP := `#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="wvtt"
 http://existing.base/uri/link_1.m3u8
@@ -510,7 +508,7 @@ http://existing.base/uri/link_6.m3u8
 http://existing.base/uri/link_7.m3u8
 `
 
-	manifestFilterInSTPP := `#EXTM3U
+	manifestFilterWithoutWVTT := `#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100,AVERAGE-BANDWIDTH=1100,CODECS="stpp"
 http://existing.base/uri/link_2.m3u8
@@ -540,22 +538,22 @@ http://existing.base/uri/link_7.m3u8
 		expectErr             bool
 	}{
 		{
-			name:                  "when given empty caption filter list, expect variants with captions to be stripped out",
-			filters:               &parsers.MediaFilters{CaptionTypes: []parsers.CaptionType{}},
+			name:                  "when all caption filters are supplied, expect all caption variants with captions to be stripped out",
+			filters:               &parsers.MediaFilters{CaptionTypes: []parsers.CaptionType{"stpp", "wvtt"}},
 			manifestContent:       manifestWithAllCaptions,
 			expectManifestContent: manifestWithNoCaptions,
 		},
 		{
-			name:                  "when filtering in wvtt, expect variants with stpp to be stripped out",
+			name:                  "when filtering in wvtt, expect variants with wvtt to be stripped out",
 			filters:               &parsers.MediaFilters{CaptionTypes: []parsers.CaptionType{"wvtt"}},
 			manifestContent:       manifestWithAllCaptions,
-			expectManifestContent: manifestFilterInWVTT,
+			expectManifestContent: manifestFilterWithoutWVTT,
 		},
 		{
 			name:                  "when filtering in stpp, expect variants with wvtt to be stripped out",
 			filters:               &parsers.MediaFilters{CaptionTypes: []parsers.CaptionType{"stpp"}},
 			manifestContent:       manifestWithAllCaptions,
-			expectManifestContent: manifestFilterInSTPP,
+			expectManifestContent: manifestFilterWithoutSTPP,
 		},
 		{
 			name:                  "when no caption filter is given, expect original manifest",
@@ -709,38 +707,38 @@ http://existing.base/uri/link_14.m3u8
 		expectErr             bool
 	}{
 		{
-			name:                  "when no filters are given, expect original manifest",
+			name:                  "when empty filters are given, expect original manifest",
 			filters:               &parsers.MediaFilters{},
 			manifestContent:       manifestWithAllCodecs,
 			expectManifestContent: manifestWithAllCodecs,
 		},
 		{
-			name:                  "when filtering in audio (ac-3) and video (avc), expect variants with ec-3, mp4a, hevc, and/or dvh to be stripped out",
-			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ac-3"}, Videos: []parsers.VideoType{"avc"}},
+			name:                  "when filtering out audio (ec-3 and mp4a) and video (hevc and dvh), expect variants with ec-3, mp4a, hevc, and/or dvh to be stripped out",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ec-3", "mp4a"}, Videos: []parsers.VideoType{"hvc", "dvh"}},
 			manifestContent:       manifestWithAllCodecs,
 			expectManifestContent: manifestFilterInAC3AndAVC,
 		},
 		{
-			name:                  "when filtering in audio (ac-3, ec-3) and video (avc), expect variants with mp4a, hevc, and/or dvh to be stripped out",
-			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ac-3", "ec-3"}, Videos: []parsers.VideoType{"avc"}},
+			name:                  "when filtering out audio (mp4a) and video (hevc and dvh), expect variants with mp4a, hevc, and/or dvh to be stripped out",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"mp4a"}, Videos: []parsers.VideoType{"hvc", "dvh"}},
 			manifestContent:       manifestWithAllCodecs,
 			expectManifestContent: manifestFilterInAC3AndEC3AndAVC,
 		},
 		{
-			name:                  "when filtering in audio (ac-3) and captions (wvtt), expect variants with ec-3, mp4a, and/or stpp to be stripped out",
-			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ac-3"}, CaptionTypes: []parsers.CaptionType{"wvtt"}},
+			name:                  "when filtering out audio (ec-3 and mp4a) and captions (stpp), expect variants with ec-3, mp4a, and/or stpp to be stripped out",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ec-3", "mp4a"}, CaptionTypes: []parsers.CaptionType{"stpp"}},
 			manifestContent:       manifestWithAllCodecs,
 			expectManifestContent: manifestFilterInAC3AndWVTT,
 		},
 		{
-			name:                  "when filtering in audio (ac-3), video (avc), and captions (wvtt), expect variants with ec-3, mp4a, hevc, dvh, and/or stpp to be stripped out",
-			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ac-3"}, Videos: []parsers.VideoType{"avc"}, CaptionTypes: []parsers.CaptionType{"wvtt"}},
+			name:                  "when filtering out audio (ec-3 and mp4a), video (hevc and dvh), and captions (stpp), expect variants with ec-3, mp4a, hevc, dvh, and/or stpp to be stripped out",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ec-3", "mp4a"}, Videos: []parsers.VideoType{"hvc", "dvh"}, CaptionTypes: []parsers.CaptionType{"stpp"}},
 			manifestContent:       manifestWithAllCodecs,
 			expectManifestContent: manifestFilterInAC3AndAVCAndWVTT,
 		},
 		{
-			name:                  "when filtering out all audio and filtering in video (avc), expect variants with ac-3, ec-3, mp4a, hevc, and/or dvh to be stripped out",
-			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{}, Videos: []parsers.VideoType{"avc"}},
+			name:                  "when filtering out all codecs except avc video, expect variants with ac-3, ec-3, mp4a, hevc, and/or dvh to be stripped out",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ac-3", "ec-3", "mp4a"}, Videos: []parsers.VideoType{"hvc", "dvh"}, CaptionTypes: []parsers.CaptionType{"wvtt", "stpp"}},
 			manifestContent:       manifestWithAllCodecs,
 			expectManifestContent: manifestNoAudioAndFilterInAVC,
 		},
@@ -863,32 +861,32 @@ http://existing.base/uri/link_13.m3u8
 			expectManifestContent: manifestWithAllCodecsAndBandwidths,
 		},
 		{
-			name:                  "when filtering in audio (ac-3) in bandwidth range 4000-6000, expect variants with ec-3, mp4a, and/or not in range to be stripped out",
-			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ac-3"}, MinBitrate: 4000, MaxBitrate: 6000},
+			name:                  "when filtering out audio (ec-3) in bandwidth range 4000-6000, expect variants with ec-3, mp4a, and/or not in range to be stripped out",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ec-3"}, MinBitrate: 4000, MaxBitrate: 6000},
 			manifestContent:       manifestWithAllCodecsAndBandwidths,
 			expectManifestContent: manifestFilter4000To6000BandwidthAndAC3,
 		},
 		{
-			name:                  "when filtering in video (dvh) in bandwidth range 4000-6000, expect variants with avc, hevc, and/or not in range to be stripped out",
-			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{"dvh"}, MinBitrate: 4000, MaxBitrate: 6000},
+			name:                  "when filtering out video (avc and hevc) in bandwidth range 4000-6000, expect variants with avc, hevc, and/or not in range to be stripped out",
+			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{"avc", "hvc"}, MinBitrate: 4000, MaxBitrate: 6000},
 			manifestContent:       manifestWithAllCodecsAndBandwidths,
 			expectManifestContent: manifestFilter4000To6000BandwidthAndDVH,
 		},
 		{
-			name:                  "when filtering in audio (ec-3) and video (avc) in bandwidth range 4000-6000, expect variants with ac-3, mp4a, hevc, dvh, and/or not in range to be stripped out",
-			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ec-3"}, Videos: []parsers.VideoType{"avc"}, MinBitrate: 4000, MaxBitrate: 6000},
+			name:                  "when filtering in audio (ac-3, mp4a) and video (hevc and dvh) in bandwidth range 4000-6000, expect variants with ac-3, mp4a, hevc, dvh, and/or not in range to be stripped out",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ac-3", "mp4a"}, Videos: []parsers.VideoType{"hvc", "dvh"}, MinBitrate: 4000, MaxBitrate: 6000},
 			manifestContent:       manifestWithAllCodecsAndBandwidths,
 			expectManifestContent: manifestFilter4000To6000BandwidthAndEC3AndAVC,
 		},
 		{
-			name:                  "when filtering in captions (wvtt) in bandwidth range 4000-6000, expect variants with stpp and/or not in range to be stripped out",
-			filters:               &parsers.MediaFilters{CaptionTypes: []parsers.CaptionType{"wvtt"}, MinBitrate: 4000, MaxBitrate: 6000},
+			name:                  "when filtering out captions (stpp) in bandwidth range 4000-6000, expect variants with stpp and/or not in range to be stripped out",
+			filters:               &parsers.MediaFilters{CaptionTypes: []parsers.CaptionType{"stpp"}, MinBitrate: 4000, MaxBitrate: 6000},
 			manifestContent:       manifestWithAllCodecsAndBandwidths,
 			expectManifestContent: manifestFilter4000To6000BandwidthAndWVTT,
 		},
 		{
 			name:                  "when filtering out audio and filtering in bandwidth range 4000-6000, expect variants with ac-3, ec-3, mp4a, and/or not in range to be stripped out",
-			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{}, MinBitrate: 4000, MaxBitrate: 6000},
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ac-3", "ec-3", "mp4a"}, MinBitrate: 4000, MaxBitrate: 6000},
 			manifestContent:       manifestWithAllCodecsAndBandwidths,
 			expectManifestContent: manifestFilter4000To6000BandwidthAndNoAudio,
 		},

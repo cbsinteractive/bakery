@@ -66,8 +66,10 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 		}
 
 		if validatedFilters {
-			filteredManifest.Append(normalizedVariant.URI, normalizedVariant.Chunklist, normalizedVariant.VariantParams)
+			continue
 		}
+
+		filteredManifest.Append(normalizedVariant.URI, normalizedVariant.Chunklist, normalizedVariant.VariantParams)
 	}
 
 	return filteredManifest.String(), nil
@@ -77,7 +79,7 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 func (h *HLSFilter) validateVariants(filters *parsers.MediaFilters, v *m3u8.Variant) (bool, error) {
 	if filters.DefinesBitrateFilter() {
 		if !(h.validateBandwidthVariant(filters.MinBitrate, filters.MaxBitrate, v)) {
-			return false, nil
+			return true, nil
 		}
 	}
 
@@ -89,8 +91,8 @@ func (h *HLSFilter) validateVariants(filters *parsers.MediaFilters, v *m3u8.Vari
 			supportedAudioTypes[string(at)] = struct{}{}
 		}
 		res, err := validateVariantCodecs(audioContentType, variantCodecs, supportedAudioTypes, matchFunctions)
-		if !res {
-			return false, err
+		if res {
+			return true, err
 		}
 	}
 
@@ -100,8 +102,8 @@ func (h *HLSFilter) validateVariants(filters *parsers.MediaFilters, v *m3u8.Vari
 			supportedVideoTypes[string(vt)] = struct{}{}
 		}
 		res, err := validateVariantCodecs(videoContentType, variantCodecs, supportedVideoTypes, matchFunctions)
-		if !res {
-			return false, err
+		if res {
+			return true, err
 		}
 	}
 
@@ -111,18 +113,17 @@ func (h *HLSFilter) validateVariants(filters *parsers.MediaFilters, v *m3u8.Vari
 			supportedCaptionTypes[string(ct)] = struct{}{}
 		}
 		res, err := validateVariantCodecs(captionContentType, variantCodecs, supportedCaptionTypes, matchFunctions)
-		if !res {
-			return false, err
+		if res {
+			return true, err
 		}
 	}
 
-	return true, nil
+	return false, nil
 }
 
 // Returns true if the given variant (variantCodecs) should be allowed through the filter for supportedCodecs of filterType
 func validateVariantCodecs(filterType ContentType, variantCodecs []string, supportedCodecs map[string]struct{}, supportedFilterTypes map[ContentType]func(string) bool) (bool, error) {
 	var matchFilterType func(string) bool
-	var typeInVariant, matchInVariant int
 
 	matchFilterType, found := supportedFilterTypes[filterType]
 
@@ -130,18 +131,19 @@ func validateVariantCodecs(filterType ContentType, variantCodecs []string, suppo
 		return false, errors.New("filter type is unsupported")
 	}
 
+	variantFound := false
 	for _, codec := range variantCodecs {
 		if matchFilterType(codec) {
-			typeInVariant++
 			for sc := range supportedCodecs {
 				if ValidCodecs(codec, CodecFilterID(sc)) {
-					matchInVariant++
+					variantFound = true
 					break
 				}
 			}
 		}
 	}
-	return typeInVariant == matchInVariant, nil
+
+	return variantFound, nil
 }
 
 func (h *HLSFilter) validateBandwidthVariant(minBitrate int, maxBitrate int, v *m3u8.Variant) bool {
@@ -155,18 +157,18 @@ func (h *HLSFilter) validateBandwidthVariant(minBitrate int, maxBitrate int, v *
 
 func (h *HLSFilter) normalizeVariant(v *m3u8.Variant, absolute url.URL) (*m3u8.Variant, error) {
 	for _, a := range v.VariantParams.Alternatives {
-		aUrl, aErr := combinedIfRelative(a.URI, absolute)
+		aURL, aErr := combinedIfRelative(a.URI, absolute)
 		if aErr != nil {
 			return v, aErr
 		}
-		a.URI = aUrl
+		a.URI = aURL
 	}
 
-	vUrl, vErr := combinedIfRelative(v.URI, absolute)
+	vURL, vErr := combinedIfRelative(v.URI, absolute)
 	if vErr != nil {
 		return v, vErr
 	}
-	v.URI = vUrl
+	v.URI = vURL
 	return v, nil
 }
 

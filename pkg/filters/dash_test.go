@@ -109,7 +109,7 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 </MPD>
 `
 
-	manifestWithHEVCAndAVCVideoCodec := `<?xml version="1.0" encoding="UTF-8"?>
+	manifestWithoutDolbyVisionCodec := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
   <Period>
@@ -132,7 +132,7 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 </MPD>
 `
 
-	manifestWithDolbyVideoVisionCodec := `<?xml version="1.0" encoding="UTF-8"?>
+	manifestWithoutHEVCAndAVCVideoCodec := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
   <Period>
@@ -150,7 +150,7 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 </MPD>
 `
 
-	manifestWithHEVCVideoCodec := `<?xml version="1.0" encoding="UTF-8"?>
+	manifestWithoutAVCVideoCodec := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
   <Period>
@@ -160,27 +160,35 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
       <Representation bandwidth="256" codecs="hvc1.2.4.L120.90" id="2"></Representation>
       <Representation bandwidth="256" codecs="hvc1.2.4.L63.90" id="3"></Representation>
     </AdaptationSet>
-    <AdaptationSet id="1" lang="en" contentType="audio">
+    <AdaptationSet id="1" lang="en" contentType="video">
+      <Representation bandwidth="256" codecs="dvh1.05.01" id="0"></Representation>
+      <Representation bandwidth="256" codecs="dvh1.05.03" id="1"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="2" lang="en" contentType="audio">
       <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
     </AdaptationSet>
-    <AdaptationSet id="2" lang="en" contentType="text">
+    <AdaptationSet id="3" lang="en" contentType="text">
       <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
     </AdaptationSet>
   </Period>
 </MPD>
 `
 
-	manifestWithAVCVideoCodec := `<?xml version="1.0" encoding="UTF-8"?>
+	manifestWithoutHEVCVideoCodec := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
   <Period>
     <AdaptationSet id="0" lang="en" contentType="video">
+      <Representation bandwidth="256" codecs="dvh1.05.01" id="0"></Representation>
+      <Representation bandwidth="256" codecs="dvh1.05.03" id="1"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="video">
       <Representation bandwidth="256" codecs="avc1.640028" id="0"></Representation>
     </AdaptationSet>
-    <AdaptationSet id="1" lang="en" contentType="audio">
+    <AdaptationSet id="2" lang="en" contentType="audio">
       <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
     </AdaptationSet>
-    <AdaptationSet id="2" lang="en" contentType="text">
+    <AdaptationSet id="3" lang="en" contentType="text">
       <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
     </AdaptationSet>
   </Period>
@@ -209,34 +217,34 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 		expectErr             bool
 	}{
 		{
-			name:                  "when an empty video filter list is supplied, video is stripped from a manifest",
-			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{}},
+			name:                  "when all video codecs are supplied, all video is stripped from a manifest",
+			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{"hvc", "avc", "dvh"}},
 			manifestContent:       manifestWithMultiVideoCodec,
 			expectManifestContent: manifestWithoutVideo,
 		},
 		{
-			name:                  "when a video filter is supplied with HEVC and AVC, all video except for HEVC and AVC is stripped",
+			name:                  "when a video filter is supplied with HEVC and AVC, HEVC and AVC is stripped from manifest",
 			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{"hvc", "avc"}},
 			manifestContent:       manifestWithMultiVideoCodec,
-			expectManifestContent: manifestWithHEVCAndAVCVideoCodec,
+			expectManifestContent: manifestWithoutHEVCAndAVCVideoCodec,
 		},
 		{
-			name:                  "when a video filter is suplied with Dolby Vision ID, all video except for dolby vision is stripped",
+			name:                  "when a video filter is suplied with Dolby Vision ID, dolby vision is stripped from manifest",
 			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{"dvh"}},
 			manifestContent:       manifestWithMultiVideoCodec,
-			expectManifestContent: manifestWithDolbyVideoVisionCodec,
+			expectManifestContent: manifestWithoutDolbyVisionCodec,
 		},
 		{
-			name:                  "when a video filter is suplied with HEVC ID, all video except for HEVC is stripped",
+			name:                  "when a video filter is suplied with HEVC ID, HEVC is stripped from manifest",
 			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{"hvc"}},
 			manifestContent:       manifestWithMultiVideoCodec,
-			expectManifestContent: manifestWithHEVCVideoCodec,
+			expectManifestContent: manifestWithoutHEVCVideoCodec,
 		},
 		{
-			name:                  "when a video filter is suplied with AVC, all video except for AVC is stripped",
+			name:                  "when a video filter is suplied with AVC, AVC is stripped from manifest",
 			filters:               &parsers.MediaFilters{Videos: []parsers.VideoType{"avc"}},
 			manifestContent:       manifestWithMultiVideoCodec,
-			expectManifestContent: manifestWithAVCVideoCodec,
+			expectManifestContent: manifestWithoutAVCVideoCodec,
 		},
 		{
 			name:                  "when no video filters are supplied, nothing is stripped from manifest",
@@ -284,7 +292,7 @@ func TestDASHFilter_FilterManifest_audioCodecs(t *testing.T) {
 </MPD>
 `
 
-	manifestWithEAC3AudioCodec := `<?xml version="1.0" encoding="UTF-8"?>
+	manifestWithoutAC3AudioCodec := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
   <Period>
@@ -298,7 +306,7 @@ func TestDASHFilter_FilterManifest_audioCodecs(t *testing.T) {
 </MPD>
 `
 
-	manifestWithAC3AudioCodec := `<?xml version="1.0" encoding="UTF-8"?>
+	manifestWithoutEAC3AudioCodec := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
   <Period>
@@ -331,22 +339,22 @@ func TestDASHFilter_FilterManifest_audioCodecs(t *testing.T) {
 		expectErr             bool
 	}{
 		{
-			name:                  "when an empty audio filter list is supplied, audio is stripped from a manifest",
-			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{}},
+			name:                  "when all codecs are applied, audio is stripped from a manifest",
+			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ac-3", "ec-3"}},
 			manifestContent:       manifestWithEAC3AndAC3AudioCodec,
 			expectManifestContent: manifestWithoutAudio,
 		},
 		{
-			name:                  "when an audio filter is supplied with Enhanced AC-3 codec, AC-3 is stripped out",
+			name:                  "when an audio filter is supplied with Enhanced AC-3 codec, Enhanced AC-3 is stripped out",
 			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ec-3"}},
 			manifestContent:       manifestWithEAC3AndAC3AudioCodec,
-			expectManifestContent: manifestWithEAC3AudioCodec,
+			expectManifestContent: manifestWithoutEAC3AudioCodec,
 		},
 		{
-			name:                  "when an audio filter is supplied with AC-3 codec, Enhanced AC-3 is stripped out",
+			name:                  "when an audio filter is supplied with AC-3 codec, AC-3 is stripped out",
 			filters:               &parsers.MediaFilters{Audios: []parsers.AudioType{"ac-3"}},
 			manifestContent:       manifestWithEAC3AndAC3AudioCodec,
-			expectManifestContent: manifestWithAC3AudioCodec,
+			expectManifestContent: manifestWithoutAC3AudioCodec,
 		},
 		{
 			name:                  "when no audio filters are supplied, nothing is stripped from manifest",
@@ -391,7 +399,7 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 </MPD>
 `
 
-	manifestWithWVTTCaptions := `<?xml version="1.0" encoding="UTF-8"?>
+	manifestWithoutSTPPCaptions := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
   <Period>
@@ -402,7 +410,7 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 </MPD>
 `
 
-	manifestWithSTPPCaptions := `<?xml version="1.0" encoding="UTF-8"?>
+	manifestWithoutWVTTCaptions := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
   <Period>
@@ -428,9 +436,9 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 		expectErr             bool
 	}{
 		{
-			name: "when an empty caption type filter list is supplied, captions are stripped from a " +
+			name: "when all caption types are supplied, captions are stripped from a " +
 				"manifest",
-			filters:               &parsers.MediaFilters{CaptionTypes: []parsers.CaptionType{}},
+			filters:               &parsers.MediaFilters{CaptionTypes: []parsers.CaptionType{"stpp", "wvtt"}},
 			manifestContent:       manifestWithWVTTAndSTPPCaptions,
 			expectManifestContent: manifestWithoutCaptions,
 		},
@@ -439,14 +447,14 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 				"filtered out",
 			filters:               &parsers.MediaFilters{CaptionTypes: []parsers.CaptionType{"stpp"}},
 			manifestContent:       manifestWithWVTTAndSTPPCaptions,
-			expectManifestContent: manifestWithSTPPCaptions,
+			expectManifestContent: manifestWithoutSTPPCaptions,
 		},
 		{
 			name: "when a caption type filter is supplied with wvtt only, stpp captions are " +
 				"filtered out",
 			filters:               &parsers.MediaFilters{CaptionTypes: []parsers.CaptionType{"wvtt"}},
 			manifestContent:       manifestWithWVTTAndSTPPCaptions,
-			expectManifestContent: manifestWithWVTTCaptions,
+			expectManifestContent: manifestWithoutWVTTCaptions,
 		},
 		{
 			name:                  "when no filters are supplied, captions are not stripped from a manifest",

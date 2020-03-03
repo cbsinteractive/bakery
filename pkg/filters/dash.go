@@ -130,9 +130,11 @@ func filterContentType(filter ContentType, supportedContentTypes map[string]stru
 						continue
 					}
 
-					if isCodecSupported(*r.Codecs, filter, supportedContentTypes) {
-						filteredReps = append(filteredReps, r)
+					if matchCodec(*r.Codecs, filter, supportedContentTypes) {
+						continue
 					}
+
+					filteredReps = append(filteredReps, r)
 				}
 				as.Representations = filteredReps
 			}
@@ -187,7 +189,7 @@ func (d *DASHFilter) filterAdaptationSetType(filters *parsers.MediaFilters, mani
 	manifest.Periods = filteredPeriods
 }
 
-func isCodecSupported(codec string, ct ContentType, supportedCodecs map[string]struct{}) bool {
+func matchCodec(codec string, ct ContentType, supportedCodecs map[string]struct{}) bool {
 	//the key in supportedCodecs for captionContentType is equivalent to codec
 	//advertised in manifest. we can avoid iterating through each key
 	if ct == captionContentType {

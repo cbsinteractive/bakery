@@ -18,7 +18,7 @@ func TestURLParseUrl(t *testing.T) {
 			"one video type",
 			"/v(hdr10)/",
 			MediaFilters{
-				Videos:     []VideoType{videoHDR10},
+				Videos:     []VideoType{"hev1.2", "hvc1.2"},
 				MaxBitrate: math.MaxInt32,
 				MinBitrate: 0,
 			},
@@ -28,7 +28,7 @@ func TestURLParseUrl(t *testing.T) {
 			"two video types",
 			"/v(hdr10,hevc)/",
 			MediaFilters{
-				Videos:     []VideoType{videoHDR10, videoHEVC},
+				Videos:     []VideoType{"hev1.2", "hvc1.2", videoHEVC},
 				MaxBitrate: math.MaxInt32,
 				MinBitrate: 0,
 			},
@@ -38,7 +38,7 @@ func TestURLParseUrl(t *testing.T) {
 			"two video types and two audio types",
 			"/v(hdr10,hevc)/a(aac,noAd)/",
 			MediaFilters{
-				Videos:     []VideoType{videoHDR10, videoHEVC},
+				Videos:     []VideoType{"hev1.2", "hvc1.2", videoHEVC},
 				Audios:     []AudioType{audioAAC, audioNoAudioDescription},
 				MaxBitrate: math.MaxInt32,
 				MinBitrate: 0,
@@ -49,7 +49,7 @@ func TestURLParseUrl(t *testing.T) {
 			"videos, audio, captions and bitrate range",
 			"/v(hdr10,hevc)/a(aac)/al(pt-BR,en)/c(en)/b(100,4000)/",
 			MediaFilters{
-				Videos:           []VideoType{videoHDR10, videoHEVC},
+				Videos:           []VideoType{"hev1.2", "hvc1.2", videoHEVC},
 				Audios:           []AudioType{audioAAC},
 				AudioLanguages:   []AudioLanguage{audioLangPTBR, audioLangEN},
 				CaptionLanguages: []CaptionLanguage{captionEN},

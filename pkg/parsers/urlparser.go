@@ -105,6 +105,11 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 		switch key := subparts[1]; key {
 		case "v":
 			for _, videoType := range filters {
+				if videoType == "hdr10" {
+					mf.Videos = append(mf.Videos, VideoType("hev1.2"), VideoType("hvc1.2"))
+					continue
+				}
+
 				mf.Videos = append(mf.Videos, VideoType(videoType))
 			}
 		case "a":

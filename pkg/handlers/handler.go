@@ -69,7 +69,7 @@ func fetchManifest(c config.Config, manifestURL string) (string, error) {
 		return "", fmt.Errorf("fetching manifest: %w", err)
 	}
 
-	if sc := resp.StatusCode; sc != 200 {
+	if sc := resp.StatusCode; sc/100 > 3 {
 		fmt.Println(sc)
 		return "", fmt.Errorf("fetching manifest: returning http status of %v", sc)
 	}

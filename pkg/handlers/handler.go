@@ -68,6 +68,12 @@ func fetchManifest(c config.Config, manifestURL string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("fetching manifest: %w", err)
 	}
+
+	if sc := resp.StatusCode; sc != 200 {
+		fmt.Println(sc)
+		return "", fmt.Errorf("fetching manifest: returning http status of %v", sc)
+	}
+
 	defer resp.Body.Close()
 
 	contents, err := ioutil.ReadAll(resp.Body)

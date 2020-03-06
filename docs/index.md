@@ -7,7 +7,7 @@ has_toc: false
 
 # Bakery
 
-Bakery is a manifest manipulation service
+Bakery is a manifest manipulation service for HLS and DASH
 
 
 ## What's new

@@ -6,7 +6,7 @@ nav_order: 2
 
 # Stream Type
 
-Values in this filter define stream types you wish to <b>remove</b> from your manifest. The filter in this  example will filter out all audio streams from the modified manifest.
+Values in this filter define a whitelist of stream types you want to **EXCLUDE** in the modifed manifest. Passing an empty value for stream type will return all audio and video codecs available in the manifest.
 
 ## Protocol Support
 
@@ -23,7 +23,21 @@ no  | yes  |
 | text        | text   | fs(text)  |
 | image       | image  | fs(image) |
 
-## Usage Example
+## Usage Example 
+### Single value filter:
 
-You can add mutliple values. EX: `fs(audio, text)`
+    // Removes any file stream of type audio
+    $ http http://bakery.dev.cbsivideo.com/fs(audio)/star_trek_discovery/S01/E01.mpd
+
+    // Removes any file stream of type video
+    $ http http://bakery.dev.cbsivideo.com/fs(video)/star_trek_discovery/S01/E01.mpd
+
+### Multi value filter:
+Mutli value filters are `,` with no space in between
+
+    // Removes any file stream of type audio and video
+    $ http http://bakery.dev.cbsivideo.com/fs(audio,video)/star_trek_discovery/S01/E01.mpd
+
+    // Removes any file stream of type text and image
+    $ http http://bakery.dev.cbsivideo.com/fs(text,image)/star_trek_discovery/S01/E01.mpd
 

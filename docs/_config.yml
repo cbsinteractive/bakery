@@ -3,7 +3,7 @@ remote_theme: pmarsceill/just-the-docs
 title: Bakery
 description: Manifest Manipulation Service
 
-logo: http://flv.io/bakery-logo.svg
+logo: /assets/images/bakery.svg
 
 aux_links:
   "Github Repository":

@@ -72,6 +72,10 @@ func (d *DASHFilter) getFilters(filters *parsers.MediaFilters) []execFilter {
 		filterList = append(filterList, d.filterAdaptationSetType)
 	}
 
+	if filters.DefinesBitrateFilter() {
+		filterList = append(filterList, d.filterBandwidth)
+	}
+
 	if filters.Videos != nil {
 		filterList = append(filterList, d.filterVideoTypes)
 	}
@@ -84,8 +88,8 @@ func (d *DASHFilter) getFilters(filters *parsers.MediaFilters) []execFilter {
 		filterList = append(filterList, d.filterCaptionTypes)
 	}
 
-	if filters.DefinesBitrateFilter() {
-		filterList = append(filterList, d.filterBandwidth)
+	if filters.Role != "" {
+		filterList = append(filterList, d.updateRoleDescription)
 	}
 
 	return filterList
@@ -232,6 +236,19 @@ func (d *DASHFilter) filterBandwidth(filters *parsers.MediaFilters, manifest *mp
 		// Recalculate AdaptationSet id numbers
 		for index, as := range period.AdaptationSets {
 			as.ID = strptr(strconv.Itoa(index))
+		}
+	}
+}
+
+//
+func (d *DASHFilter) updateRoleDescription(filters *parsers.MediaFilters, manifest *mpd.MPD) {
+	for _, period := range manifest.Periods {
+		for _, as := range period.AdaptationSets {
+			for i, accessibility := range as.AccessibilityElems {
+				if *accessibility.SchemeIdUri == "urn:tva:metadata:cs:AudioPurposeCS:2007" {
+					as.Roles[i].Value = strptr(filters.Role)
+				}
+			}
 		}
 	}
 }

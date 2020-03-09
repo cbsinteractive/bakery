@@ -26,6 +26,9 @@ type CaptionType string
 // StreamType represents one stream type (e.g. video, audio, text)
 type StreamType string
 
+// RoleType will override the value of Role element
+type RoleType string
+
 // Protocol describe the valid protocols
 type Protocol string
 
@@ -64,10 +67,11 @@ type MediaFilters struct {
 	FilterStreamTypes []StreamType      `json:",omitempty"`
 	MaxBitrate        int               `json:",omitempty"`
 	MinBitrate        int               `json:",omitempty"`
+	Role              string            `json:",omitempty"`
 	Protocol          Protocol          `json:"protocol"`
 }
 
-var urlParseRegexp = regexp.MustCompile(`(.*)\((.*)\)`)
+var urlParseRegexp = regexp.MustCompile(`(.*?)\((.*)\)`)
 
 // URLParse will generate a MediaFilters struct with
 // all the filters that needs to be applied to the
@@ -143,6 +147,10 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 
 			if filters[1] != "" {
 				mf.MaxBitrate, _ = strconv.Atoi(filters[1])
+			}
+		case "role":
+			if filters[0] == "description" {
+				mf.Role = filters[0]
 			}
 		}
 	}

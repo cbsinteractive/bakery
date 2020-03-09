@@ -77,6 +77,25 @@ func TestURLParseUrl(t *testing.T) {
 			"/",
 		},
 		{
+			"role filter is properly set for overwriting values",
+			"/role(description)/",
+			MediaFilters{
+				Role:       "description",
+				MaxBitrate: math.MaxInt32,
+				MinBitrate: 0,
+			},
+			"/",
+		},
+		{
+			"role filter is ignored when wrong value is passed in",
+			"/role(random)/",
+			MediaFilters{
+				MaxBitrate: math.MaxInt32,
+				MinBitrate: 0,
+			},
+			"/",
+		},
+		{
 			"detect protocol hls for urls with .m3u8 extension",
 			"/path/here/with/master.m3u8",
 			MediaFilters{

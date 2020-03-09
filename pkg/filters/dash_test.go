@@ -798,3 +798,91 @@ func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
 		})
 	}
 }
+
+func TestDASHFilter_FilterRole_OverwriteValue(t *testing.T) {
+	manifestWithAccessibilityElement := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="7357" lang="en" contentType="audio">
+      <Role schemeIdUri="urn:mpeg:dash:role:2011" value="alternate"></Role>
+      <Representation bandwidth="256" codecs="ac-3" id="1"></Representation>
+      <Accessibility schemeIdUri="urn:tva:metadata:cs:AudioPurposeCS:2007" value="1"></Accessibility>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	manifestWithoutAccessibilityElement := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="7357" lang="en" contentType="audio">
+      <Role schemeIdUri="urn:mpeg:dash:role:2011" value="alternate"></Role>
+      <Representation bandwidth="256" codecs="ac-3" id="1"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	manifestWithOverwrittenRoleValue := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="7357" lang="en" contentType="audio">
+      <Role schemeIdUri="urn:mpeg:dash:role:2011" value="description"></Role>
+      <Representation bandwidth="256" codecs="ac-3" id="1"></Representation>
+      <Accessibility schemeIdUri="urn:tva:metadata:cs:AudioPurposeCS:2007" value="1"></Accessibility>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	tests := []struct {
+		name                  string
+		filters               *parsers.MediaFilters
+		manifestContent       string
+		expectManifestContent string
+		expectErr             bool
+	}{
+		{
+			name:                  "when proper value is set and manifest has accessibility element, role value is overwritten.",
+			filters:               &parsers.MediaFilters{Role: "description"},
+			manifestContent:       manifestWithAccessibilityElement,
+			expectManifestContent: manifestWithOverwrittenRoleValue,
+		},
+		{
+			name:                  "when proper value is set but no accessibility element is found, role value is not overwritten.",
+			filters:               &parsers.MediaFilters{Role: ""},
+			manifestContent:       manifestWithoutAccessibilityElement,
+			expectManifestContent: manifestWithoutAccessibilityElement,
+		},
+		{
+			name:                  "when proper value is not set and manifest has accessibility element, role value is not overwritten.",
+			filters:               &parsers.MediaFilters{Role: ""},
+			manifestContent:       manifestWithAccessibilityElement,
+			expectManifestContent: manifestWithAccessibilityElement,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
+
+			manifest, err := filter.FilterManifest(tt.filters)
+			if err != nil && !tt.expectErr {
+				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				return
+			} else if err == nil && tt.expectErr {
+				t.Error("FilterManifest() expected an error, got nil")
+				return
+			}
+
+			if g, e := manifest, tt.expectManifestContent; g != e {
+				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+					cmp.Diff(g, e))
+			}
+		})
+	}
+}

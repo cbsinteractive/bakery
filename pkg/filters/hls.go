@@ -11,6 +11,8 @@ import (
 	"github.com/grafov/m3u8"
 )
 
+type execPluginHLS func(variant *m3u8.Variant)
+
 // HLSFilter implements the Filter interface for HLS
 // manifests
 type HLSFilter struct {

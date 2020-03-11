@@ -847,19 +847,19 @@ func TestDASHFilter_FilterRole_OverwriteValue(t *testing.T) {
 	}{
 		{
 			name:                  "when proper value is set and manifest has accessibility element, role value is overwritten.",
-			filters:               &parsers.MediaFilters{Role: "description"},
+			filters:               &parsers.MediaFilters{Plugins: []string{"updateRoleDescription"}},
 			manifestContent:       manifestWithAccessibilityElement,
 			expectManifestContent: manifestWithOverwrittenRoleValue,
 		},
 		{
 			name:                  "when proper value is set but no accessibility element is found, role value is not overwritten.",
-			filters:               &parsers.MediaFilters{Role: ""},
+			filters:               &parsers.MediaFilters{Plugins: []string{"updateRoleDescription"}},
 			manifestContent:       manifestWithoutAccessibilityElement,
 			expectManifestContent: manifestWithoutAccessibilityElement,
 		},
 		{
 			name:                  "when proper value is not set and manifest has accessibility element, role value is not overwritten.",
-			filters:               &parsers.MediaFilters{Role: ""},
+			filters:               &parsers.MediaFilters{Plugins: []string{}},
 			manifestContent:       manifestWithAccessibilityElement,
 			expectManifestContent: manifestWithAccessibilityElement,
 		},

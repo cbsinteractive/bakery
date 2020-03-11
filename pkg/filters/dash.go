@@ -19,7 +19,6 @@ type DASHFilter struct {
 	manifestURL     string
 	manifestContent string
 	config          config.Config
-	filters         []execFilter
 }
 
 // NewDASHFilter is the DASH filter constructor
@@ -63,6 +62,12 @@ func (d *DASHFilter) FilterManifest(filters *parsers.MediaFilters) (string, erro
 		filter(filters, manifest)
 	}
 
+	for _, plugin := range filters.Plugins {
+		if exec, ok := pluginDASH[plugin]; ok {
+			exec(manifest)
+		}
+	}
+
 	return manifest.WriteToString()
 }
 
@@ -86,10 +91,6 @@ func (d *DASHFilter) getFilters(filters *parsers.MediaFilters) []execFilter {
 
 	if filters.CaptionTypes != nil {
 		filterList = append(filterList, d.filterCaptionTypes)
-	}
-
-	if filters.Role != "" {
-		filterList = append(filterList, d.updateRoleDescription)
 	}
 
 	return filterList
@@ -236,19 +237,6 @@ func (d *DASHFilter) filterBandwidth(filters *parsers.MediaFilters, manifest *mp
 		// Recalculate AdaptationSet id numbers
 		for index, as := range period.AdaptationSets {
 			as.ID = strptr(strconv.Itoa(index))
-		}
-	}
-}
-
-//
-func (d *DASHFilter) updateRoleDescription(filters *parsers.MediaFilters, manifest *mpd.MPD) {
-	for _, period := range manifest.Periods {
-		for _, as := range period.AdaptationSets {
-			for i, accessibility := range as.AccessibilityElems {
-				if *accessibility.SchemeIdUri == "urn:tva:metadata:cs:AudioPurposeCS:2007" {
-					as.Roles[i].Value = strptr(filters.Role)
-				}
-			}
 		}
 	}
 }

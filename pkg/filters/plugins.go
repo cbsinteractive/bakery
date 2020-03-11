@@ -6,11 +6,11 @@ type execPluginDASH func(manifest *mpd.MPD)
 
 var (
 	pluginDASH = map[string]execPluginDASH{
-		"updateRoleDescription": updateRoleDescription,
+		"dvsRoleOverride": dvsRoleOverride,
 	}
 )
 
-func updateRoleDescription(manifest *mpd.MPD) {
+func dvsRoleOverride(manifest *mpd.MPD) {
 	for _, period := range manifest.Periods {
 		for _, as := range period.AdaptationSets {
 			for i, access := range as.AccessibilityElems {

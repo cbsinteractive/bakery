@@ -52,7 +52,7 @@ func NewManifest(c config.Config, path string) *Manifest {
 
 //GetPlaybackURL will retrieve url
 func (m *Manifest) GetPlaybackURL() string {
-	return m.Origin + "/" + m.Path
+	return m.Origin + m.Path
 }
 
 //FetchManifest will grab manifest contents of configured origin

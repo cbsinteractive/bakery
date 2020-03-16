@@ -11,12 +11,12 @@ github.com/cbsinteractive/go-dash v0.0.0-20191219165709-22110e3d5350 h1:0VFhRCVa
 github.com/cbsinteractive/go-dash v0.0.0-20200108003006-ba709501f98e h1:pew+BKpTNrGkoCckDFgwLbj72fzSp9RzLzED0YRvVBk=
 github.com/cbsinteractive/go-dash v0.0.0-20200108003006-ba709501f98e/go.mod h1:c8Gxxfmh0jmZ6G+ISlpa315WBVkzd8mEhu6gN9mn5Qg=
 github.com/cbsinteractive/go-dash v0.0.0-20200205205222-2095bf496f2d h1:cYKetTfYdTIPcYsDUmidAb8of3upM6ZG96dw4HCOWAo=
-github.com/cbsinteractive/propeller-client-go v0.0.0-20200310001146-17ec5e73de5d h1:V61xgXiD0dR2JhFBBCYtsdHceflIaZaau54rpjBIdm8=
-github.com/cbsinteractive/propeller-client-go v0.0.0-20200310001146-17ec5e73de5d/go.mod h1:+5V3mIMEOwqiyb4r3dBsvKtu23kQvJU97Bem9brNzQU=
 github.com/cbsinteractive/go-dash v0.0.0-20200214133454-7cf0e9b0802e h1:Pg1PKPGM+3+aLE1eLu7imTB87vS+ORrNzCur6EHLZ0w=
 github.com/cbsinteractive/go-dash v0.0.0-20200214133454-7cf0e9b0802e/go.mod h1:c8Gxxfmh0jmZ6G+ISlpa315WBVkzd8mEhu6gN9mn5Qg=
 github.com/cbsinteractive/go-dash v0.0.0-20200309174059-c978edf9d310 h1:BZOhTau2Vx5d9j9tM/bsDiYsjvi+rmgCkrLiq7rSQqk=
 github.com/cbsinteractive/go-dash v0.0.0-20200309174059-c978edf9d310/go.mod h1:c8Gxxfmh0jmZ6G+ISlpa315WBVkzd8mEhu6gN9mn5Qg=
+github.com/cbsinteractive/propeller-client-go v0.0.0-20200310001146-17ec5e73de5d h1:V61xgXiD0dR2JhFBBCYtsdHceflIaZaau54rpjBIdm8=
+github.com/cbsinteractive/propeller-client-go v0.0.0-20200310001146-17ec5e73de5d/go.mod h1:+5V3mIMEOwqiyb4r3dBsvKtu23kQvJU97Bem9brNzQU=
 github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsrgA7czyZG/E6dU=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

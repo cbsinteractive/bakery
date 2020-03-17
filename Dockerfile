@@ -1,8 +1,11 @@
 FROM golang:1.13-alpine3.10 AS build_base
 
+ARG SSH_PRIVATE_KEY
+
 RUN apk add --no-cache ca-certificates curl git openssh build-base
 
-RUN mkdir -p ~/.ssh && umask 0077 && git config --global url."git@github.com:".insteadOf https://github.com/ \
+RUN mkdir -p ~/.ssh && umask 0077 && echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa \
+	&& git config --global url."git@github.com:".insteadOf https://github.com/ \
 	&& ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 WORKDIR /bakery
@@ -12,6 +15,7 @@ COPY go.sum .
 
 RUN go mod download
 
+RUN rm ~/.ssh/id_rsa
 RUN rm ~/.ssh/known_hosts
 
 FROM build_base AS builder

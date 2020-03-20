@@ -2,10 +2,9 @@ package origin
 
 import (
 	"fmt"
-	"net/url"
 
 	"github.com/cbsinteractive/bakery/pkg/config"
-	"github.com/cbsinteractive/propeller-client-go/pkg/client"
+	propeller "github.com/cbsinteractive/propeller-client-go/pkg/client"
 )
 
 //Propeller struct holds basic config of a Propeller Channel
@@ -26,8 +25,8 @@ func (p *Propeller) FetchManifest(c config.Config) (string, error) {
 }
 
 //NewPropeller returns a propeller struct
-func NewPropeller(c config.Config, orgID string, channelID string) (*Propeller, error) {
-	propellerURL, err := getPropellerChannelURL(c.PropellerHost, orgID, channelID)
+func NewPropeller(p config.Propeller, orgID string, channelID string) (*Propeller, error) {
+	propellerURL, err := getPropellerChannelURL(p, orgID, channelID)
 	if err != nil {
 		return &Propeller{}, fmt.Errorf("fetching propeller channel: %w", err)
 	}
@@ -39,22 +38,28 @@ func NewPropeller(c config.Config, orgID string, channelID string) (*Propeller, 
 	}, nil
 }
 
-func getPropellerChannelURL(host string, orgID string, channelID string) (string, error) {
-	pURL, err := url.Parse(host)
-	if err != nil {
-		return "", fmt.Errorf("parsing propeller host url: %w", err)
-	}
-	p := client.NewClient(pURL)
-
-	channel, err := p.GetChannel(orgID, channelID)
+func getPropellerChannelURL(p config.Propeller, orgID string, channelID string) (string, error) {
+	channel, err := p.Client.GetChannel(orgID, channelID)
 	if err != nil {
 		return "", fmt.Errorf("fetching channel from propeller: %w", err)
 	}
 
-	manifestURL, err := channel.URL()
+	return getURL(*channel)
+}
+
+func getURL(channel propeller.Channel) (string, error) {
+	if channel.Ads {
+		return channel.AdsURL, nil
+	}
+
+	if channel.Captions {
+		return channel.CaptionsURL, nil
+	}
+
+	playbackURL, err := channel.URL()
 	if err != nil {
 		return "", fmt.Errorf("reading url from propeller channel: %w", err)
 	}
 
-	return manifestURL.String(), nil
+	return playbackURL.String(), nil
 }

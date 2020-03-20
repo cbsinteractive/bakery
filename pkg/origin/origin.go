@@ -34,7 +34,7 @@ func Configure(c config.Config, path string) (Origin, error) {
 		orgID := parts[2]
 		channelID := strings.Split(parts[3], ".")[0] // split off .m3u8
 
-		o, err := NewPropeller(c, orgID, channelID)
+		o, err := NewPropeller(c.Propeller, orgID, channelID)
 		if err != nil {
 			return &Propeller{}, fmt.Errorf("configuring propeller origin: %w", err)
 		}

@@ -1,22 +1,32 @@
 package config
 
 import (
+	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 
+	propeller "github.com/cbsinteractive/propeller-client-go/pkg/client"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/sirupsen/logrus"
 )
 
 // Config holds all the configuration for this service
 type Config struct {
-	Listen        string `envconfig:"HTTP_PORT" default:":8080"`
-	LogLevel      string `envconfig:"LOG_LEVEL" default:"debug"`
-	OriginHost    string `envconfig:"ORIGIN_HOST"`
-	PropellerHost string `envconfig:"PROPELLER_HOST"`
-	Hostname      string `envconfig:"HOSTNAME"  default:"localhost"`
-	Client        HTTPClient
+	Listen     string `envconfig:"HTTP_PORT" default:":8080"`
+	LogLevel   string `envconfig:"LOG_LEVEL" default:"debug"`
+	OriginHost string `envconfig:"ORIGIN_HOST"`
+	Hostname   string `envconfig:"HOSTNAME"  default:"localhost"`
+	Client     HTTPClient
+	Propeller
+}
+
+// Propeller holds the client ands its associated credentials
+type Propeller struct {
+	Host   string `envconfig:"PROPELLER_HOST"`
+	Creds  string `envconfig:"PROPELLER_CREDS"`
+	Client *propeller.Client
 }
 
 // HTTPClient will issue requests to the manifest
@@ -38,8 +48,35 @@ func (h HTTPClient) New() *http.Client {
 func LoadConfig() (Config, error) {
 	var c Config
 	err := envconfig.Process("bakery", &c)
+	if err != nil {
+		return c, err
+	}
 
-	return c, err
+	return c, c.Propeller.init()
+}
+
+func (p *Propeller) init() error {
+	if p.Host == "" || p.Creds == "" {
+		return fmt.Errorf("your Propeller configs are not set")
+	}
+
+	pURL, err := url.Parse(p.Host)
+	if err != nil {
+		return fmt.Errorf("parsing propeller host url: %w", err)
+	}
+
+	p.Client, err = propeller.NewClient(p.Creds, pURL)
+
+	return err
+}
+
+// IsLocalHost returns true if env is localhost
+func (c Config) IsLocalHost() bool {
+	if c.Hostname == "localhost" {
+		return true
+	}
+
+	return false
 }
 
 // GetLogger generates a logger

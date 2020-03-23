@@ -87,11 +87,11 @@ Following the examples above you can start applying filters like so:
     <br>You can nest codec and bitrate filters within audio and video filters. For example, if you wanted to remove AAC (MPEG-4) audio and filter the results within 500 Kbps and 1MB, you could make the following request to Bakery:
 
     ```
-    http://bakery.dev.cbsivideo.com/a(codecs(mp4a),b(500,1000))/star_trek_discovery/S01/E01.m3u8
+    http://bakery.dev.cbsivideo.com/a(co(mp4a),b(500,1000))/star_trek_discovery/S01/E01.m3u8
     ```
     for a Propeller channel:
     ```
-    http://bakery.dev.cbsivideo.com/a(codecs(mp4a),b(500,1000))/propeller/<org-id>/<channel-id>.m3u8
+    http://bakery.dev.cbsivideo.com/a(co(mp4a),b(500,1000))/propeller/<org-id>/<channel-id>.m3u8
     ```
 
 For more specific details and usage examples on specific filters and the values accepted by each, check out our documentation for filters <a href="/filters">here</a>!

@@ -57,8 +57,8 @@ http://existing.base/uri/link_3.m3u8
 			name: "when no bitrate filters given, expect unfiltered manifest",
 			filters: &parsers.MediaFilters{
 				MinBitrate: 0, MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       baseManifest,
 			expectManifestContent: baseManifest,
@@ -67,8 +67,8 @@ http://existing.base/uri/link_3.m3u8
 			name: "when only hitting lower boundary (MinBitrate = 0), expect results to be filtered",
 			filters: &parsers.MediaFilters{
 				MinBitrate: 0, MaxBitrate: 3000,
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       baseManifest,
 			expectManifestContent: manifestRemovedHigherBW,
@@ -77,8 +77,8 @@ http://existing.base/uri/link_3.m3u8
 			name: "when only hitting upper boundary (MaxBitrate = math.MaxInt32), expect results to be filtered",
 			filters: &parsers.MediaFilters{
 				MinBitrate: 3000, MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       baseManifest,
 			expectManifestContent: manifestRemovedLowerBW,
@@ -87,8 +87,8 @@ http://existing.base/uri/link_3.m3u8
 			name: "when filtering valid bitrate range in audio only, expect filtered manifest",
 			filters: &parsers.MediaFilters{
 				MinBitrate: 0, MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MinBitrate: 10, MaxBitrate: 3000},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MinBitrate: 10, MaxBitrate: 3000},
 			},
 			manifestContent:       baseManifest,
 			expectManifestContent: manifestRemovedHigherBWOnlyAudio,
@@ -97,8 +97,8 @@ http://existing.base/uri/link_3.m3u8
 			name: "when filtering a valid audio bitrate range touching upper bound (math.MaxInt32), expect audio to be filtered",
 			filters: &parsers.MediaFilters{
 				MinBitrate: 0, MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MinBitrate: 2000, MaxBitrate: math.MaxInt32},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MinBitrate: 2000, MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       baseManifest,
 			expectManifestContent: manifestRemovedLowerBW,
@@ -107,8 +107,8 @@ http://existing.base/uri/link_3.m3u8
 			name: "when given valid overall bitrate range and an valid bitrate range for video/audio overlapping, but not within overall range, expect manifest to be filtered according to overall bitrate range",
 			filters: &parsers.MediaFilters{
 				MinBitrate: 0, MaxBitrate: 3000,
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32}},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32}},
 			manifestContent:       baseManifest,
 			expectManifestContent: manifestRemovedHigherBW,
 		},
@@ -116,8 +116,8 @@ http://existing.base/uri/link_3.m3u8
 			name: "when given valid overall bitrate range and a valid, non-overlapping bitrate range for audio, expect manifest to be filtered according to overall bitrate range",
 			filters: &parsers.MediaFilters{
 				MinBitrate: 100, MaxBitrate: 1000,
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MinBitrate: 3000, MaxBitrate: 4000},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MinBitrate: 3000, MaxBitrate: 4000},
 			},
 			manifestContent:       baseManifest,
 			expectManifestContent: manifestRemovedHigherBW,
@@ -261,10 +261,10 @@ http://existing.base/uri/link_8.m3u8
 			name: "when all audio codecs are supplied, expect audio to be stripped out",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"mp4a", "ec-3", "ac-3"},
 				},
@@ -276,10 +276,10 @@ http://existing.base/uri/link_8.m3u8
 			name: "when filter is supplied with ac-3 and mp4a, expect variants with ac-3 and/or mp4a to be stripped out",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"mp4a", "ac-3"},
 				},
@@ -291,10 +291,10 @@ http://existing.base/uri/link_8.m3u8
 			name: "when filter is supplied with ac-3, expect variants with ac-3 to be stripped out",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"ac-3"},
 				},
@@ -306,10 +306,10 @@ http://existing.base/uri/link_8.m3u8
 			name: "when filter is supplied with mp4a, expect variants with mp4a to be stripped out",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"mp4a"},
 				},
@@ -321,10 +321,10 @@ http://existing.base/uri/link_8.m3u8
 			name: "when filter is supplied with ec-3 and ac-3, expect variants with ec-3 and ac-3 to be stripped out",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"ec-3", "ac-3"},
 				},
@@ -336,10 +336,10 @@ http://existing.base/uri/link_8.m3u8
 			name: "when filter is supplied with ec-3 and mp4a, expect variants with ec-3 and/or mp4a to be stripped out",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"mp4a", "ec-3"},
 				},
@@ -351,10 +351,10 @@ http://existing.base/uri/link_8.m3u8
 			name: "when no audio filters are given, expect unfiltered manifest",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -508,11 +508,11 @@ http://existing.base/uri/link_9.m3u8
 			name: "when all video codecs are supplied, expect variants with avc, hevc, and/or dvh to be stripped out",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"avc", "hvc", "dvh"},
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -523,11 +523,11 @@ http://existing.base/uri/link_9.m3u8
 			name: "when filter is supplied with avc, expect variants with avc to be stripped out",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"avc"},
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -538,11 +538,11 @@ http://existing.base/uri/link_9.m3u8
 			name: "when filter is supplied with hevc, expect hevc to be stripped out",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"hvc"},
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -553,11 +553,11 @@ http://existing.base/uri/link_9.m3u8
 			name: "when filter is supplied with dvh, expect dvh to be stripped out",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"dvh"},
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -568,11 +568,11 @@ http://existing.base/uri/link_9.m3u8
 			name: "when filter is supplied with avc and hevc, expect variants with avc and hevc to be stripped out",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"avc", "hvc"},
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -583,11 +583,11 @@ http://existing.base/uri/link_9.m3u8
 			name: "when filter is supplied with avc and dvh, expect variants with avc and dvh to be stripped out",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"avc", "dvh"},
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -598,10 +598,10 @@ http://existing.base/uri/link_9.m3u8
 			name: "when no video filters are given, expect unfiltered manifest",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -700,8 +700,8 @@ http://existing.base/uri/link_7.m3u8
 			filters: &parsers.MediaFilters{
 				MaxBitrate:   math.MaxInt32,
 				CaptionTypes: []parsers.CaptionType{"stpp", "wvtt"},
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       manifestWithAllCaptions,
 			expectManifestContent: manifestWithNoCaptions,
@@ -711,8 +711,8 @@ http://existing.base/uri/link_7.m3u8
 			filters: &parsers.MediaFilters{
 				MaxBitrate:   math.MaxInt32,
 				CaptionTypes: []parsers.CaptionType{"wvtt"},
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       manifestWithAllCaptions,
 			expectManifestContent: manifestFilterWithoutWVTT,
@@ -722,8 +722,8 @@ http://existing.base/uri/link_7.m3u8
 			filters: &parsers.MediaFilters{
 				MaxBitrate:   math.MaxInt32,
 				CaptionTypes: []parsers.CaptionType{"stpp"},
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       manifestWithAllCaptions,
 			expectManifestContent: manifestFilterWithoutSTPP,
@@ -732,8 +732,8 @@ http://existing.base/uri/link_7.m3u8
 			name: "when no caption filter is given, expect original manifest",
 			filters: &parsers.MediaFilters{
 				MaxBitrate:   math.MaxInt32,
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       manifestWithAllCaptions,
 			expectManifestContent: manifestWithAllCaptions,
@@ -887,8 +887,8 @@ http://existing.base/uri/link_14.m3u8
 			name: "when empty filters are given, expect original manifest",
 			filters: &parsers.MediaFilters{
 				MaxBitrate:   math.MaxInt32,
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       manifestWithAllCodecs,
 			expectManifestContent: manifestWithAllCodecs,
@@ -897,11 +897,11 @@ http://existing.base/uri/link_14.m3u8
 			name: "when filter is supplied with audio (ec-3 and mp4a) and video (hevc and dvh), expect variants with ec-3, mp4a, hevc, and/or dvh to be stripped out",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"hvc", "dvh"},
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"ec-3", "mp4a"},
 				},
@@ -913,11 +913,11 @@ http://existing.base/uri/link_14.m3u8
 			name: "when filter is supplied with audio (mp4a) and video (hevc and dvh), expect variants with mp4a, hevc, and/or dvh to be stripped out",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"hvc", "dvh"},
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"mp4a"},
 				},
@@ -930,8 +930,8 @@ http://existing.base/uri/link_14.m3u8
 			filters: &parsers.MediaFilters{
 				MaxBitrate:   math.MaxInt32,
 				CaptionTypes: []parsers.CaptionType{"stpp"},
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"ec-3", "mp4a"},
 				},
@@ -944,11 +944,11 @@ http://existing.base/uri/link_14.m3u8
 			filters: &parsers.MediaFilters{
 				MaxBitrate:   math.MaxInt32,
 				CaptionTypes: []parsers.CaptionType{"stpp"},
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"hvc", "dvh"},
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"ec-3", "mp4a"},
 				},
@@ -961,11 +961,11 @@ http://existing.base/uri/link_14.m3u8
 			filters: &parsers.MediaFilters{
 				MaxBitrate:   math.MaxInt32,
 				CaptionTypes: []parsers.CaptionType{"wvtt", "stpp"},
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"hvc", "dvh"},
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"ac-3", "ec-3", "mp4a"},
 				},
@@ -1089,8 +1089,8 @@ http://existing.base/uri/link_13.m3u8
 			name: "when no filters are given, expect original manifest",
 			filters: &parsers.MediaFilters{
 				MaxBitrate:   math.MaxInt32,
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       manifestWithAllCodecsAndBandwidths,
 			expectManifestContent: manifestWithAllCodecsAndBandwidths,
@@ -1100,10 +1100,10 @@ http://existing.base/uri/link_13.m3u8
 			filters: &parsers.MediaFilters{
 				MinBitrate: 4000,
 				MaxBitrate: 6000,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"ec-3"},
 				},
@@ -1116,11 +1116,11 @@ http://existing.base/uri/link_13.m3u8
 			filters: &parsers.MediaFilters{
 				MinBitrate: 4000,
 				MaxBitrate: 6000,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"avc", "hvc"},
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -1132,11 +1132,11 @@ http://existing.base/uri/link_13.m3u8
 			filters: &parsers.MediaFilters{
 				MinBitrate: 4000,
 				MaxBitrate: 6000,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"hvc", "dvh"},
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"ac-3", "mp4a"},
 				},
@@ -1150,10 +1150,10 @@ http://existing.base/uri/link_13.m3u8
 				CaptionTypes: []parsers.CaptionType{"stpp"},
 				MinBitrate:   4000,
 				MaxBitrate:   6000,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -1165,10 +1165,10 @@ http://existing.base/uri/link_13.m3u8
 			filters: &parsers.MediaFilters{
 				MinBitrate: 4000,
 				MaxBitrate: 6000,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"ac-3", "ec-3", "mp4a"},
 				},
@@ -1478,10 +1478,10 @@ https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbG
 				"bakery with trim filter and base64 encoding string in the manifest",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 				Trim: trim,
@@ -1494,10 +1494,10 @@ https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbG
 				"bakery with trim filter and base64 encoding string in the manifest",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 				Trim: trim,
@@ -1512,10 +1512,10 @@ https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbG
 				MinBitrate: 4000,
 				MaxBitrate: 6000,
 				Trim:       trim,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -1526,10 +1526,10 @@ https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbG
 			name: "when no filter is given, variant level manifest will hold absolute urls only",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},

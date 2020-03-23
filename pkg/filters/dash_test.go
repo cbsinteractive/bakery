@@ -266,11 +266,11 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 			name: "when all video codecs are supplied, all video is stripped from a manifest",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"hvc", "hev", "avc", "dvh"},
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -281,11 +281,11 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 			name: "when a video filter is supplied with HEVC and AVC, HEVC and AVC is stripped from manifest",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"hvc", "hev", "avc"},
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -296,11 +296,11 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 			name: "when a video filter is suplied with Dolby Vision ID, dolby vision is stripped from manifest",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"dvh"},
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -311,11 +311,11 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 			name: "when a video filter is suplied with HEVC ID, HEVC is stripped from manifest",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"hvc", "hev"},
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -326,11 +326,11 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 			name: "when a video filter is suplied with AVC, AVC is stripped from manifest",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"avc"},
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -341,11 +341,11 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 			name: "when a video filter is suplied with HDR10, all hevc main10 profiles are stripped from manifest",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"hvc1.2", "hev1.2"},
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -356,10 +356,10 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 			name: "when no video filters are supplied, nothing is stripped from manifest",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -456,10 +456,10 @@ func TestDASHFilter_FilterManifest_audioCodecs(t *testing.T) {
 			name: "when all codecs are applied, audio is stripped from a manifest",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"ac-3", "ec-3"},
 				},
@@ -471,10 +471,10 @@ func TestDASHFilter_FilterManifest_audioCodecs(t *testing.T) {
 			name: "when an audio filter is supplied with Enhanced AC-3 codec, Enhanced AC-3 is stripped out",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"ec-3"},
 				},
@@ -486,10 +486,10 @@ func TestDASHFilter_FilterManifest_audioCodecs(t *testing.T) {
 			name: "when an audio filter is supplied with AC-3 codec, AC-3 is stripped out",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []parsers.Codec{"ac-3"},
 				},
@@ -501,10 +501,10 @@ func TestDASHFilter_FilterManifest_audioCodecs(t *testing.T) {
 			name: "when no audio filters are supplied, nothing is stripped from manifest",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -590,8 +590,8 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 			filters: &parsers.MediaFilters{
 				MaxBitrate:   math.MaxInt32,
 				CaptionTypes: []parsers.CaptionType{"stpp", "wvtt"},
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       manifestWithWVTTAndSTPPCaptions,
 			expectManifestContent: manifestWithoutCaptions,
@@ -602,8 +602,8 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 			filters: &parsers.MediaFilters{
 				MaxBitrate:   math.MaxInt32,
 				CaptionTypes: []parsers.CaptionType{"stpp"},
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       manifestWithWVTTAndSTPPCaptions,
 			expectManifestContent: manifestWithoutSTPPCaptions,
@@ -614,8 +614,8 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 			filters: &parsers.MediaFilters{
 				MaxBitrate:   math.MaxInt32,
 				CaptionTypes: []parsers.CaptionType{"wvtt"},
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       manifestWithWVTTAndSTPPCaptions,
 			expectManifestContent: manifestWithoutWVTTCaptions,
@@ -624,8 +624,8 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 			name: "when no filters are supplied, captions are not stripped from a manifest",
 			filters: &parsers.MediaFilters{
 				MaxBitrate:   math.MaxInt32,
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       manifestWithWVTTAndSTPPCaptions,
 			expectManifestContent: manifestWithWVTTAndSTPPCaptions,
@@ -731,8 +731,8 @@ func TestDASHFilter_FilterManifest_filterStreams(t *testing.T) {
 			name: "when no streams are configured to be filtered, the manifest is not modified",
 			filters: &parsers.MediaFilters{
 				MaxBitrate:   math.MaxInt32,
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       manifestWithAudioAndVideoStreams,
 			expectManifestContent: manifestWithAudioAndVideoStreams,
@@ -742,8 +742,8 @@ func TestDASHFilter_FilterManifest_filterStreams(t *testing.T) {
 			filters: &parsers.MediaFilters{
 				MaxBitrate:        math.MaxInt32,
 				FilterStreamTypes: []parsers.StreamType{"video"},
-				VideoFilters:      parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters:      parsers.Subfilters{MaxBitrate: math.MaxInt32},
+				VideoFilters:      parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters:      parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       manifestWithAudioAndVideoStreams,
 			expectManifestContent: manifestWithOnlyAudioStreams,
@@ -753,8 +753,8 @@ func TestDASHFilter_FilterManifest_filterStreams(t *testing.T) {
 			filters: &parsers.MediaFilters{
 				MaxBitrate:        math.MaxInt32,
 				FilterStreamTypes: []parsers.StreamType{"audio"},
-				VideoFilters:      parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters:      parsers.Subfilters{MaxBitrate: math.MaxInt32},
+				VideoFilters:      parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters:      parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       manifestWithAudioAndVideoStreams,
 			expectManifestContent: manifestWithOnlyVideoStreams,
@@ -765,8 +765,8 @@ func TestDASHFilter_FilterManifest_filterStreams(t *testing.T) {
 			filters: &parsers.MediaFilters{
 				MaxBitrate:        math.MaxInt32,
 				FilterStreamTypes: []parsers.StreamType{"video", "audio"},
-				VideoFilters:      parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters:      parsers.Subfilters{MaxBitrate: math.MaxInt32},
+				VideoFilters:      parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters:      parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       manifestWithAudioAndVideoStreams,
 			expectManifestContent: manifestWithoutStreams,
@@ -874,8 +874,8 @@ func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
 			filters: &parsers.MediaFilters{
 				MinBitrate:   0,
 				MaxBitrate:   math.MaxInt32,
-				VideoFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32},
-				AudioFilters: parsers.Subfilters{MaxBitrate: math.MaxInt32}},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32}},
 			manifestContent:       baseManifest,
 			expectManifestContent: baseManifest,
 		},
@@ -884,10 +884,10 @@ func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
 			filters: &parsers.MediaFilters{
 				MinBitrate: 0,
 				MaxBitrate: 4000,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -899,10 +899,10 @@ func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
 			filters: &parsers.MediaFilters{
 				MinBitrate: 4000,
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -914,10 +914,10 @@ func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
 			filters: &parsers.MediaFilters{
 				MinBitrate: 10,
 				MaxBitrate: 4000,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -929,10 +929,10 @@ func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
 			filters: &parsers.MediaFilters{
 				MinBitrate: 100,
 				MaxBitrate: 1000,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -944,11 +944,11 @@ func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
 			filters: &parsers.MediaFilters{
 				MinBitrate: 0,
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MinBitrate: 10,
 					MaxBitrate: 3000,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -960,11 +960,11 @@ func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
 			filters: &parsers.MediaFilters{
 				MinBitrate: 0,
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MinBitrate: 3000,
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -976,10 +976,10 @@ func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
 			filters: &parsers.MediaFilters{
 				MinBitrate: 0,
 				MaxBitrate: 3000,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 			},
@@ -991,10 +991,10 @@ func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
 			filters: &parsers.MediaFilters{
 				MinBitrate: 100,
 				MaxBitrate: 1000,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MinBitrate: 2000,
 					MaxBitrate: 3000},
 			},
@@ -1074,10 +1074,10 @@ func TestDASHFilter_FilterRole_OverwriteValue(t *testing.T) {
 			name: "when proper value is set and manifest has accessibility element, role value is overwritten.",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 				Plugins: []string{"dvsRoleOverride"},
@@ -1089,10 +1089,10 @@ func TestDASHFilter_FilterRole_OverwriteValue(t *testing.T) {
 			name: "when proper value is set but no accessibility element is found, role value is not overwritten.",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 				Plugins: []string{"dvsRoleOverride"},
@@ -1104,10 +1104,10 @@ func TestDASHFilter_FilterRole_OverwriteValue(t *testing.T) {
 			name: "when proper value is not set and manifest has accessibility element, role value is not overwritten.",
 			filters: &parsers.MediaFilters{
 				MaxBitrate: math.MaxInt32,
-				VideoFilters: parsers.Subfilters{
+				VideoFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
-				AudioFilters: parsers.Subfilters{
+				AudioFilters: parsers.NestedFilters{
 					MaxBitrate: math.MaxInt32,
 				},
 				Plugins: []string{},

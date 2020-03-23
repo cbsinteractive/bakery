@@ -74,8 +74,8 @@ type Trim struct {
 
 // MediaFilters is a struct that carry all the information passed via url
 type MediaFilters struct {
-	VideoFilters      Subfilters        `json:",omitempty"`
-	AudioFilters      Subfilters        `json:",omitempty"`
+	VideoFilters      NestedFilters     `json:",omitempty"`
+	AudioFilters      NestedFilters     `json:",omitempty"`
 	AudioLanguages    []AudioLanguage   `json:",omitempty"`
 	CaptionLanguages  []CaptionLanguage `json:",omitempty"`
 	CaptionTypes      []CaptionType     `json:",omitempty"`
@@ -87,7 +87,7 @@ type MediaFilters struct {
 	Protocol          Protocol          `json:"protocol"`
 }
 
-type Subfilters struct {
+type NestedFilters struct {
 	MinBitrate int     `json:",omitempty"`
 	MaxBitrate int     `json:",omitempty"`
 	Codecs     []Codec `json:",omitempty"`
@@ -131,21 +131,21 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 
 		var err error
 
-		subfilterRegexp := regexp.MustCompile(`\),`)
-		subfilters := SplitAfter(subparts[2], subfilterRegexp)
+		nestedFilterRegexp := regexp.MustCompile(`\),`)
+		nestedFilters := SplitAfter(subparts[2], nestedFilterRegexp)
 
 		switch key := subparts[1]; key {
 		case "v":
-			for _, sf := range subfilters {
-				result, filter, err := mf.findSubfilters(sf, StreamType("video"))
+			for _, sf := range nestedFilters {
+				result, filter, err := mf.findNestedFilters(sf, StreamType("video"))
 				if err != nil {
 					return result, filter, err
 				}
 			}
 
 		case "a":
-			for _, sf := range subfilters {
-				result, filter, err := mf.findSubfilters(sf, StreamType("audio"))
+			for _, sf := range nestedFilters {
+				result, filter, err := mf.findNestedFilters(sf, StreamType("audio"))
 				if err != nil {
 					return result, filter, err
 				}
@@ -238,24 +238,24 @@ func (f *MediaFilters) filterPlugins(path string) bool {
 	return false
 }
 
-func (mf *MediaFilters) findSubfilters(subfilter string, streamType StreamType) (string, *MediaFilters, error) {
+func (mf *MediaFilters) findNestedFilters(nestedFilter string, streamType StreamType) (string, *MediaFilters, error) {
 	// assumes nested filters are properly formatted
-	splitSubfilter := urlParseRegexp.FindStringSubmatch(subfilter)
+	splitNestedFilter := urlParseRegexp.FindStringSubmatch(nestedFilter)
 	var key string
 	var param []string
-	if len(splitSubfilter) == 0 {
-		key = "codec"
-		param = strings.Split(subfilter, ",")
+	if len(splitNestedFilter) == 0 {
+		key = "co"
+		param = strings.Split(nestedFilter, ",")
 	} else {
-		key = splitSubfilter[1]
-		param = strings.Split(splitSubfilter[2], ",")
+		key = splitNestedFilter[1]
+		param = strings.Split(splitNestedFilter[2], ",")
 	}
 
 	// split key by ',' to account for situations like filter(codec,codec,b(low,high))
 	// as in such a situation, key = codec,codec,b
 	splitKey := strings.Split(key, ",")
 	if len(splitKey) == 1 {
-		result, filter, err := mf.normalizeSubfilter(streamType, key, param)
+		result, filter, err := mf.normalizeNestedFilter(streamType, key, param)
 		if err != nil {
 			return result, filter, err
 		}
@@ -267,13 +267,13 @@ func (mf *MediaFilters) findSubfilters(subfilter string, streamType StreamType) 
 				keys = append(keys, part)
 				params = append(params, param)
 			} else {
-				keys = append(keys, "codec")
+				keys = append(keys, "co")
 				params = append(params, []string{part})
 			}
 		}
 
 		for i, _ := range keys {
-			result, filter, err := mf.normalizeSubfilter(streamType, keys[i], params[i])
+			result, filter, err := mf.normalizeNestedFilter(streamType, keys[i], params[i])
 			if err != nil {
 				return result, filter, err
 			}
@@ -309,48 +309,48 @@ func SplitAfter(s string, re *regexp.Regexp) []string {
 	return append(splitResults, s[position:])
 }
 
-// normalizeSubfilter takes a subfilter and sets AudiFilters' or VideoSubFilters' values accordingly.
-func (mf *MediaFilters) normalizeSubfilter(streamType StreamType, key string, values []string) (string, *MediaFilters, error) {
-	var streamSubfilters *Subfilters
+// normalizeNestedFilter takes a NestedFilter and sets AudioFilters' or VideoFilters' values accordingly.
+func (mf *MediaFilters) normalizeNestedFilter(streamType StreamType, key string, values []string) (string, *MediaFilters, error) {
+	var streamNestedFilters *NestedFilters
 	var err error
 	switch streamType {
 	case "audio":
-		streamSubfilters = &mf.AudioFilters
+		streamNestedFilters = &mf.AudioFilters
 	case "video":
-		streamSubfilters = &mf.VideoFilters
+		streamNestedFilters = &mf.VideoFilters
 	}
 
 	switch key {
-	case "codec":
+	case "co":
 		for _, v := range values {
 			if v == "hdr10" {
-				streamSubfilters.Codecs = append(streamSubfilters.Codecs, Codec("hev1.2"), Codec("hvc1.2"))
+				streamNestedFilters.Codecs = append(streamNestedFilters.Codecs, Codec("hev1.2"), Codec("hvc1.2"))
 			} else {
-				streamSubfilters.Codecs = append(streamSubfilters.Codecs, Codec(v))
+				streamNestedFilters.Codecs = append(streamNestedFilters.Codecs, Codec(v))
 			}
 		}
 	case "b":
 		if values[0] != "" {
-			streamSubfilters.MinBitrate, err = strconv.Atoi(values[0])
+			streamNestedFilters.MinBitrate, err = strconv.Atoi(values[0])
 			if err != nil {
 				return keyError("MinBitrate", err)
 			}
-			if streamSubfilters.MinBitrate < 0 || streamSubfilters.MinBitrate > math.MaxInt32 {
+			if streamNestedFilters.MinBitrate < 0 || streamNestedFilters.MinBitrate > math.MaxInt32 {
 				return keyError("MaxBitrate", fmt.Errorf("MinBitrate is negative or exceeds math.MaxInt32"))
 			}
 		}
 
 		if values[1] != "" {
-			streamSubfilters.MaxBitrate, err = strconv.Atoi(values[1])
+			streamNestedFilters.MaxBitrate, err = strconv.Atoi(values[1])
 			if err != nil {
 				return keyError("MaxBitrate", err)
 			}
-			if streamSubfilters.MaxBitrate < 0 || streamSubfilters.MaxBitrate > math.MaxInt32 {
+			if streamNestedFilters.MaxBitrate < 0 || streamNestedFilters.MaxBitrate > math.MaxInt32 {
 				return keyError("MaxBitrate", fmt.Errorf("MaxBitrate is negative or exceeds math.MaxInt32"))
 			}
 		}
 
-		if isGreater(streamSubfilters.MinBitrate, streamSubfilters.MaxBitrate) {
+		if isGreater(streamNestedFilters.MinBitrate, streamNestedFilters.MaxBitrate) {
 			return keyError((string(streamType) + "bitrate"), fmt.Errorf("MinBitrate is greater than or equal to MaxBitrate"))
 		}
 	}

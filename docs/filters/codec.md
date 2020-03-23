@@ -6,6 +6,8 @@ nav_order: 1
 
 # Codec
 Values in this filter define a whitelist of the audio and video codecs you want to **EXCLUDE** in the modifed manifest. Passing an empty value for either video or audio will return all audio and video codecs available in the manifest.
+<br>
+By default, the audio and video filter keys take codecs, but this isn't the only way to use them. You can nest filters to filter more than just codecs, as detailed on the <a href="nested-filters.html">nested filters</a> page.
 
 ## Protocol Support
 

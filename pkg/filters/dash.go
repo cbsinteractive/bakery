@@ -221,22 +221,22 @@ func (d *DASHFilter) filterBandwidth(filters *parsers.MediaFilters, manifest *mp
 			}
 			var lowerBitrate int64
 			var upperBitrate int64
-			var subfilter *parsers.Subfilters
+			var nestedFilter *parsers.NestedFilters
 
 			// set subfilter equivalent to the subfilter of the adaptation set's content type
 			switch *as.ContentType {
 			case string(audioContentType):
-				subfilter = &filters.AudioFilters
+				nestedFilter = &filters.AudioFilters
 			case string(videoContentType):
-				subfilter = &filters.VideoFilters
+				nestedFilter = &filters.VideoFilters
 			default:
-				subfilter = nil
+				nestedFilter = nil
 			}
 
 			// if the subfilter in the adaptation set applies to the content type of the adaptation set
-			if subfilter != nil && !IsDefault(subfilter.MinBitrate, subfilter.MaxBitrate) {
-				lowerBitrate = int64(subfilter.MinBitrate)
-				upperBitrate = int64(subfilter.MaxBitrate)
+			if nestedFilter != nil && !IsDefault(nestedFilter.MinBitrate, nestedFilter.MaxBitrate) {
+				lowerBitrate = int64(nestedFilter.MinBitrate)
+				upperBitrate = int64(nestedFilter.MaxBitrate)
 			} else {
 				lowerBitrate = int64(filters.MinBitrate)
 				upperBitrate = int64(filters.MaxBitrate)

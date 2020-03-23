@@ -1,11 +1,9 @@
 package filters
 
 import (
-	"fmt"
+	"github.com/cbsinteractive/bakery/pkg/parsers"
 	"math"
 	"strings"
-
-	"github.com/cbsinteractive/bakery/pkg/parsers"
 )
 
 // Filter is an interface for HLS and DASH filters
@@ -70,7 +68,6 @@ func IsDefault(minBitrate int, maxBitrate int) bool {
 // at least one of the overall, audio, and video bitrate filters are valid and not the default range.
 // It also sets audio/video subfilters ito be in range of the overall bitrate filters
 func DefinesBitrateFilter(f *parsers.MediaFilters) bool {
-	fmt.Printf("overall: %v, %v\naudio: %v, %v\nvideo: %v, %v", f.MinBitrate, f.MaxBitrate, f.AudioFilters.MinBitrate, f.AudioFilters.MaxBitrate, f.VideoFilters.MinBitrate, f.VideoFilters.MaxBitrate)
 	// if audio or video subfilters do not overlap with overall bitrate filters, set them equal to overall
 	if f.AudioFilters.MinBitrate > f.MaxBitrate || f.AudioFilters.MaxBitrate < f.MinBitrate {
 		f.AudioFilters.MinBitrate = f.MinBitrate

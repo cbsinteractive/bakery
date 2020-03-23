@@ -92,7 +92,6 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 // Returns true if specified variant should be removed from filter
 func (h *HLSFilter) validateVariants(filters *parsers.MediaFilters, v *m3u8.Variant) (bool, error) {
 	variantCodecs := strings.Split(v.Codecs, ",")
-	fmt.Println(DefinesBitrateFilter(filters))
 	if DefinesBitrateFilter(filters) {
 		if !(h.validateBandwidthVariant(int(v.VariantParams.Bandwidth), variantCodecs, filters)) {
 			return true, nil

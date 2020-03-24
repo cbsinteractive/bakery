@@ -10,9 +10,6 @@ WEBSERVER=./cmd/http
 all: test build
 build: 
 				$(GOBUILD) -o $(BINARY_NAME) -v $(WEBSERVER)
-build_lambda:
-				GOOS=linux $(GOBUILD) -o main -v $(WEBSERVER)
-				zip function.zip main
 test: 
 				$(GOTEST) -v -race -count=1 ./...
 clean: 

@@ -83,12 +83,11 @@ type MediaFilters struct {
 	Videos       NestedFilters `json:",omitempty"`
 	Audios       NestedFilters `json:",omitempty"`
 	Captions     NestedFilters `json:",omitempty"`
-	CaptionTypes []CaptionType `json:",omitempty"`
 	ContentTypes []ContentType `json:",omitempty"`
-	MaxBitrate   int           `json:",omitempty"`
-	MinBitrate   int           `json:",omitempty"`
 	Plugins      []string      `json:",omitempty"`
+	IFrame       bool          `json:",omitempty"`
 	Trim         *Trim         `json:",omitempty"`
+	Bitrate      *Bitrate      `json:",omitempty"`
 	Protocol     Protocol      `json:"protocol"`
 }
 
@@ -272,9 +271,12 @@ func (mf *MediaFilters) parseNestedFilterKeys(streamType ContentType, key string
 	switch key {
 	case "co":
 		for _, v := range values {
-			if v == "hdr10" {
+			switch v {
+			case "hdr10":
 				nf.Codecs = append(nf.Codecs, Codec("hev1.2"), Codec("hvc1.2"))
-			} else {
+			case "i-frame":
+				mf.IFrame = true
+			default:
 				nf.Codecs = append(nf.Codecs, Codec(v))
 			}
 		}

@@ -56,6 +56,10 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 	filteredManifest := m3u8.NewMasterPlaylist()
 
 	for _, v := range manifest.Variants {
+		if filters.IFrame && v.Iframe {
+			continue
+		}
+
 		absolute, aErr := getAbsoluteURL(h.manifestURL)
 		if aErr != nil {
 			return h.manifestContent, aErr

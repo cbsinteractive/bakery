@@ -39,7 +39,8 @@ http://existing.base/uri/link_3.m3u8
 `
 
 	manifestRemovedLowerBW := `#EXTM3U
-#EXT-X-VERSION:3
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="ec-3",CLOSED-CAPTIONS="CC"
 http://existing.base/uri/link_2.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="avc",CLOSED-CAPTIONS="CC"
@@ -1118,10 +1119,9 @@ func TestHLSFilter_FilterManifest_NormalizeVariant(t *testing.T) {
 
 	manifestWithRelativeOnly := `#EXTM3U
 #EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="audio.m3u8"
+#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VID",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="video.m3u8"
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="audio.mp3u8"
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU2",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="../../audio_nested.mp3u8"
-#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VID",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="video.mp3u8"
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AU",VIDEO="VID",CLOSED-CAPTIONS="CC"
 link_1.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CLOSED-CAPTIONS="CC"
@@ -1132,10 +1132,9 @@ link_2.m3u8
 
 	manifestWithAbsoluteOnly := `#EXTM3U
 #EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/audio.m3u8"
+#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VID",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/video.m3u8"
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/audio.mp3u8"
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU2",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/audio_nested.mp3u8"
-#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VID",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/video.mp3u8"
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AU",VIDEO="VID",CLOSED-CAPTIONS="CC"
 http://existing.base/uri/nested/folders/link_1.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CLOSED-CAPTIONS="CC"
@@ -1146,10 +1145,9 @@ http://existing.base/uri/link_3.m3u8
 
 	manifestWithRelativeAndAbsolute := `#EXTM3U
 #EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/audio.m3u8"
+#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VID",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/video.m3u8"
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="audio.mp3u8"
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU2",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="../../audio_nested.mp3u8"
-#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VID",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/video.mp3u8"
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AU",VIDEO="VID",CLOSED-CAPTIONS="CC"
 link_1.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CLOSED-CAPTIONS="CC"
@@ -1160,9 +1158,9 @@ http://existing.base/uri/nested/folders/link_2.m3u8
 
 	manifestWithDifferentAbsolute := `#EXTM3U
 #EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="audio.m3u8"
+#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VID",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://different.base/uri/video.m3u8"
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="audio.mp3u8"
-#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VID",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://different.base/uri/video.mp3u8"
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AU",VIDEO="VID",CLOSED-CAPTIONS="CC"
 link_1.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CLOSED-CAPTIONS="CC"
@@ -1171,9 +1169,9 @@ http://different.base/uri/link_2.m3u8
 
 	manifestWithDifferentAbsoluteExpected := `#EXTM3U
 #EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/audio.m3u8"
+#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VID",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://different.base/uri/video.m3u8"
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/audio.mp3u8"
-#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VID",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://different.base/uri/video.mp3u8"
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AU",VIDEO="VID",CLOSED-CAPTIONS="CC"
 http://existing.base/uri/nested/folders/link_1.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CLOSED-CAPTIONS="CC"
@@ -1183,7 +1181,7 @@ http://different.base/uri/link_2.m3u8
 	manifestWithIllegalAlternativeURLs := `#EXTM3U
 #EXT-X-VERSION:4
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://exist\ing.base/uri/illegal.mp3u8"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://exist\ing.base/uri/illegal.m3u8"
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AU",VIDEO="VID",CLOSED-CAPTIONS="CC"
 http://existing.base/uri/nested/folders/link_1.m3u8
 `
@@ -1191,7 +1189,7 @@ http://existing.base/uri/nested/folders/link_1.m3u8
 	manifestWithIllegalVariantURLs := `#EXTM3U
 #EXT-X-VERSION:4
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="\nillegal.mp3u8"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="\nillegal.m3u8"
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AU",VIDEO="VID",CLOSED-CAPTIONS="CC"
 http://existi\ng.base/uri/link_1.m3u8
 `
@@ -1306,8 +1304,7 @@ http://existi\ng.base/uri/link_1.m3u8
 func TestHLSFilter_FilterManifest_TrimFilter_MasterManifest(t *testing.T) {
 
 	masterManifestWithAbsoluteURLs := `#EXTM3U
-#EXT-X-VERSION:4
-#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
+#EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="avc1.64001f,mp4a.40.2"
 https://existing.base/path/link_1.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4200,AVERAGE-BANDWIDTH=4200,CODECS="avc1.64001f,mp4a.40.2"
@@ -1321,8 +1318,7 @@ https://existing.base/path/link_6.m3u8
 `
 
 	masterManifestWithRelativeURLs := `#EXTM3U
-#EXT-X-VERSION:4
-#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
+#EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="avc1.64001f,mp4a.40.2"
 link_1.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4200,AVERAGE-BANDWIDTH=4200,CODECS="avc1.64001f,mp4a.40.2"
@@ -1336,8 +1332,7 @@ link_6.m3u8
 `
 
 	manifestWithBase64EncodedVariantURLS := `#EXTM3U
-#EXT-X-VERSION:4
-#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
+#EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="avc1.64001f,mp4a.40.2"
 https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbGlua18xLm0zdTg.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4200,AVERAGE-BANDWIDTH=4200,CODECS="avc1.64001f,mp4a.40.2"
@@ -1375,7 +1370,7 @@ https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbG
 		expectErr             bool
 	}{
 		{
-			name: "when trim filter is given and master has absolute urls, variant level manifest will point to" +
+			name: "when trim filter is given and master has absolute urls, variant level manifest will point to " +
 				"bakery with trim filter and base64 encoding string in the manifest",
 			filters: &parsers.MediaFilters{
 				Trim: trim,
@@ -1384,7 +1379,7 @@ https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbG
 			expectManifestContent: manifestWithBase64EncodedVariantURLS,
 		},
 		{
-			name: "when trim filter is given and master has relative urls, variant level manifest will point to" +
+			name: "when trim filter is given and master has relative urls, variant level manifest will point to " +
 				"bakery with trim filter and base64 encoding string in the manifest",
 			filters: &parsers.MediaFilters{
 				Trim: trim,
@@ -1394,7 +1389,7 @@ https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbG
 		},
 		{
 			name: "when bitrate and trim filter are given, variant level manifest will point to" +
-				"bakery with only included bitrates, the trim filter, and base64 encoding string in the manifest",
+				"bakery with only included bitrates, the trim filter, and base64 encoding string in the manifest ",
 			filters: &parsers.MediaFilters{
 				Videos: parsers.NestedFilters{
 					Bitrate: &parsers.Bitrate{
@@ -1597,6 +1592,104 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00025.ts
 			manifestContent:       variantManifestWithNoPDT,
 			expectManifestContent: "",
 			expectErr:             true,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			filter := NewHLSFilter("https://existing.base/path/master.m3u8", tt.manifestContent, config.Config{Hostname: "bakery.cbsi.video"})
+			manifest, err := filter.FilterManifest(tt.filters)
+
+			if err != nil && !tt.expectErr {
+				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				return
+			} else if err == nil && tt.expectErr {
+				t.Error("FilterManifest() expected an error, got nil")
+				return
+			}
+
+			if g, e := manifest, tt.expectManifestContent; g != e {
+				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+					cmp.Diff(g, e))
+			}
+
+		})
+	}
+}
+
+func TestHLSFilter_FilterManifest_IFrameFilter(t *testing.T) {
+	masterManifestWithSingleIFrame := `#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC"
+https://existing.base/path/link_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4200,AVERAGE-BANDWIDTH=4200,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC"
+https://existing.base/path/link_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC"
+https://existing.base/path/link_4.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4100,AVERAGE-BANDWIDTH=4100,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC"
+https://existing.base/path/link_5.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC"
+https://existing.base/path/link_6.m3u8
+#EXT-X-I-FRAME-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=250,CODECS="avc1.4d401e",RESOLUTION=384x216,URI="https://existing.base/path/link_1.m3u8"
+`
+
+	masterManifestWithMultipleIFrame := `#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
+#EXT-X-I-FRAME-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=250,CODECS="avc1.4d401e",RESOLUTION=384x216,URI="link_1.m3u8",
+#EXT-X-I-FRAME-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=550,CODECS="avc1.4d401e",RESOLUTION=512x288,URI="link_2.m3u8",
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC"
+https://existing.base/path/link_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4200,AVERAGE-BANDWIDTH=4200,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC"
+https://existing.base/path/link_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC"
+https://existing.base/path/link_4.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4100,AVERAGE-BANDWIDTH=4100,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC"
+https://existing.base/path/link_5.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC"
+https://existing.base/path/link_6.m3u8
+`
+
+	masterManifestWithNoIframe := `#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC"
+https://existing.base/path/link_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4200,AVERAGE-BANDWIDTH=4200,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC"
+https://existing.base/path/link_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC"
+https://existing.base/path/link_4.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4100,AVERAGE-BANDWIDTH=4100,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC"
+https://existing.base/path/link_5.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC"
+https://existing.base/path/link_6.m3u8
+`
+	tests := []struct {
+		name                  string
+		filters               *parsers.MediaFilters
+		manifestContent       string
+		expectManifestContent string
+		expectErr             bool
+	}{
+		{
+			name:                  "when empty filter is given, expect no filtering to be done",
+			filters:               &parsers.MediaFilters{},
+			manifestContent:       masterManifestWithSingleIFrame,
+			expectManifestContent: masterManifestWithSingleIFrame,
+		},
+		{
+			name:                  "when iframe filter has been set, iframe is removed given a playlist with a single iframe",
+			filters:               &parsers.MediaFilters{IFrame: true},
+			manifestContent:       masterManifestWithSingleIFrame,
+			expectManifestContent: masterManifestWithNoIframe,
+		},
+		{
+			name:                  "when iframe filter has been set, iframe is removed given a playlist with mutliple iframe",
+			filters:               &parsers.MediaFilters{IFrame: true},
+			manifestContent:       masterManifestWithMultipleIFrame,
+			expectManifestContent: masterManifestWithNoIframe,
 		},
 	}
 

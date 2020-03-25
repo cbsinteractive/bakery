@@ -344,6 +344,30 @@ func TestURLParseUrl(t *testing.T) {
 			false,
 		},
 		{
+			"detect iframe filter when passed in url",
+			"v(i-frame)/path/here/with/master.m3u8",
+			MediaFilters{
+				Protocol: ProtocolHLS,
+				IFrame:   true,
+			},
+			"/path/here/with/master.m3u8",
+			false,
+		},
+		{
+			"detect iframe filter when passed in url with other nested filters",
+			"v(i-frame,avc,l(en))/path/here/with/master.m3u8",
+			MediaFilters{
+				Videos: NestedFilters{
+					Codecs:   []Codec{codecH264},
+					Language: []Language{langEN},
+				},
+				Protocol: ProtocolHLS,
+				IFrame:   true,
+			},
+			"/path/here/with/master.m3u8",
+			false,
+		},
+		{
 			"detect protocol hls for urls with .m3u8 extension",
 			"/path/here/with/master.m3u8",
 			MediaFilters{

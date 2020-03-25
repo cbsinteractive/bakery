@@ -93,6 +93,10 @@ func (d *DASHFilter) getFilters(filters *parsers.MediaFilters) []execFilter {
 		filterList = append(filterList, d.filterCaptionTypes)
 	}
 
+	if filters.Audios.Language != nil || filters.Captions.Language != nil {
+		filterList = append(filterList, d.filterAdaptationSetLanguage)
+	}
+
 	return filterList
 }
 
@@ -156,9 +160,40 @@ func filterContentType(filter ContentType, supportedContentTypes map[string]stru
 	}
 }
 
-func (d *DASHFilter) filterAdaptationSetContentType(filters *parsers.MediaFilters, manifest *mpd.MPD) {
-	filteredAdaptationSetTypes := map[parsers.ContentType]struct{}{}
-	for _, streamType := range filters.ContentTypes {
+func (d *DASHFilter) filterAdaptationSetLanguage(filters *parsers.MediaFilters, manifest *mpd.MPD) {
+	for _, period := range manifest.Periods {
+		var filteredAdaptationSets []*mpd.AdaptationSet
+		for _, as := range period.AdaptationSets {
+			if as.ContentType == nil {
+				filteredAdaptationSets = append(filteredAdaptationSets, as)
+				continue
+			}
+
+			var langs []parsers.Language
+			switch ContentType(*as.ContentType) {
+			case audioContentType:
+				langs = filters.Audios.Language
+			case captionContentType:
+				langs = filters.Captions.Language
+			default:
+				continue
+			}
+
+			if !(matchLang(*as.Lang, langs)) {
+				filteredAdaptationSets = append(filteredAdaptationSets, as)
+			}
+		}
+
+		for i, as := range filteredAdaptationSets {
+			as.ID = strptr(strconv.Itoa(i))
+		}
+		period.AdaptationSets = filteredAdaptationSets
+	}
+}
+
+func (d *DASHFilter) filterAdaptationSetType(filters *parsers.MediaFilters, manifest *mpd.MPD) {
+	filteredAdaptationSetTypes := map[parsers.StreamType]struct{}{}
+	for _, streamType := range filters.FilterStreamTypes {
 		filteredAdaptationSetTypes[streamType] = struct{}{}
 	}
 
@@ -194,25 +229,6 @@ func (d *DASHFilter) filterAdaptationSetContentType(filters *parsers.MediaFilter
 	manifest.Periods = filteredPeriods
 }
 
-func matchCodec(codec string, ct ContentType, supportedCodecs map[string]struct{}) bool {
-	//the key in supportedCodecs for captionContentType is equivalent to codec
-	//advertised in manifest. we can avoid iterating through each key
-	if ct == captionContentType {
-		_, found := supportedCodecs[codec]
-		return found
-	}
-
-	for key := range supportedCodecs {
-		if ValidCodecs(codec, CodecFilterID(key)) {
-			return true
-		}
-	}
-
-	return false
-}
-
-//filter VideoBandwidth()
-
 func (d *DASHFilter) filterBandwidth(filters *parsers.MediaFilters, manifest *mpd.MPD) {
 	for _, period := range manifest.Periods {
 		var filteredAdaptationSets []*mpd.AdaptationSet
@@ -223,10 +239,10 @@ func (d *DASHFilter) filterBandwidth(filters *parsers.MediaFilters, manifest *mp
 
 			//evaluate bitrate filter for codec type
 			var bitrate *parsers.Bitrate
-			switch *as.ContentType {
-			case string(videoContentType):
+			switch ContentType(*as.ContentType) {
+			case videoContentType:
 				bitrate = filters.Videos.Bitrate
-			case string(audioContentType):
+			case audioContentType:
 				bitrate = filters.Audios.Bitrate
 			}
 
@@ -240,13 +256,6 @@ func (d *DASHFilter) filterBandwidth(filters *parsers.MediaFilters, manifest *mp
 			var filteredRepresentations []*mpd.Representation
 			for _, r := range as.Representations {
 				if r.Bandwidth == nil {
-					continue
-				}
-
-				// if bitrate is nil, then no filtering needs to be applied
-				// for this content type and we should append the representation
-				if bitrate == nil {
-					filteredRepresentations = append(filteredRepresentations, r)
 					continue
 				}
 
@@ -268,6 +277,33 @@ func (d *DASHFilter) filterBandwidth(filters *parsers.MediaFilters, manifest *mp
 			as.ID = strptr(strconv.Itoa(index))
 		}
 	}
+}
+
+func matchLang(l string, langs []parsers.Language) bool {
+	for _, lang := range langs {
+		if string(lang) == l {
+			return true
+		}
+	}
+
+	return false
+}
+
+func matchCodec(codec string, ct ContentType, supportedCodecs map[string]struct{}) bool {
+	//the key in supportedCodecs for captionContentType is equivalent to codec
+	//advertised in manifest. we can avoid iterating through each key
+	if ct == captionContentType {
+		_, found := supportedCodecs[codec]
+		return found
+	}
+
+	for key := range supportedCodecs {
+		if ValidCodecs(codec, CodecFilterID(key)) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func strptr(s string) *string {

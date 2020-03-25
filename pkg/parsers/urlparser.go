@@ -166,6 +166,11 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 			for _, contentType := range filters {
 				mf.ContentTypes = append(mf.ContentTypes, ContentType(contentType))
 			}
+		case "l":
+			for _, lang := range filters {
+				mf.Audios.Language = append(mf.Audios.Language, Language(lang))
+				mf.Captions.Language = append(mf.Captions.Language, Language(lang))
+			}
 		case "b":
 			x, y, err := parseAndValidateInts(filters, math.MaxInt32)
 			if err != nil {

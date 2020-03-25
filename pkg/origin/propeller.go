@@ -44,7 +44,7 @@ func getPropellerChannelURL(p config.Propeller, orgID string, channelID string) 
 		return "", fmt.Errorf("fetching channel from propeller: %w", err)
 	}
 
-	return getURL(*channel)
+	return getURL(channel)
 }
 
 func getURL(channel propeller.Channel) (string, error) {

@@ -5,7 +5,7 @@ replace github.com/zencoder/go-dash => github.com/cbsinteractive/go-dash v0.0.0-
 go 1.13
 
 require (
-	github.com/cbsinteractive/propeller-client-go v0.0.0-20200320001501-6150907a52b8
+	github.com/cbsinteractive/propeller-client-go v0.0.0-20200325144512-9e4b6cb70b7a
 	github.com/google/go-cmp v0.4.0
 	github.com/grafov/m3u8 v0.11.1
 	github.com/kelseyhightower/envconfig v1.4.0

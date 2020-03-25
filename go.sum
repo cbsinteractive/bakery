@@ -1,5 +1,6 @@
 github.com/cbsinteractive/go-dash v0.0.0-20200309174059-c978edf9d310 h1:BZOhTau2Vx5d9j9tM/bsDiYsjvi+rmgCkrLiq7rSQqk=
 github.com/cbsinteractive/go-dash v0.0.0-20200309174059-c978edf9d310/go.mod h1:c8Gxxfmh0jmZ6G+ISlpa315WBVkzd8mEhu6gN9mn5Qg=
+github.com/cbsinteractive/go-dash v0.0.0-20200317215258-dcd6d6a37ebe h1:yC/f7ORPNGQh3YmWoJ+JL/0SUUkahBAsoQOSMQDI29k=
 github.com/cbsinteractive/propeller-client-go v0.0.0-20200310001146-17ec5e73de5d h1:V61xgXiD0dR2JhFBBCYtsdHceflIaZaau54rpjBIdm8=
 github.com/cbsinteractive/propeller-client-go v0.0.0-20200310001146-17ec5e73de5d/go.mod h1:+5V3mIMEOwqiyb4r3dBsvKtu23kQvJU97Bem9brNzQU=
 github.com/cbsinteractive/propeller-client-go v0.0.0-20200319211718-7097ea26d5bc h1:UFPDXjG2qCDPwtPSiWeUemN5sbjGmlehDbZ7Q2aV1G0=

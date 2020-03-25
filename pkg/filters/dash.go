@@ -77,15 +77,15 @@ func (d *DASHFilter) getFilters(filters *parsers.MediaFilters) []execFilter {
 		filterList = append(filterList, d.filterAdaptationSetContentType)
 	}
 
-	if DefinesBitrateFilter(filters) {
+	if filters.Videos.Bitrate != nil || filters.Audios.Bitrate != nil {
 		filterList = append(filterList, d.filterBandwidth)
 	}
 
-	if filters.VideoFilters.Codecs != nil {
+	if filters.Videos.Codecs != nil {
 		filterList = append(filterList, d.filterVideoTypes)
 	}
 
-	if filters.AudioFilters.Codecs != nil {
+	if filters.Audios.Codecs != nil {
 		filterList = append(filterList, d.filterAudioTypes)
 	}
 
@@ -98,7 +98,7 @@ func (d *DASHFilter) getFilters(filters *parsers.MediaFilters) []execFilter {
 
 func (d *DASHFilter) filterVideoTypes(filters *parsers.MediaFilters, manifest *mpd.MPD) {
 	supportedVideoTypes := map[string]struct{}{}
-	for _, videoType := range filters.VideoFilters.Codecs {
+	for _, videoType := range filters.Videos.Codecs {
 		supportedVideoTypes[string(videoType)] = struct{}{}
 	}
 
@@ -107,7 +107,7 @@ func (d *DASHFilter) filterVideoTypes(filters *parsers.MediaFilters, manifest *m
 
 func (d *DASHFilter) filterAudioTypes(filters *parsers.MediaFilters, manifest *mpd.MPD) {
 	supportedAudioTypes := map[string]struct{}{}
-	for _, audioType := range filters.AudioFilters.Codecs {
+	for _, audioType := range filters.Audios.Codecs {
 		supportedAudioTypes[string(audioType)] = struct{}{}
 	}
 
@@ -211,50 +211,54 @@ func matchCodec(codec string, ct ContentType, supportedCodecs map[string]struct{
 	return false
 }
 
+//filter VideoBandwidth()
+
 func (d *DASHFilter) filterBandwidth(filters *parsers.MediaFilters, manifest *mpd.MPD) {
 	for _, period := range manifest.Periods {
 		var filteredAdaptationSets []*mpd.AdaptationSet
 		for _, as := range period.AdaptationSets {
-			var filteredRepresentations []*mpd.Representation
 			if as.ContentType == nil {
 				continue
 			}
-			var lowerBitrate int64
-			var upperBitrate int64
-			var nestedFilter *parsers.NestedFilters
 
-			// set subfilter equivalent to the subfilter of the adaptation set's content type
+			//evaluate bitrate filter for codec type
+			var bitrate *parsers.Bitrate
 			switch *as.ContentType {
-			case string(audioContentType):
-				nestedFilter = &filters.AudioFilters
 			case string(videoContentType):
-				nestedFilter = &filters.VideoFilters
-			default:
-				nestedFilter = nil
+				bitrate = filters.Videos.Bitrate
+			case string(audioContentType):
+				bitrate = filters.Audios.Bitrate
 			}
 
-			// if the subfilter in the adaptation set applies to the content type of the adaptation set
-			if nestedFilter != nil && !IsDefault(nestedFilter.MinBitrate, nestedFilter.MaxBitrate) {
-				lowerBitrate = int64(nestedFilter.MinBitrate)
-				upperBitrate = int64(nestedFilter.MaxBitrate)
-			} else {
-				lowerBitrate = int64(filters.MinBitrate)
-				upperBitrate = int64(filters.MaxBitrate)
+			// if bitrate is nil, then no filtering needs to be applied
+			// for this content type and we should append the representation
+			if bitrate == nil {
+				filteredAdaptationSets = append(filteredAdaptationSets, as)
+				continue
 			}
 
+			var filteredRepresentations []*mpd.Representation
 			for _, r := range as.Representations {
 				if r.Bandwidth == nil {
 					continue
 				}
-				if *r.Bandwidth <= upperBitrate && *r.Bandwidth >= lowerBitrate {
+
+				// if bitrate is nil, then no filtering needs to be applied
+				// for this content type and we should append the representation
+				if bitrate == nil {
+					filteredRepresentations = append(filteredRepresentations, r)
+					continue
+				}
+
+				if inRange(bitrate.Min, bitrate.Max, int(*r.Bandwidth)) {
 					filteredRepresentations = append(filteredRepresentations, r)
 				}
 			}
+
 			as.Representations = filteredRepresentations
 			if len(as.Representations) != 0 {
 				filteredAdaptationSets = append(filteredAdaptationSets, as)
 			}
-
 		}
 
 		period.AdaptationSets = filteredAdaptationSets

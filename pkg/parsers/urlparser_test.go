@@ -354,6 +354,25 @@ func TestURLParseUrl(t *testing.T) {
 			false,
 		},
 		{
+			"detect iframe filter when passed in url",
+			"v(avc)/a(mp4a)/l(es)/path/here/with/master.m3u8",
+			MediaFilters{
+				Videos: NestedFilters{
+					Codecs: []Codec{codecH264},
+				},
+				Audios: NestedFilters{
+					Codecs:   []Codec{"mp4a"},
+					Language: []Language{langES},
+				},
+				Captions: NestedFilters{
+					Language: []Language{langES},
+				},
+				Protocol: ProtocolHLS,
+			},
+			"/path/here/with/master.m3u8",
+			false,
+		},
+		{
 			"detect iframe filter when passed in url with other nested filters",
 			"v(i-frame,avc,l(en))/path/here/with/master.m3u8",
 			MediaFilters{

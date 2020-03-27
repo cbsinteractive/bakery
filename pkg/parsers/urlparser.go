@@ -43,9 +43,11 @@ const (
 	audioEnhacedAC3         AudioType = "ec-3"
 	audioNoAudioDescription AudioType = "noAd"
 
-	langPTBR Language = "pt-BR"
-	langES   Language = "es-MX"
 	langEN   Language = "en"
+	langPT   Language = "pt"
+	langPTBR Language = "pt-BR"
+	langES   Language = "es"
+	langESMX Language = "es-MX"
 
 	codecHDR10              Codec = "hdr10"
 	codecDolbyVision        Codec = "dovi"
@@ -148,7 +150,6 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 					return keyError("Video", err)
 				}
 			}
-
 		case "a":
 			for _, sf := range nestedFilters {
 				if err := mf.getNestedFilters(sf, audioContent); err != nil {

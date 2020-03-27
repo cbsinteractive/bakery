@@ -5,11 +5,7 @@ nav_order: 6
 ---
 
 # Nested Filters
-A way to apply <a href="codec.html">codec</a> and <a href="bandwidth.html">bandwidth</a> filters to a specific type of content. The nested codec and bandwidth filters behave like their non-nested versions.
-
-
-## Interaction with General Filters
-When applying the nested bandwidth filter to a content type, the nested bandwidth range is limited by the overall bandwidth filter range. For example, if you specify a nested audio bandwidth range of 0 to 1Mbps and an overall bandwidth range of 0 to 500Kbps, any audio in the filtered manifest will be between the overall bandwidth range. If the content type's bandwidth filter does not overlap with the overall bandwidth filter, the content type's bandwidth filter won't be applied at all.
+A way to apply filters that targets specific content type within a given playlist. These filters behave like their non-nested versions, this time being supplied as values for our video, audio, and/or caption type filters. 
 
 ## Protocol Support
 
@@ -19,15 +15,21 @@ yes | yes  |
 
 ## Supported Values
 
-| content types | example               |
-|:-------------:|:---------------------:|
-| audio         | a(co(ac-3),b(0,1000)) |
-| video         | v(co(avc),b(0,1000))  |
+| content types | example       |
+|:-------------:|:-------------:|
+| audio         | a(b(0,1000))  |
+| video         | v(b(0,1000))  |
+| caption       | c(b(0,1000))  |
 
-| subfilters | example      |
-|:----------:|:------------:|
-| codec      | a(co(ac-3))  |
-| bandwidth  | v(b(0,1000)) |
+| subfilters | example        |
+|:----------:|:-------------:|
+| codec      | co(ac-3,ec-3) |
+| bandwidth  | b(0,1000)     |
+| language   | l(en,pt)      |
+
+
+## Limitations
+When applying the nested bandwidth filter to a content type, the nested bandwidth range is limited by the overall bandwidth filter range. For example, if you specify a nested audio bandwidth range of 0 to 1Mbps and an overall bandwidth range of 0 to 500Kbps, any audio in the filtered manifest will be between the overall bandwidth range. If the content type's bandwidth filter does not overlap with the overall bandwidth filter, the content type's bandwidth filter won't be applied at all.
 
 
 ## Usage Example

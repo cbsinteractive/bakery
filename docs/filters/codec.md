@@ -17,15 +17,17 @@ yes | yes  |
 
 ## Supported Values
 
-| codec         | values | example |
-|:-------------:|:------:|:-------:|
-| AVC           | avc    | v(avc)  |
-| HEVC          | hvc    | v(hvc)  |
-| HDR10         | hdr10  | v(hdr10)|
-| Dolby         | dvh    | v(dvh)  |
-| AAC           | mp4a   | a(mp4a) |
-| AC-3          | ac-3   | a(ac-3) |
-| Enhanced AC-3 | ec-3   | a(ec-3) |
+| content type  | codec         | values | example |
+|:-------------:|:-------------:|:------:|:-------:|
+| video         | AVC           | avc    | v(avc)  |
+|               | HEVC          | hvc    | v(hvc)  |
+|               | HDR10         | hdr10  | v(hdr10)|
+|               | Dolby         | dvh    | v(dvh)  |
+| audio         | AAC           | mp4a   | a(mp4a) |
+|               | AC-3          | ac-3   | a(ac-3) |
+|               | Enhanced AC-3 | ec-3   | a(ec-3) |
+| captions      | AAC           | mp4a   | c(wvtt) |
+|               | AC-3          | ac-3   | c(sptt) |
 
 ## Usage Example 
 ### Single value filter:

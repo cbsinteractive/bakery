@@ -32,19 +32,3 @@ func validatePositiveRange(x, y, max int) bool {
 
 	return true
 }
-
-//max returns the larger of int a and int b
-func max(a, b int) int {
-	if a < b {
-		return b
-	}
-	return a
-}
-
-//min returns the smaller of int a and int b
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}

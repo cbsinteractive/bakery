@@ -344,17 +344,7 @@ func TestURLParseUrl(t *testing.T) {
 			false,
 		},
 		{
-			"detect iframe filter when passed in url",
-			"v(i-frame)/path/here/with/master.m3u8",
-			MediaFilters{
-				Protocol: ProtocolHLS,
-				IFrame:   true,
-			},
-			"/path/here/with/master.m3u8",
-			false,
-		},
-		{
-			"detect iframe filter when passed in url",
+			"detect overall lang filter when passed in url, populate nested filters",
 			"v(avc)/a(mp4a)/l(es)/path/here/with/master.m3u8",
 			MediaFilters{
 				Videos: NestedFilters{
@@ -368,6 +358,54 @@ func TestURLParseUrl(t *testing.T) {
 					Language: []Language{langES},
 				},
 				Protocol: ProtocolHLS,
+			},
+			"/path/here/with/master.m3u8",
+			false,
+		},
+		{
+			"detect nested lang filter when passed in via caption type",
+			"v(avc)/a(mp4a)/c(l(es))/path/here/with/master.m3u8",
+			MediaFilters{
+				Videos: NestedFilters{
+					Codecs: []Codec{codecH264},
+				},
+				Audios: NestedFilters{
+					Codecs: []Codec{"mp4a"},
+				},
+				Captions: NestedFilters{
+					Language: []Language{langES},
+				},
+				Protocol: ProtocolHLS,
+			},
+			"/path/here/with/master.m3u8",
+			false,
+		},
+		{
+			"detect caption type filter when passed in url",
+			"ct(wvtt)/path/here/with/master.m3u8",
+			MediaFilters{
+				Protocol:     ProtocolHLS,
+				CaptionTypes: []CaptionType{"wvtt"},
+			},
+			"/path/here/with/master.m3u8",
+			false,
+		},
+		{
+			"detect stream type filter when passed in url",
+			"fs(text,video)/path/here/with/master.m3u8",
+			MediaFilters{
+				Protocol:          ProtocolHLS,
+				FilterStreamTypes: []StreamType{"text", "video"},
+			},
+			"/path/here/with/master.m3u8",
+			false,
+		},
+		{
+			"detect iframe filter when passed in url",
+			"v(i-frame)/path/here/with/master.m3u8",
+			MediaFilters{
+				Protocol: ProtocolHLS,
+				IFrame:   true,
 			},
 			"/path/here/with/master.m3u8",
 			false,

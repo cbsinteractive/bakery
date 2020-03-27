@@ -951,6 +951,174 @@ func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
 	}
 }
 
+func TestDASHFilter_FilterManifest_LanguageFilter(t *testing.T) {
+	manifestWithMultiLanguages := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video">
+      <Representation bandwidth="256" codecs="hvc1.2.4.L93.90" id="0"></Representation>
+      <Representation bandwidth="256" codecs="hvc1.2.4.L90.90" id="1"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="audio">
+      <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="2" lang="en" contentType="text">
+      <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="3" lang="es" contentType="audio">
+      <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="4" lang="es" contentType="text">
+      <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="5" lang="pt" contentType="audio">
+      <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="6" lang="pt" contentType="text">
+      <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	manifestWithNoSpanish := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video">
+      <Representation bandwidth="256" codecs="hvc1.2.4.L93.90" id="0"></Representation>
+      <Representation bandwidth="256" codecs="hvc1.2.4.L90.90" id="1"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="audio">
+      <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="2" lang="en" contentType="text">
+      <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="3" lang="pt" contentType="audio">
+      <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="4" lang="pt" contentType="text">
+      <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	manifestWithNoSpanishAndPortugese := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video">
+      <Representation bandwidth="256" codecs="hvc1.2.4.L93.90" id="0"></Representation>
+      <Representation bandwidth="256" codecs="hvc1.2.4.L90.90" id="1"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="audio">
+      <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="2" lang="en" contentType="text">
+      <Representation bandwidth="256" codecs="wvtt" id="0"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	manifestWithNoCaptions := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video">
+      <Representation bandwidth="256" codecs="hvc1.2.4.L93.90" id="0"></Representation>
+      <Representation bandwidth="256" codecs="hvc1.2.4.L90.90" id="1"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="audio">
+      <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="2" lang="es" contentType="audio">
+      <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="3" lang="pt" contentType="audio">
+      <Representation bandwidth="256" codecs="mp4a.40.2" id="0"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	tests := []struct {
+		name                  string
+		filters               *parsers.MediaFilters
+		manifestContent       string
+		expectManifestContent string
+		expectErr             bool
+	}{
+		{
+			name:                  "when no filters are set, nothing is stripped from manifest",
+			filters:               &parsers.MediaFilters{},
+			manifestContent:       manifestWithMultiLanguages,
+			expectManifestContent: manifestWithMultiLanguages,
+		},
+		{
+			name: "when es lang is set, adaptation sets with es are stripped from manifest",
+			filters: &parsers.MediaFilters{
+				Audios: parsers.NestedFilters{
+					Language: []parsers.Language{"es"},
+				},
+				Captions: parsers.NestedFilters{
+					Language: []parsers.Language{"es"},
+				},
+			},
+			manifestContent:       manifestWithMultiLanguages,
+			expectManifestContent: manifestWithNoSpanish,
+		},
+		{
+			name: "when es and pt lang is set, adaptation sets with es and pt are stripped from manifest",
+			filters: &parsers.MediaFilters{
+				Audios: parsers.NestedFilters{
+					Language: []parsers.Language{"es", "pt"},
+				},
+				Captions: parsers.NestedFilters{
+					Language: []parsers.Language{"es", "pt"},
+				},
+			},
+			manifestContent:       manifestWithMultiLanguages,
+			expectManifestContent: manifestWithNoSpanishAndPortugese,
+		},
+		{
+			name: "when es, pt, and en caption filters are set, expect those captions to be removed",
+			filters: &parsers.MediaFilters{
+				Captions: parsers.NestedFilters{
+					Language: []parsers.Language{"es", "pt", "en"},
+				},
+			},
+			manifestContent:       manifestWithMultiLanguages,
+			expectManifestContent: manifestWithNoCaptions,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
+
+			manifest, err := filter.FilterManifest(tt.filters)
+			if err != nil && !tt.expectErr {
+				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				return
+			} else if err == nil && tt.expectErr {
+				t.Error("FilterManifest() expected an error, got nil")
+				return
+			}
+
+			if g, e := manifest, tt.expectManifestContent; g != e {
+				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+					cmp.Diff(g, e))
+			}
+		})
+	}
+
+}
+
 func TestDASHFilter_FilterRole_OverwriteValue(t *testing.T) {
 	manifestWithAccessibilityElement := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">

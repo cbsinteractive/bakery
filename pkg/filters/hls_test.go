@@ -1618,6 +1618,133 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00025.ts
 	}
 }
 
+func TestHLSFilter_FilterManifest_LanguageFilter(t *testing.T) {
+
+	masterManifestWithMultipleLangs := `#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio0",NAME="English",DEFAULT=YES,AUTOSELECT=YES,LANGUAGE="en",URI="https://existing.base/path/index-f8-a1.m3u8"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio0",NAME="Dansk",DEFAULT=NO,AUTOSELECT=NO,LANGUAGE="da",URI="https://existing.base/path/index-f10-a1.m3u8"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio0",NAME="Deutsch",DEFAULT=NO,AUTOSELECT=NO,LANGUAGE="de",URI="https://existing.base/path/index-f11-a1.m3u8"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio0",NAME="Spanish (Latin America)",DEFAULT=NO,AUTOSELECT=NO,LANGUAGE="es",URI="https://existing.base/path/index-f12-a1.m3u8"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio0",NAME="Brazilian Portuguese",DEFAULT=NO,AUTOSELECT=NO,LANGUAGE="pt",URI="https://existing.base/path/index-f16-a1.m3u8"
+#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subs0",NAME="English",DEFAULT=YES,AUTOSELECT=YES,LANGUAGE="en",URI="https://existing.base/path/index-f19.m3u8"
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=277965,CODECS="avc1.4d401e,mp4a.40.2",RESOLUTION=384x216,AUDIO="audio0",SUBTITLES="subs0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f1-v1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=479857,CODECS="avc1.4d401e,mp4a.40.2",RESOLUTION=512x288,AUDIO="audio0",SUBTITLES="subs0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f2-v1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=786893,CODECS="avc1.4d401e,mp4a.40.2",RESOLUTION=640x360,AUDIO="audio0",SUBTITLES="subs0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f3-v1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1015563,CODECS="avc1.4d401e,mp4a.40.2",RESOLUTION=768x432,AUDIO="audio0",SUBTITLES="subs0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f4-v1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1421115,CODECS="avc1.4d401e,mp4a.40.2",RESOLUTION=960x540,AUDIO="audio0",SUBTITLES="subs0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f5-v1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1956642,CODECS="avc1.640028,mp4a.40.2",RESOLUTION=1280x720,AUDIO="audio0",SUBTITLES="subs0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f6-v1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=3712583,CODECS="avc1.640028,mp4a.40.2",RESOLUTION=1920x1080,AUDIO="audio0",SUBTITLES="subs0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f7-v1.m3u8
+`
+
+	masterManifestWithEnglishOnly := `#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio0",NAME="English",DEFAULT=YES,AUTOSELECT=YES,LANGUAGE="en",URI="https://existing.base/path/index-f8-a1.m3u8"
+#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subs0",NAME="English",DEFAULT=YES,AUTOSELECT=YES,LANGUAGE="en",URI="https://existing.base/path/index-f19.m3u8"
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=277965,CODECS="avc1.4d401e,mp4a.40.2",RESOLUTION=384x216,AUDIO="audio0",SUBTITLES="subs0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f1-v1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=479857,CODECS="avc1.4d401e,mp4a.40.2",RESOLUTION=512x288,AUDIO="audio0",SUBTITLES="subs0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f2-v1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=786893,CODECS="avc1.4d401e,mp4a.40.2",RESOLUTION=640x360,AUDIO="audio0",SUBTITLES="subs0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f3-v1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1015563,CODECS="avc1.4d401e,mp4a.40.2",RESOLUTION=768x432,AUDIO="audio0",SUBTITLES="subs0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f4-v1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1421115,CODECS="avc1.4d401e,mp4a.40.2",RESOLUTION=960x540,AUDIO="audio0",SUBTITLES="subs0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f5-v1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1956642,CODECS="avc1.640028,mp4a.40.2",RESOLUTION=1280x720,AUDIO="audio0",SUBTITLES="subs0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f6-v1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=3712583,CODECS="avc1.640028,mp4a.40.2",RESOLUTION=1920x1080,AUDIO="audio0",SUBTITLES="subs0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f7-v1.m3u8
+`
+
+	masterManifestWithSpanishAndPortugeseAndNoCaptions := `#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio0",NAME="Spanish (Latin America)",DEFAULT=NO,AUTOSELECT=NO,LANGUAGE="es",URI="https://existing.base/path/index-f12-a1.m3u8"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio0",NAME="Brazilian Portuguese",DEFAULT=NO,AUTOSELECT=NO,LANGUAGE="pt",URI="https://existing.base/path/index-f16-a1.m3u8"
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=277965,CODECS="avc1.4d401e,mp4a.40.2",RESOLUTION=384x216,AUDIO="audio0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f1-v1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=479857,CODECS="avc1.4d401e,mp4a.40.2",RESOLUTION=512x288,AUDIO="audio0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f2-v1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=786893,CODECS="avc1.4d401e,mp4a.40.2",RESOLUTION=640x360,AUDIO="audio0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f3-v1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1015563,CODECS="avc1.4d401e,mp4a.40.2",RESOLUTION=768x432,AUDIO="audio0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f4-v1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1421115,CODECS="avc1.4d401e,mp4a.40.2",RESOLUTION=960x540,AUDIO="audio0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f5-v1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1956642,CODECS="avc1.640028,mp4a.40.2",RESOLUTION=1280x720,AUDIO="audio0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f6-v1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=3712583,CODECS="avc1.640028,mp4a.40.2",RESOLUTION=1920x1080,AUDIO="audio0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
+https://existing.base/path/index-f7-v1.m3u8
+`
+
+	tests := []struct {
+		name                  string
+		filters               *parsers.MediaFilters
+		manifestContent       string
+		expectManifestContent string
+		expectErr             bool
+	}{
+		{
+			name:                  "when no filters are passed, nothing is removed",
+			filters:               &parsers.MediaFilters{},
+			manifestContent:       masterManifestWithMultipleLangs,
+			expectManifestContent: masterManifestWithMultipleLangs,
+		},
+		{
+			name: "when multiple audio languages are passed in, remove all those languages of type audio",
+			filters: &parsers.MediaFilters{
+				Audios: parsers.NestedFilters{
+					Language: []parsers.Language{"da", "de", "es", "pt"},
+				},
+			},
+			manifestContent:       masterManifestWithMultipleLangs,
+			expectManifestContent: masterManifestWithEnglishOnly,
+		},
+		{
+			name: "when multiple audio and caption languages are passed in, remove provided audio and caption languages ",
+			filters: &parsers.MediaFilters{
+				Audios: parsers.NestedFilters{
+					Language: []parsers.Language{"da", "de", "en"},
+				},
+				Captions: parsers.NestedFilters{
+					Language: []parsers.Language{"en"},
+				},
+			},
+			manifestContent:       masterManifestWithMultipleLangs,
+			expectManifestContent: masterManifestWithSpanishAndPortugeseAndNoCaptions,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			filter := NewHLSFilter("https://existing.base/path/master.m3u8", tt.manifestContent, config.Config{Hostname: "bakery.cbsi.video"})
+			manifest, err := filter.FilterManifest(tt.filters)
+
+			if err != nil && !tt.expectErr {
+				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				return
+			} else if err == nil && tt.expectErr {
+				t.Error("FilterManifest() expected an error, got nil")
+				return
+			}
+
+			if g, e := manifest, tt.expectManifestContent; g != e {
+				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+					cmp.Diff(g, e))
+			}
+
+		})
+	}
+}
+
 func TestHLSFilter_FilterManifest_IFrameFilter(t *testing.T) {
 	masterManifestWithSingleIFrame := `#EXTM3U
 #EXT-X-VERSION:4
@@ -1638,8 +1765,6 @@ https://existing.base/path/link_6.m3u8
 	masterManifestWithMultipleIFrame := `#EXTM3U
 #EXT-X-VERSION:4
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
-#EXT-X-I-FRAME-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=250,CODECS="avc1.4d401e",RESOLUTION=384x216,URI="link_1.m3u8",
-#EXT-X-I-FRAME-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=550,CODECS="avc1.4d401e",RESOLUTION=512x288,URI="link_2.m3u8",
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC"
 https://existing.base/path/link_1.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4200,AVERAGE-BANDWIDTH=4200,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC"
@@ -1650,6 +1775,8 @@ https://existing.base/path/link_4.m3u8
 https://existing.base/path/link_5.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC"
 https://existing.base/path/link_6.m3u8
+#EXT-X-I-FRAME-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=250,CODECS="avc1.4d401e",RESOLUTION=384x216,URI="link_1.m3u8",
+#EXT-X-I-FRAME-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=550,CODECS="avc1.4d401e",RESOLUTION=512x288,URI="link_2.m3u8",
 `
 
 	masterManifestWithNoIframe := `#EXTM3U

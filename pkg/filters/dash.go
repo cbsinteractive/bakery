@@ -176,6 +176,7 @@ func (d *DASHFilter) filterAdaptationSetLanguage(filters *parsers.MediaFilters, 
 			case captionContentType:
 				langs = filters.Captions.Language
 			default:
+				filteredAdaptationSets = append(filteredAdaptationSets, as)
 				continue
 			}
 

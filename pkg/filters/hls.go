@@ -98,7 +98,7 @@ func (h *HLSFilter) filterVariants(filters *parsers.MediaFilters, v *m3u8.Varian
 	variantCodecs := strings.Split(v.Codecs, ",")
 
 	if filters.Videos.Bitrate != nil || filters.Audios.Bitrate != nil {
-		if h.filterBandwidthVariant(int(v.VariantParams.Bandwidth), variantCodecs, filters) {
+		if h.filterVariantBandwidth(int(v.VariantParams.Bandwidth), variantCodecs, filters) {
 			return true, nil
 		}
 	}
@@ -136,10 +136,15 @@ func (h *HLSFilter) filterVariants(filters *parsers.MediaFilters, v *m3u8.Varian
 		}
 	}
 
+	if filters.Audios.Language != nil || filters.Captions.Language != nil {
+		h.filterVariantLanguage(v, filters)
+	}
+
 	return false, nil
 }
 
-func (h *HLSFilter) filterBandwidthVariant(b int, variantCodecs []string, filters *parsers.MediaFilters) bool {
+// Returns true if the provided variant is out of range since filters are removed when true.
+func (h *HLSFilter) filterVariantBandwidth(b int, variantCodecs []string, filters *parsers.MediaFilters) bool {
 	for _, codec := range variantCodecs {
 		var min, max int
 
@@ -170,7 +175,7 @@ func (h *HLSFilter) filterBandwidthVariant(b int, variantCodecs []string, filter
 	return false
 }
 
-// Returns true if the given variant (variantCodecs) should be allowed filtered out for supportedCodecs of filterType
+// Returns true if the given variant (variantCodecs) should be filtered out
 func filterVariantCodecs(filterType ContentType, variantCodecs []string, supportedCodecs map[string]struct{}, supportedFilterTypes map[ContentType]func(string) bool) (bool, error) {
 	var matchFilterType func(string) bool
 
@@ -193,6 +198,53 @@ func filterVariantCodecs(filterType ContentType, variantCodecs []string, support
 	}
 
 	return variantFound, nil
+}
+
+// Returns true if a given variant matches the provided language filter
+func (h *HLSFilter) filterVariantLanguage(v *m3u8.Variant, filters *parsers.MediaFilters) {
+	if v.Alternatives == nil {
+		return
+	}
+
+	match := func(alt *m3u8.Alternative, langs []parsers.Language) bool {
+		if langs == nil {
+			return false
+		}
+
+		for _, lang := range langs {
+			if string(lang) == alt.Language {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	var alts []*m3u8.Alternative
+	var groupIDs = map[string]struct{}{}
+	for _, alt := range v.Alternatives {
+		remove := true
+		switch alt.Type {
+		case "AUDIO":
+			remove = match(alt, filters.Audios.Language)
+		case "SUBTITLES":
+			remove = match(alt, filters.Captions.Language)
+		}
+
+		if !remove {
+			alts = append(alts, alt)
+			groupIDs[alt.GroupId] = struct{}{}
+		}
+
+	}
+
+	v.Alternatives = alts
+	if _, audio := groupIDs[v.Audio]; !audio {
+		v.Audio = ""
+	}
+	if _, subs := groupIDs[v.Subtitles]; !subs {
+		v.Subtitles = ""
+	}
 }
 
 func (h *HLSFilter) normalizeVariant(v *m3u8.Variant, absolute url.URL) (*m3u8.Variant, error) {

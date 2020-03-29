@@ -1,5 +1,5 @@
 on: [push]
-name: CICD
+name: CI
 env:
   AUTH: ${{secrets.USER_DEPLOY_REPO}}:${{secrets.PERSONAL_ACCESS_TOKEN}}
   REPO: ${{secrets.DEPLOY_REPO}}

@@ -2,6 +2,8 @@
   <img width="250" src="http://flv.io/bakery-logo.svg">
 </p>
 
+[![CI Status](https://github.com/cbsinteractive/bakery/workflows/CI/badge.svg)](https://github.com/cbsinteractive/bakery/actions)
+[![CD Status](https://github.com/cbsinteractive/bakery-deploy/workflows/CD/badge.svg)](https://github.com/cbsinteractive/bakery-deploy/actions)
 [![codecov](https://codecov.io/gh/cbsinteractive/bakery/branch/master/graph/badge.svg)](https://codecov.io/gh/cbsinteractive/bakery)
 
 

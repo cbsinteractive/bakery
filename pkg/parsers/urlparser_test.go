@@ -16,6 +16,40 @@ func TestURLParseUrl(t *testing.T) {
 		expectedErr          bool
 	}{
 		{
+			"one content type",
+			"/ct(text)/",
+			MediaFilters{
+				MaxBitrate:   math.MaxInt32,
+				MinBitrate:   0,
+				ContentTypes: []ContentType{"text"},
+				VideoFilters: NestedFilters{
+					MaxBitrate: math.MaxInt32,
+				},
+				AudioFilters: NestedFilters{
+					MaxBitrate: math.MaxInt32,
+				},
+			},
+			"/",
+			false,
+		},
+		{
+			"multiple content types",
+			"/ct(audio,video)/",
+			MediaFilters{
+				MaxBitrate:   math.MaxInt32,
+				MinBitrate:   0,
+				ContentTypes: []ContentType{"audio", "video"},
+				VideoFilters: NestedFilters{
+					MaxBitrate: math.MaxInt32,
+				},
+				AudioFilters: NestedFilters{
+					MaxBitrate: math.MaxInt32,
+				},
+			},
+			"/",
+			false,
+		},
+		{
 			"one video type",
 			"/v(hdr10)/",
 			MediaFilters{
@@ -69,12 +103,10 @@ func TestURLParseUrl(t *testing.T) {
 		},
 		{
 			"videos, audio, captions and bitrate range",
-			"/v(hdr10,hevc)/a(aac)/al(pt-BR,en)/c(en)/b(100,4000)/",
+			"/v(hdr10,hevc)/a(aac)/c(wvtt)/b(100,4000)/",
 			MediaFilters{
-				AudioLanguages:   []AudioLanguage{audioLangPTBR, audioLangEN},
-				CaptionLanguages: []CaptionLanguage{captionEN},
-				MaxBitrate:       4000,
-				MinBitrate:       100,
+				MaxBitrate: 4000,
+				MinBitrate: 100,
 				VideoFilters: NestedFilters{
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []Codec{"hev1.2", "hvc1.2", codecHEVC},
@@ -83,6 +115,7 @@ func TestURLParseUrl(t *testing.T) {
 					MaxBitrate: math.MaxInt32,
 					Codecs:     []Codec{codecAAC},
 				},
+				CaptionTypes: []CaptionType{"wvtt"},
 			},
 			"/",
 			false,

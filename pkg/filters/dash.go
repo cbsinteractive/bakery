@@ -73,8 +73,8 @@ func (d *DASHFilter) FilterManifest(filters *parsers.MediaFilters) (string, erro
 
 func (d *DASHFilter) getFilters(filters *parsers.MediaFilters) []execFilter {
 	filterList := []execFilter{}
-	if filters.FilterStreamTypes != nil && len(filters.FilterStreamTypes) > 0 {
-		filterList = append(filterList, d.filterAdaptationSetType)
+	if filters.ContentTypes != nil && len(filters.ContentTypes) > 0 {
+		filterList = append(filterList, d.filterAdaptationSetContentType)
 	}
 
 	if DefinesBitrateFilter(filters) {
@@ -156,9 +156,9 @@ func filterContentType(filter ContentType, supportedContentTypes map[string]stru
 	}
 }
 
-func (d *DASHFilter) filterAdaptationSetType(filters *parsers.MediaFilters, manifest *mpd.MPD) {
-	filteredAdaptationSetTypes := map[parsers.StreamType]struct{}{}
-	for _, streamType := range filters.FilterStreamTypes {
+func (d *DASHFilter) filterAdaptationSetContentType(filters *parsers.MediaFilters, manifest *mpd.MPD) {
+	filteredAdaptationSetTypes := map[parsers.ContentType]struct{}{}
+	for _, streamType := range filters.ContentTypes {
 		filteredAdaptationSetTypes[streamType] = struct{}{}
 	}
 
@@ -169,7 +169,7 @@ func (d *DASHFilter) filterAdaptationSetType(filters *parsers.MediaFilters, mani
 		asIndex := 0
 		for _, as := range period.AdaptationSets {
 			if as.ContentType != nil {
-				if _, filtered := filteredAdaptationSetTypes[parsers.StreamType(*as.ContentType)]; filtered {
+				if _, filtered := filteredAdaptationSetTypes[parsers.ContentType(*as.ContentType)]; filtered {
 					continue
 				}
 			}

@@ -24,9 +24,10 @@ type CaptionLanguage string
 // CaptionType is an allowed caption format for the stream
 type CaptionType string
 
-// StreamType represents one stream type (e.g. video, audio, text)
-type StreamType string
+// ContentType represents one stream type (e.g. video, audio, text)
+type ContentType string
 
+// Codec represet the codec of the ContentType
 type Codec string
 
 // Protocol describe the valid protocols
@@ -74,17 +75,15 @@ type Trim struct {
 
 // MediaFilters is a struct that carry all the information passed via url
 type MediaFilters struct {
-	VideoFilters      NestedFilters     `json:",omitempty"`
-	AudioFilters      NestedFilters     `json:",omitempty"`
-	AudioLanguages    []AudioLanguage   `json:",omitempty"`
-	CaptionLanguages  []CaptionLanguage `json:",omitempty"`
-	CaptionTypes      []CaptionType     `json:",omitempty"`
-	FilterStreamTypes []StreamType      `json:",omitempty"`
-	MaxBitrate        int               `json:",omitempty"`
-	MinBitrate        int               `json:",omitempty"`
-	Plugins           []string          `json:",omitempty"`
-	Trim              *Trim             `json:",omitempty"`
-	Protocol          Protocol          `json:"protocol"`
+	VideoFilters NestedFilters `json:",omitempty"`
+	AudioFilters NestedFilters `json:",omitempty"`
+	CaptionTypes []CaptionType `json:",omitempty"`
+	ContentTypes []ContentType `json:",omitempty"`
+	MaxBitrate   int           `json:",omitempty"`
+	MinBitrate   int           `json:",omitempty"`
+	Plugins      []string      `json:",omitempty"`
+	Trim         *Trim         `json:",omitempty"`
+	Protocol     Protocol      `json:"protocol"`
 }
 
 type NestedFilters struct {
@@ -137,7 +136,7 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 		switch key := subparts[1]; key {
 		case "v":
 			for _, sf := range nestedFilters {
-				result, filter, err := mf.findNestedFilters(sf, StreamType("video"))
+				result, filter, err := mf.findNestedFilters(sf, ContentType("video"))
 				if err != nil {
 					return result, filter, err
 				}
@@ -145,21 +144,12 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 
 		case "a":
 			for _, sf := range nestedFilters {
-				result, filter, err := mf.findNestedFilters(sf, StreamType("audio"))
+				result, filter, err := mf.findNestedFilters(sf, ContentType("audio"))
 				if err != nil {
 					return result, filter, err
 				}
 			}
-
-		case "al":
-			for _, audioLanguage := range filters {
-				mf.AudioLanguages = append(mf.AudioLanguages, AudioLanguage(audioLanguage))
-			}
 		case "c":
-			for _, captionLanguage := range filters {
-				mf.CaptionLanguages = append(mf.CaptionLanguages, CaptionLanguage(captionLanguage))
-			}
-		case "ct":
 			if mf.CaptionTypes == nil {
 				mf.CaptionTypes = []CaptionType{}
 			}
@@ -167,9 +157,9 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 			for _, captionType := range filters {
 				mf.CaptionTypes = append(mf.CaptionTypes, CaptionType(captionType))
 			}
-		case "fs":
-			for _, streamType := range filters {
-				mf.FilterStreamTypes = append(mf.FilterStreamTypes, StreamType(streamType))
+		case "ct":
+			for _, contentType := range filters {
+				mf.ContentTypes = append(mf.ContentTypes, ContentType(contentType))
 			}
 		case "b":
 			if filters[0] != "" {
@@ -238,7 +228,7 @@ func (f *MediaFilters) filterPlugins(path string) bool {
 	return false
 }
 
-func (mf *MediaFilters) findNestedFilters(nestedFilter string, streamType StreamType) (string, *MediaFilters, error) {
+func (mf *MediaFilters) findNestedFilters(nestedFilter string, streamType ContentType) (string, *MediaFilters, error) {
 	// assumes nested filters are properly formatted
 	splitNestedFilter := urlParseRegexp.FindStringSubmatch(nestedFilter)
 	var key string
@@ -310,7 +300,7 @@ func SplitAfter(s string, re *regexp.Regexp) []string {
 }
 
 // normalizeNestedFilter takes a NestedFilter and sets AudioFilters' or VideoFilters' values accordingly.
-func (mf *MediaFilters) normalizeNestedFilter(streamType StreamType, key string, values []string) (string, *MediaFilters, error) {
+func (mf *MediaFilters) normalizeNestedFilter(streamType ContentType, key string, values []string) (string, *MediaFilters, error) {
 	var streamNestedFilters *NestedFilters
 	var err error
 	switch streamType {

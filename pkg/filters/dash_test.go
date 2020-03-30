@@ -740,10 +740,10 @@ func TestDASHFilter_FilterManifest_filterStreams(t *testing.T) {
 		{
 			name: "when video streams are filtered, the manifest contains no video adaptation sets",
 			filters: &parsers.MediaFilters{
-				MaxBitrate:        math.MaxInt32,
-				FilterStreamTypes: []parsers.StreamType{"video"},
-				VideoFilters:      parsers.NestedFilters{MaxBitrate: math.MaxInt32},
-				AudioFilters:      parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				MaxBitrate:   math.MaxInt32,
+				ContentTypes: []parsers.ContentType{"video"},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       manifestWithAudioAndVideoStreams,
 			expectManifestContent: manifestWithOnlyAudioStreams,
@@ -751,10 +751,10 @@ func TestDASHFilter_FilterManifest_filterStreams(t *testing.T) {
 		{
 			name: "when audio streams are filtered, the manifest contains no audio adaptation sets",
 			filters: &parsers.MediaFilters{
-				MaxBitrate:        math.MaxInt32,
-				FilterStreamTypes: []parsers.StreamType{"audio"},
-				VideoFilters:      parsers.NestedFilters{MaxBitrate: math.MaxInt32},
-				AudioFilters:      parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				MaxBitrate:   math.MaxInt32,
+				ContentTypes: []parsers.ContentType{"audio"},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       manifestWithAudioAndVideoStreams,
 			expectManifestContent: manifestWithOnlyVideoStreams,
@@ -763,10 +763,10 @@ func TestDASHFilter_FilterManifest_filterStreams(t *testing.T) {
 			name: "when audio and video streams are filtered, the manifest contains no audio or " +
 				"video adaptation sets",
 			filters: &parsers.MediaFilters{
-				MaxBitrate:        math.MaxInt32,
-				FilterStreamTypes: []parsers.StreamType{"video", "audio"},
-				VideoFilters:      parsers.NestedFilters{MaxBitrate: math.MaxInt32},
-				AudioFilters:      parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				MaxBitrate:   math.MaxInt32,
+				ContentTypes: []parsers.ContentType{"video", "audio"},
+				VideoFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
+				AudioFilters: parsers.NestedFilters{MaxBitrate: math.MaxInt32},
 			},
 			manifestContent:       manifestWithAudioAndVideoStreams,
 			expectManifestContent: manifestWithoutStreams,

@@ -16,12 +16,12 @@ no  | yes  |
 
 ## Supported Values
 
-| stream type | values | example   |
-|-------------|--------|-----------|
-| video       | video  | ct(video) |
-| audio       | audio  | ct(audio) |
-| text        | text   | ct(text)  |
-| image       | image  | ct(image) |
+| content type | values | example   |
+|--------------|--------|-----------|
+| video        | video  | ct(video) |
+| audio        | audio  | ct(audio) |
+| text         | text   | ct(text)  |
+| image        | image  | ct(image) |
 
 ## Usage Example 
 ### Single value filter:

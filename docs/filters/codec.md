@@ -1,13 +1,14 @@
 ---
 title: Codec
 parent: Filters
-nav_order: 1
+nav_order: 4
 ---
 
 # Codec
-Values in this filter define a whitelist of the audio and video codecs you want to **EXCLUDE** in the modifed manifest. Passing an empty value for either video or audio will return all audio and video codecs available in the manifest.
-<br>
-By default, the audio and video filter keys take codecs, but this isn't the only way to use them. You can nest filters to filter more than just codecs, as detailed on the <a href="nested-filters.html">nested filters</a> page.
+Values in this filter define a whitelist of the codecs you want to **EXCLUDE** in the modifed manifest, with the key denoting the content type you are targetting. Passing an empty value for either video or audio will return all audio and video codecs available in the manifest.
+
+
+By default, the audio, video, and caption keys will accept codecs as their value. but this is not the only way to use them. You can nest other filters filters into the video, audio, and caption filters to target their rela more than just codecs, as detailed on the <a href="nested-filters.html">nested filters</a> page.
 
 ## Protocol Support
 

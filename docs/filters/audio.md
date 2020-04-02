@@ -1,11 +1,11 @@
 ---
-title: Captions
+title: Audio
 parent: Filters
 nav_order: 3
 ---
 
-# Captions
-Values in this filter define a whitelist of the caption types you want to **EXCLUDE** in the modifed manifest. Passing an empty value for this filter will return all captions available in the manifest.
+# Audio
+Values in this filter define a whitelist of filters you want to apply to your audio content. Filters passed with an audio key will ignore video and caption type content that is advertised in your manifest. 
 
 ## Protocol Support
 
@@ -13,7 +13,13 @@ HLS | DASH |
 :--:|:----:|
 yes | yes  |
 
-## Supported Values
+## Supported Filters 
+
+1. <a href="codec.html">Codec Filters</a>
+
+2. <a href="bandwidth.html">Bandwidth Filters</a>
+
+3. <a href="language.html">Language Filters</a>
 
 | codec      | values | example  |
 |:----------:|:------:|:--------:|

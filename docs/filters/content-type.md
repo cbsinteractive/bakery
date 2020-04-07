@@ -1,27 +1,35 @@
 ---
 title: Content Type
 parent: Filters
-nav_order: 6
+nav_order: 8
 ---
 
 # Content Type
 
 Values in this filter define a whitelist of content types you want to **EXCLUDE** in the modifed manifest.
 
-## Protocol Support
+## Support
+
+### Protocol
 
 HLS | DASH |
 :--:|:----:|
 no  | yes  |
 
-## Supported Values
+### Keys
 
-| content type | values | example   |
-|--------------|--------|-----------|
-| video        | video  | ct(video) |
-| audio        | audio  | ct(audio) |
-| text         | text   | ct(text)  |
-| image        | image  | ct(image) |
+| name          | key  |
+|:-------------:|:----:|
+| content type  | ct() |
+
+### Values
+
+| values | example   |
+|--------|-----------|
+| video  | ct(video) |
+| audio  | ct(audio) |
+| text   | ct(text)  |
+| image  | ct(image) |
 
 ## Usage Example 
 ### Single value filter:

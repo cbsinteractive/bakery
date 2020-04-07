@@ -1,36 +1,46 @@
 ---
 title: Nested Filters
 parent: Filters
-nav_order: 8
+nav_order: 9
 ---
 
 # Nested Filters
 A way to apply filters that targets specific content type within a given playlist. These filters behave like their non-nested versions, this time being supplied as values for our video, audio, and/or caption type filters. 
 
-## Protocol Support
+If you haven't had the chance, we suggest getting started with our Quick Start guide before trying to apply filters. You can find it <a href="/bakery/quick-start/2020/03/05/quick-start.html">here</a>!
+
+## Support
+
+### Protocol
 
 HLS | DASH |
 :--:|:----:|
 yes | yes  |
 
-## Supported Values
+### Keys
 
-| content types | example       |
-|:-------------:|:-------------:|
-| audio         | a(b(0,1000))  |
-| video         | v(b(0,1000))  |
-| caption       | c(b(0,1000))  |
+| content types | key |
+|:-------------:|:---:|
+| audio         | a() |
+| video         | v() |
+| caption       | c() |
 
-| subfilters | example        |
-|:----------:|:-------------:|
-| codec      | co(ac-3,ec-3) |
-| bandwidth  | b(0,1000)     |
-| language   | l(en,pt)      |
+### Values
+
+| sub filters | key  |
+|:----------:|:----:|
+| codec      | co() |
+| bandwidth  | b()  |
+| language   | l()  |
 
 
 ## Limitations
-When applying the nested bandwidth filter to a content type, the nested bandwidth range is limited by the overall bandwidth filter range. For example, if you specify a nested audio bandwidth range of 0 to 1Mbps and an overall bandwidth range of 0 to 500Kbps, any audio in the filtered manifest will be between the overall bandwidth range. If the content type's bandwidth filter does not overlap with the overall bandwidth filter, the content type's bandwidth filter won't be applied at all.
+Nested filters were introduced as a way to target demuxed media represented in a playlist. If both nested and overall filters are applied, some filters may behave differently than expected. 
 
+It is recommended that the nested version of these filters be used for demuxed content only. If your playlist has muxed content, we recommend applying an overall bandwidth filter. In cases where playlists are interleaved with both muxed and demuxed streams, only nested filters should be used.
+
+### Language
+We do not apply the language filter to a video target. 
 
 ## Usage Example
 ### Single Nested Filter:
@@ -47,7 +57,7 @@ When applying the nested bandwidth filter to a content type, the nested bandwidt
     // Removes video outside of 500Kbps to 1MB
     $ http http://bakery.dev.cbsivideo.com/v(b(500,1000))/star_trek_discovery/S01/E01.m3u8
 
-### Multiple Nested Filter:
+### Multiple Nested Filters:
 To use multiple nested filters, separate with `,` with no space between nested filters.
 
     // Removes MPEG-4 audio and audio not in range of 500Kbps to 1MB

@@ -1,19 +1,27 @@
 ---
 title: Bandwidth
 parent: Filters
-nav_order: 5
+nav_order: 3
 ---
 
 # Bandwidth
 An **INCLUSIVE RANGE** of variant bitrates to **INCLUDE** in the modified manifest. Variants outside this range will be filtered out. If a single value is provided, it will define the minimum bitrate desired in the modified manifest.
 
-## Protocol Support
+## Support
+
+### Protocol
 
 HLS | DASH |
 :--:|:----:|
 yes | yes  |
 
-## Supported Values
+### Keys
+
+| name          | key |
+|:-------------:|:---:|
+| bandwidth     | b() |
+
+### Values
 
 | values (Kbps) | example   |
 |:-------------:|:---------:|

@@ -1,24 +1,32 @@
 ---
-title: Captions
+title: Caption Types
 parent: Filters
-nav_order: 3
+nav_order: 7
 ---
 
-# Captions
-Values in this filter define a whitelist of the caption types you want to **EXCLUDE** in the modifed manifest. Passing an empty value for this filter will return all captions available in the manifest.
+# Caption Types
+Values in this filter define a whitelist of the caption types you want to **EXCLUDE** in the modifed manifest.
 
-## Protocol Support
+## Support
+
+### Protocol
 
 HLS | DASH |
 :--:|:----:|
 yes | yes  |
 
-## Supported Values
+### Keys
 
-| codec      | values | example  |
-|:----------:|:------:|:--------:|
-| Subtitles  | stpp   | c(stpp) |
-| WebVTT     | wvtt   | c(wvtt) |
+| name          | key |
+|:-------------:|:---:|
+| caption type  | c() |
+
+### Values
+
+| values | example | description |
+|:------:|:-------:|:-----------:|
+| stpp   | c(stpp) | Subtitles   |
+| wvtt   | c(wvtt) | WebVTT      |
 
 
 ## Usage Example 

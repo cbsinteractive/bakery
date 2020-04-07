@@ -31,6 +31,7 @@ yes | yes   |
 
 ## Usage Example 
 ### Single value filter:
+
     // Removes HDR10
     $ http http://bakery.dev.cbsivideo.com/v(hdr10)/star_trek_discovery/S01/E01.m3u8
 
@@ -39,6 +40,7 @@ yes | yes   |
 
 ### Multi value filter:
 Mutli value filters are `,` with no space in between
+
     // Removes I-Frame, HDR10 and Dolby Vision video from the manifest
     $ http http://bakery.dev.cbsivideo.com/v(i-frame,hdr10,dvh)/star_trek_discovery/S01/E01.m3u8
 

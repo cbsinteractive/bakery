@@ -5,7 +5,7 @@ nav_order: 5
 ---
 
 # I-Frame
-When set, the I-Frame filter wil remove the I-frame from the playlist.
+When set, the I-Frame filter wil remove the I-Frame from the playlist.
 
 ## Support
 
@@ -30,12 +30,14 @@ yes | no   |
 
 ## Usage Example 
 ### Single value filter:
+
     // Removes I-Frame
     $ http http://bakery.dev.cbsivideo.com/v(i-frame)/star_trek_discovery/S01/E01.m3u8
 
 ### Multi value filter:
 Mutli value filters are `,` with no space in between
-    // Removes HDR10 and Dolby Vision video from the manifest
+
+    // Removes the I-Frame, HDR10 and Dolby Vision video from the manifest
     $ http http://bakery.dev.cbsivideo.com/v(i-frame,hdr10,dvh)/star_trek_discovery/S01/E01.m3u8
 
 ### Multiple filters:

@@ -25,7 +25,7 @@ no  | yes  |
 ### Values
 
 | values | example   |
-|--------|-----------|
+|:------:|:---------:|
 | video  | ct(video) |
 | audio  | ct(audio) |
 | text   | ct(text)  |

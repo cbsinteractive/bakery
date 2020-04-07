@@ -17,9 +17,14 @@ Bakery is a proxy and filter for HLS and DASH manifests.
 
 #### Export the environment variables:
 
+Please reach out to the [Propeller](https://cbsinteractive.github.io/propeller) team for configuring your access prior to working with propeller origin channels. 
+
     $ export BAKERY_CLIENT_TIMEOUT=5s 
     $ export BAKERY_HTTP_PORT=:8082
     $ export BAKERY_ORIGIN_HOST="https://streaming.cbs.com" 
+    $ export BAKERY_HOSTNAME="localhost:8082" // include port for local developement
+    $ export BAKERY_PROPELLER_HOST="http://propeller.com"
+    $ export BAKERY_PROPELLER_CREDS="usr:pws"
 
 Note that `BAKERY_ORIGIN_HOST` will be the base URL of your manifest files.
 

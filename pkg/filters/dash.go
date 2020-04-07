@@ -89,7 +89,7 @@ func (d *DASHFilter) getFilters(filters *parsers.MediaFilters) []execFilter {
 		filterList = append(filterList, d.filterAudioTypes)
 	}
 
-	if filters.CaptionTypes != nil {
+	if filters.Captions.Codecs != nil {
 		filterList = append(filterList, d.filterCaptionTypes)
 	}
 
@@ -120,7 +120,7 @@ func (d *DASHFilter) filterAudioTypes(filters *parsers.MediaFilters, manifest *m
 
 func (d *DASHFilter) filterCaptionTypes(filters *parsers.MediaFilters, manifest *mpd.MPD) {
 	supportedCaptionTypes := map[string]struct{}{}
-	for _, captionType := range filters.CaptionTypes {
+	for _, captionType := range filters.Captions.Codecs {
 		supportedCaptionTypes[string(captionType)] = struct{}{}
 	}
 
@@ -192,9 +192,9 @@ func (d *DASHFilter) filterAdaptationSetLanguage(filters *parsers.MediaFilters, 
 	}
 }
 
-func (d *DASHFilter) filterAdaptationSetType(filters *parsers.MediaFilters, manifest *mpd.MPD) {
-	filteredAdaptationSetTypes := map[parsers.StreamType]struct{}{}
-	for _, streamType := range filters.FilterStreamTypes {
+func (d *DASHFilter) filterAdaptationSetContentType(filters *parsers.MediaFilters, manifest *mpd.MPD) {
+	filteredAdaptationSetTypes := map[parsers.ContentType]struct{}{}
+	for _, streamType := range filters.ContentTypes {
 		filteredAdaptationSetTypes[streamType] = struct{}{}
 	}
 

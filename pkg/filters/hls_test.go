@@ -618,7 +618,9 @@ http://existing.base/uri/link_7.m3u8
 		{
 			name: "when all caption filters are supplied, expect all caption variants with captions to be stripped out",
 			filters: &parsers.MediaFilters{
-				CaptionTypes: []parsers.CaptionType{"stpp", "wvtt"},
+				Captions: parsers.NestedFilters{
+					Codecs: []parsers.Codec{"stpp", "wvtt"},
+				},
 			},
 			manifestContent:       manifestWithAllCaptions,
 			expectManifestContent: manifestWithNoCaptions,
@@ -626,7 +628,9 @@ http://existing.base/uri/link_7.m3u8
 		{
 			name: "when filter is supplied with wvtt, expect variants with wvtt to be stripped out",
 			filters: &parsers.MediaFilters{
-				CaptionTypes: []parsers.CaptionType{"wvtt"},
+				Captions: parsers.NestedFilters{
+					Codecs: []parsers.Codec{"wvtt"},
+				},
 			},
 			manifestContent:       manifestWithAllCaptions,
 			expectManifestContent: manifestFilterWithoutWVTT,
@@ -634,7 +638,9 @@ http://existing.base/uri/link_7.m3u8
 		{
 			name: "when filter is supplied with stpp, expect variants with wvtt to be stripped out",
 			filters: &parsers.MediaFilters{
-				CaptionTypes: []parsers.CaptionType{"stpp"},
+				Captions: parsers.NestedFilters{
+					Codecs: []parsers.Codec{"stpp"},
+				},
 			},
 			manifestContent:       manifestWithAllCaptions,
 			expectManifestContent: manifestFilterWithoutSTPP,
@@ -825,7 +831,9 @@ http://existing.base/uri/link_14.m3u8
 		{
 			name: "when filter is supplied with audio (ec-3 and mp4a) and captions (stpp), expect variants with ec-3, mp4a, and/or stpp to be stripped out",
 			filters: &parsers.MediaFilters{
-				CaptionTypes: []parsers.CaptionType{"stpp"},
+				Captions: parsers.NestedFilters{
+					Codecs: []parsers.Codec{"stpp"},
+				},
 				Audios: parsers.NestedFilters{
 					Codecs: []parsers.Codec{"ec-3", "mp4a"},
 				},
@@ -836,7 +844,9 @@ http://existing.base/uri/link_14.m3u8
 		{
 			name: "when filter is supplied with audio (ec-3 and mp4a), video (hevc and dvh), and captions (stpp), expect variants with ec-3, mp4a, hevc, dvh, and/or stpp to be stripped out",
 			filters: &parsers.MediaFilters{
-				CaptionTypes: []parsers.CaptionType{"stpp"},
+				Captions: parsers.NestedFilters{
+					Codecs: []parsers.Codec{"stpp"},
+				},
 				Videos: parsers.NestedFilters{
 					Codecs: []parsers.Codec{"hvc", "dvh"},
 				},
@@ -850,7 +860,9 @@ http://existing.base/uri/link_14.m3u8
 		{
 			name: "when filtering out all codecs except avc video, expect variants with ac-3, ec-3, mp4a, hevc, and/or dvh to be stripped out",
 			filters: &parsers.MediaFilters{
-				CaptionTypes: []parsers.CaptionType{"wvtt", "stpp"},
+				Captions: parsers.NestedFilters{
+					Codecs: []parsers.Codec{"stpp", "wvtt"},
+				},
 				Videos: parsers.NestedFilters{
 					Codecs: []parsers.Codec{"hvc", "dvh"},
 				},
@@ -1053,7 +1065,9 @@ http://existing.base/uri/link_13.m3u8
 		{
 			name: "when filtering out captions (stpp) and filtering in bandwidth range 4000-6000, expect variants with stpp and/or not in range to be stripped out",
 			filters: &parsers.MediaFilters{
-				CaptionTypes: []parsers.CaptionType{"stpp"},
+				Captions: parsers.NestedFilters{
+					Codecs: []parsers.Codec{"stpp"},
+				},
 				Videos: parsers.NestedFilters{
 					Bitrate: &parsers.Bitrate{
 						Min: 4000,

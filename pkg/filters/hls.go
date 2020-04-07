@@ -125,12 +125,12 @@ func (h *HLSFilter) filterVariants(filters *parsers.MediaFilters, v *m3u8.Varian
 		}
 	}
 
-	if filters.CaptionTypes != nil {
-		supportedCaptionTypes := map[string]struct{}{}
-		for _, ct := range filters.CaptionTypes {
-			supportedCaptionTypes[string(ct)] = struct{}{}
+	if filters.Captions.Codecs != nil {
+		supportedCaptions := map[string]struct{}{}
+		for _, ct := range filters.Captions.Codecs {
+			supportedCaptions[string(ct)] = struct{}{}
 		}
-		res, err := filterVariantCodecs(captionContentType, variantCodecs, supportedCaptionTypes, matchFunctions)
+		res, err := filterVariantCodecs(captionContentType, variantCodecs, supportedCaptions, matchFunctions)
 		if res {
 			return true, err
 		}

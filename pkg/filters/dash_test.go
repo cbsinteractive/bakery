@@ -527,7 +527,9 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 			name: "when all caption types are supplied, captions are stripped from a " +
 				"manifest",
 			filters: &parsers.MediaFilters{
-				CaptionTypes: []parsers.CaptionType{"stpp", "wvtt"},
+				Captions: parsers.NestedFilters{
+					Codecs: []parsers.Codec{"stpp", "wvtt"},
+				},
 			},
 			manifestContent:       manifestWithWVTTAndSTPPCaptions,
 			expectManifestContent: manifestWithoutCaptions,
@@ -536,7 +538,9 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 			name: "when a caption type filter is supplied with stpp only, webvtt captions are " +
 				"filtered out",
 			filters: &parsers.MediaFilters{
-				CaptionTypes: []parsers.CaptionType{"stpp"},
+				Captions: parsers.NestedFilters{
+					Codecs: []parsers.Codec{"stpp"},
+				},
 			},
 			manifestContent:       manifestWithWVTTAndSTPPCaptions,
 			expectManifestContent: manifestWithoutSTPPCaptions,
@@ -545,7 +549,9 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 			name: "when a caption type filter is supplied with wvtt only, stpp captions are " +
 				"filtered out",
 			filters: &parsers.MediaFilters{
-				CaptionTypes: []parsers.CaptionType{"wvtt"},
+				Captions: parsers.NestedFilters{
+					Codecs: []parsers.Codec{"wvtt"},
+				},
 			},
 			manifestContent:       manifestWithWVTTAndSTPPCaptions,
 			expectManifestContent: manifestWithoutWVTTCaptions,
@@ -662,7 +668,7 @@ func TestDASHFilter_FilterManifest_filterStreams(t *testing.T) {
 		{
 			name: "when video streams are filtered, the manifest contains no video adaptation sets",
 			filters: &parsers.MediaFilters{
-				FilterStreamTypes: []parsers.StreamType{"video"},
+				ContentTypes: []parsers.ContentType{"video"},
 			},
 			manifestContent:       manifestWithAudioAndVideoStreams,
 			expectManifestContent: manifestWithOnlyAudioStreams,
@@ -670,7 +676,7 @@ func TestDASHFilter_FilterManifest_filterStreams(t *testing.T) {
 		{
 			name: "when audio streams are filtered, the manifest contains no audio adaptation sets",
 			filters: &parsers.MediaFilters{
-				FilterStreamTypes: []parsers.StreamType{"audio"},
+				ContentTypes: []parsers.ContentType{"audio"},
 			},
 			manifestContent:       manifestWithAudioAndVideoStreams,
 			expectManifestContent: manifestWithOnlyVideoStreams,
@@ -679,7 +685,7 @@ func TestDASHFilter_FilterManifest_filterStreams(t *testing.T) {
 			name: "when audio and video streams are filtered, the manifest contains no audio or " +
 				"video adaptation sets",
 			filters: &parsers.MediaFilters{
-				FilterStreamTypes: []parsers.StreamType{"video", "audio"},
+				ContentTypes: []parsers.ContentType{"video", "audio"},
 			},
 			manifestContent:       manifestWithAudioAndVideoStreams,
 			expectManifestContent: manifestWithoutStreams,

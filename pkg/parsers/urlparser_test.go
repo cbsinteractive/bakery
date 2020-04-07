@@ -21,15 +21,7 @@ func TestURLParseUrl(t *testing.T) {
 			"one content type",
 			"/ct(text)/",
 			MediaFilters{
-				MaxBitrate:   math.MaxInt32,
-				MinBitrate:   0,
 				ContentTypes: []ContentType{"text"},
-				VideoFilters: NestedFilters{
-					MaxBitrate: math.MaxInt32,
-				},
-				AudioFilters: NestedFilters{
-					MaxBitrate: math.MaxInt32,
-				},
 			},
 			"/",
 			false,
@@ -38,15 +30,7 @@ func TestURLParseUrl(t *testing.T) {
 			"multiple content types",
 			"/ct(audio,video)/",
 			MediaFilters{
-				MaxBitrate:   math.MaxInt32,
-				MinBitrate:   0,
 				ContentTypes: []ContentType{"audio", "video"},
-				VideoFilters: NestedFilters{
-					MaxBitrate: math.MaxInt32,
-				},
-				AudioFilters: NestedFilters{
-					MaxBitrate: math.MaxInt32,
-				},
 			},
 			"/",
 			false,
@@ -129,7 +113,6 @@ func TestURLParseUrl(t *testing.T) {
 						Min: 10,
 					},
 				},
-				CaptionTypes: []CaptionType{"wvtt"},
 			},
 			"/",
 			false,
@@ -382,20 +365,22 @@ func TestURLParseUrl(t *testing.T) {
 		},
 		{
 			"detect caption type filter when passed in url",
-			"ct(wvtt)/path/here/with/master.m3u8",
+			"c(wvtt)/path/here/with/master.m3u8",
 			MediaFilters{
-				Protocol:     ProtocolHLS,
-				CaptionTypes: []CaptionType{"wvtt"},
+				Protocol: ProtocolHLS,
+				Captions: NestedFilters{
+					Codecs: []Codec{"wvtt"},
+				},
 			},
 			"/path/here/with/master.m3u8",
 			false,
 		},
 		{
-			"detect stream type filter when passed in url",
-			"fs(text,video)/path/here/with/master.m3u8",
+			"detect content type filter when passed in url",
+			"ct(text,video)/path/here/with/master.m3u8",
 			MediaFilters{
-				Protocol:          ProtocolHLS,
-				FilterStreamTypes: []StreamType{"text", "video"},
+				Protocol:     ProtocolHLS,
+				ContentTypes: []ContentType{"text", "video"},
 			},
 			"/path/here/with/master.m3u8",
 			false,

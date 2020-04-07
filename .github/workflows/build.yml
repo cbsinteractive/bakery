@@ -1,5 +1,13 @@
-on: [push, pull_request]
+on:
+  push:
+    branches-ignore:
+      - master
+  pull_request:
+    branches:
+      - master
+
 name: CI
+
 env:
   AUTH: ${{secrets.USER_DEPLOY_REPO}}:${{secrets.PERSONAL_ACCESS_TOKEN}}
   REPO: ${{secrets.DEPLOY_REPO}}

@@ -212,7 +212,7 @@ func (h *HLSFilter) filterVariantLanguage(v *m3u8.Variant, filters *parsers.Medi
 		}
 
 		for _, lang := range langs {
-			if string(lang) == alt.Language {
+			if strings.EqualFold(string(lang), alt.Language) {
 				return true
 			}
 		}
@@ -229,6 +229,8 @@ func (h *HLSFilter) filterVariantLanguage(v *m3u8.Variant, filters *parsers.Medi
 			remove = match(alt, filters.Audios.Language)
 		case "SUBTITLES":
 			remove = match(alt, filters.Captions.Language)
+		case "CLOSED-CAPTIONS":
+			remove = match(alt, filters.Captions.Language)
 		}
 
 		if !remove {
@@ -244,6 +246,9 @@ func (h *HLSFilter) filterVariantLanguage(v *m3u8.Variant, filters *parsers.Medi
 	}
 	if _, subs := groupIDs[v.Subtitles]; !subs {
 		v.Subtitles = ""
+	}
+	if _, captions := groupIDs[v.Captions]; !captions {
+		v.Captions = ""
 	}
 }
 

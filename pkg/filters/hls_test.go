@@ -1678,7 +1678,7 @@ https://existing.base/path/index-f6-v1.m3u8
 https://existing.base/path/index-f7-v1.m3u8
 `
 
-	masterManifestWithSpanishAndPortugeseAndNoCaptions := `#EXTM3U
+	masterManifestWithSpanishAndPortugeseAndNoSubtitles := `#EXTM3U
 #EXT-X-VERSION:4
 #EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio0",NAME="Spanish (Latin America)",DEFAULT=NO,AUTOSELECT=NO,LANGUAGE="es",URI="https://existing.base/path/index-f12-a1.m3u8"
 #EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio0",NAME="Brazilian Portuguese",DEFAULT=NO,AUTOSELECT=NO,LANGUAGE="pt",URI="https://existing.base/path/index-f16-a1.m3u8"
@@ -1696,6 +1696,44 @@ https://existing.base/path/index-f5-v1.m3u8
 https://existing.base/path/index-f6-v1.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=3712583,CODECS="avc1.640028,mp4a.40.2",RESOLUTION=1920x1080,AUDIO="audio0",FRAME-RATE=25.000,VIDEO-RANGE=SDR
 https://existing.base/path/index-f7-v1.m3u8
+`
+
+	masterManifestWithEnglishSubsAndCaptions := `#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subs",NAME="English",DEFAULT=YES,AUTOSELECT=YES,LANGUAGE="eng",FORCED="NO",URI="https://devcarrier-hls.amlg.io/captions/737e9315-fec6-4809-bd5e-3f2e427ec3a1/en.m3u8"
+#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=356400,AVERAGE-BANDWIDTH=345400,CODECS="avc1.640015,mp4a.40.2",RESOLUTION=400x244,CLOSED-CAPTIONS="CC",SUBTITLES="subs",FRAME-RATE=29.000
+https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=642400,AVERAGE-BANDWIDTH=620400,CODECS="avc1.640015,mp4a.40.2",RESOLUTION=512x288,CLOSED-CAPTIONS="CC",SUBTITLES="subs",FRAME-RATE=29.000
+https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=985600,AVERAGE-BANDWIDTH=950400,CODECS="avc1.64001e,mp4a.40.2",RESOLUTION=640x360,CLOSED-CAPTIONS="CC",SUBTITLES="subs",FRAME-RATE=29.000
+https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_3.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1443200,AVERAGE-BANDWIDTH=1390400,CODECS="avc1.64001e,mp4a.40.2",RESOLUTION=768x432,CLOSED-CAPTIONS="CC",SUBTITLES="subs",FRAME-RATE=29.000
+https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_4.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=2129600,AVERAGE-BANDWIDTH=2050400,CODECS="avc1.64001f,mp4a.40.2",RESOLUTION=960x540,CLOSED-CAPTIONS="CC",SUBTITLES="subs",FRAME-RATE=29.000
+https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_5.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4074400,AVERAGE-BANDWIDTH=3920400,CODECS="avc1.64001f,mp4a.40.2",RESOLUTION=1280x720,CLOSED-CAPTIONS="CC",SUBTITLES="subs",FRAME-RATE=29.000
+https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_6.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=5790400,AVERAGE-BANDWIDTH=5570400,CODECS="avc1.640028,mp4a.40.2",RESOLUTION=1920x1080,CLOSED-CAPTIONS="CC",SUBTITLES="subs",FRAME-RATE=29.000
+https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_7.m3u8
+`
+
+	masterManifestWithNoEnglishSubsAndCaptions := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=356400,AVERAGE-BANDWIDTH=345400,CODECS="avc1.640015,mp4a.40.2",RESOLUTION=400x244,FRAME-RATE=29.000
+https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=642400,AVERAGE-BANDWIDTH=620400,CODECS="avc1.640015,mp4a.40.2",RESOLUTION=512x288,FRAME-RATE=29.000
+https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=985600,AVERAGE-BANDWIDTH=950400,CODECS="avc1.64001e,mp4a.40.2",RESOLUTION=640x360,FRAME-RATE=29.000
+https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_3.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1443200,AVERAGE-BANDWIDTH=1390400,CODECS="avc1.64001e,mp4a.40.2",RESOLUTION=768x432,FRAME-RATE=29.000
+https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_4.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=2129600,AVERAGE-BANDWIDTH=2050400,CODECS="avc1.64001f,mp4a.40.2",RESOLUTION=960x540,FRAME-RATE=29.000
+https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_5.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4074400,AVERAGE-BANDWIDTH=3920400,CODECS="avc1.64001f,mp4a.40.2",RESOLUTION=1280x720,FRAME-RATE=29.000
+https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_6.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=5790400,AVERAGE-BANDWIDTH=5570400,CODECS="avc1.640028,mp4a.40.2",RESOLUTION=1920x1080,FRAME-RATE=29.000
+https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_7.m3u8
 `
 
 	tests := []struct {
@@ -1732,7 +1770,17 @@ https://existing.base/path/index-f7-v1.m3u8
 				},
 			},
 			manifestContent:       masterManifestWithMultipleLangs,
-			expectManifestContent: masterManifestWithSpanishAndPortugeseAndNoCaptions,
+			expectManifestContent: masterManifestWithSpanishAndPortugeseAndNoSubtitles,
+		},
+		{
+			name: "when caption languages are passed in, remove provided subtitles and caption languages ",
+			filters: &parsers.MediaFilters{
+				Captions: parsers.NestedFilters{
+					Language: []parsers.Language{"eng"},
+				},
+			},
+			manifestContent:       masterManifestWithEnglishSubsAndCaptions,
+			expectManifestContent: masterManifestWithNoEnglishSubsAndCaptions,
 		},
 	}
 

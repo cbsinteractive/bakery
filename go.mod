@@ -1,6 +1,6 @@
 module github.com/cbsinteractive/bakery
 
-replace github.com/zencoder/go-dash => github.com/cbsinteractive/go-dash v0.0.0-20200309174059-c978edf9d310
+replace github.com/zencoder/go-dash => github.com/cbsinteractive/go-dash v0.0.0-20200330181831-e1a70e66546e
 
 replace github.com/grafov/m3u8 => github.com/cbsinteractive/m3u8 v0.11.2-0.20200325171435-8e0775d77ebe
 

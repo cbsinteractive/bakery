@@ -93,6 +93,10 @@ func (d *DASHFilter) getFilters(filters *parsers.MediaFilters) []execFilter {
 		filterList = append(filterList, d.filterCaptionTypes)
 	}
 
+	if filters.FrameRate != nil {
+		filterList = append(filterList, d.filterFrameRate)
+	}
+
 	if filters.Audios.Language != nil || filters.Captions.Language != nil {
 		filterList = append(filterList, d.filterAdaptationSetLanguage)
 	}
@@ -230,6 +234,37 @@ func (d *DASHFilter) filterAdaptationSetContentType(filters *parsers.MediaFilter
 	manifest.Periods = filteredPeriods
 }
 
+func (d *DASHFilter) filterFrameRate(filters *parsers.MediaFilters, manifest *mpd.MPD) {
+	for _, period := range manifest.Periods {
+		var filteredAdaptationSets []*mpd.AdaptationSet
+		for _, as := range period.AdaptationSets {
+			var filteredReps []*mpd.Representation
+			for _, r := range as.Representations {
+				if r.FrameRate == nil {
+					filteredReps = append(filteredReps, r)
+					continue
+				}
+
+				if matchFPS(*r.FrameRate, filters.FrameRate) {
+					continue
+				}
+
+				filteredReps = append(filteredReps, r)
+			}
+			as.Representations = filteredReps
+
+			if len(as.Representations) != 0 {
+				filteredAdaptationSets = append(filteredAdaptationSets, as)
+			}
+		}
+
+		for i, as := range filteredAdaptationSets {
+			as.ID = strptr(strconv.Itoa(i))
+		}
+		period.AdaptationSets = filteredAdaptationSets
+	}
+}
+
 func (d *DASHFilter) filterBandwidth(filters *parsers.MediaFilters, manifest *mpd.MPD) {
 	for _, period := range manifest.Periods {
 		var filteredAdaptationSets []*mpd.AdaptationSet
@@ -300,6 +335,16 @@ func matchCodec(codec string, ct ContentType, supportedCodecs map[string]struct{
 
 	for key := range supportedCodecs {
 		if ValidCodecs(codec, CodecFilterID(key)) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func matchFPS(fps string, framerates []parsers.FPS) bool {
+	for _, fr := range framerates {
+		if string(fr) == fps {
 			return true
 		}
 	}

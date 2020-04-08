@@ -410,6 +410,37 @@ func TestURLParseUrl(t *testing.T) {
 			false,
 		},
 		{
+			"detect fps filter when passed in url",
+			"fps(59.94)/path/here/to/master.m3u8",
+			MediaFilters{
+				FrameRate: []FPS{"59.94"},
+				Protocol:  ProtocolHLS,
+			},
+			"/path/here/to/master.m3u8",
+			false,
+		},
+		{
+			"detect multiple values including fractions when fps filter is passed in url",
+			"fps(60,30000:1001)/path/here/to/master.mpd",
+			MediaFilters{
+				FrameRate: []FPS{"60", "30000/1001"},
+				Protocol:  ProtocolDASH,
+			},
+			"/path/here/to/master.mpd",
+			false,
+		},
+		{
+			"detect mutliple filters when fps filter is passed in url",
+			"v(i-frame)/fps(59.94,60)/path/here/to/master.m3u8",
+			MediaFilters{
+				FrameRate: []FPS{"59.94", "60"},
+				Protocol:  ProtocolHLS,
+				IFrame:    true,
+			},
+			"/path/here/to/master.m3u8",
+			false,
+		},
+		{
 			"detect protocol hls for urls with .m3u8 extension",
 			"/path/here/with/master.m3u8",
 			MediaFilters{

@@ -25,11 +25,14 @@ type CaptionType string
 // ContentType represents one stream type (e.g. video, audio, text)
 type ContentType string
 
-// Codec represet the codec of the ContentType
+// Codec represents the codec of the ContentType
 type Codec string
 
 // Protocol describe the valid protocols
 type Protocol string
+
+// FPS represents the frames per second of a given video
+type FPS string
 
 const (
 	videoHDR10       VideoType = "hdr10"
@@ -90,6 +93,7 @@ type MediaFilters struct {
 	IFrame       bool          `json:",omitempty"`
 	Trim         *Trim         `json:",omitempty"`
 	Bitrate      *Bitrate      `json:",omitempty"`
+	FrameRate    []FPS         `json:",omitempty"`
 	Protocol     Protocol      `json:"protocol"`
 }
 
@@ -129,6 +133,7 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 		// the full string, the key and filters (3 elements).
 		// If it doesn't match, it means that the path is part
 		// of the official manifest path so we concatenate to it.
+		fmt.Println(parts)
 		subparts := re.FindStringSubmatch(part)
 		if len(subparts) != 3 {
 			if mf.parsePlugins(part) {
@@ -190,6 +195,11 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 			mf.Trim = &Trim{
 				Start: x,
 				End:   y,
+			}
+		case "fps": //fps types in hls=float64, dash=string
+			for _, framerate := range filters {
+				fr := strings.ReplaceAll(framerate, ":", "/")
+				mf.FrameRate = append(mf.FrameRate, FPS(fr))
 			}
 		}
 	}

@@ -1125,6 +1125,114 @@ func TestDASHFilter_FilterManifest_LanguageFilter(t *testing.T) {
 
 }
 
+func TestDASHFilter_FilterFrameRate(t *testing.T) {
+	manifestWithFrameRates := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video">
+      <Representation bandwidth="2048" codecs="avc" frameRate="30000/1001" id="0"></Representation>
+      <Representation bandwidth="4096" codecs="avc" frameRate="30000/1001" id="1"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="video">
+      <Representation bandwidth="2048" codecs="avc" frameRate="30" id="0"></Representation>
+      <Representation bandwidth="4096" codecs="avc" frameRate="60" id="1"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	manifestWithNoFractionFPS := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video">
+      <Representation bandwidth="2048" codecs="avc" frameRate="30" id="0"></Representation>
+      <Representation bandwidth="4096" codecs="avc" frameRate="60" id="1"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	manifestWithOnly60FPS := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period>
+    <AdaptationSet id="0" lang="en" contentType="video">
+      <Representation bandwidth="4096" codecs="avc" frameRate="60" id="1"></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+
+	manifestWithNoFrameRates := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <BaseURL>http://existing.base/url/</BaseURL>
+  <Period></Period>
+</MPD>
+`
+
+	tests := []struct {
+		name                  string
+		filters               *parsers.MediaFilters
+		manifestContent       string
+		expectManifestContent string
+		expectErr             bool
+	}{
+		{
+			name:                  "when no filters are passed in, nothing is removed from manifest",
+			filters:               &parsers.MediaFilters{},
+			manifestContent:       manifestWithFrameRates,
+			expectManifestContent: manifestWithFrameRates,
+		},
+		{
+			name: "when multiple frameratse are set, it removes all the representations associated",
+			filters: &parsers.MediaFilters{
+				FrameRate: []parsers.FPS{"30000/1001", "30"},
+			},
+			manifestContent:       manifestWithFrameRates,
+			expectManifestContent: manifestWithOnly60FPS,
+		},
+		{
+			name: "when framerate is set with fraction representation, it removes its associated representations",
+			filters: &parsers.MediaFilters{
+				FrameRate: []parsers.FPS{"30000/1001"},
+			},
+			manifestContent:       manifestWithFrameRates,
+			expectManifestContent: manifestWithNoFractionFPS,
+		},
+		{
+			name: "when all framerates are sent, return an empty manifest",
+			filters: &parsers.MediaFilters{
+				FrameRate: []parsers.FPS{"30000/1001", "60", "30"},
+			},
+			manifestContent:       manifestWithFrameRates,
+			expectManifestContent: manifestWithNoFrameRates,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
+
+			manifest, err := filter.FilterManifest(tt.filters)
+			if err != nil && !tt.expectErr {
+				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				return
+			} else if err == nil && tt.expectErr {
+				t.Error("FilterManifest() expected an error, got nil")
+				return
+			}
+
+			if g, e := manifest, tt.expectManifestContent; g != e {
+				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+					cmp.Diff(g, e))
+			}
+		})
+	}
+}
+
 func TestDASHFilter_FilterRole_OverwriteValue(t *testing.T) {
 	manifestWithAccessibilityElement := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">

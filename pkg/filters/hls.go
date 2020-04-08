@@ -136,6 +136,14 @@ func (h *HLSFilter) filterVariants(filters *parsers.MediaFilters, v *m3u8.Varian
 		}
 	}
 
+	if filters.FrameRate != nil {
+		if filterVariantFrameRate(v.FrameRate, filters.FrameRate) {
+			return true, nil
+		}
+	}
+
+	// This filter should run last as it is not removing variants, rather updating the alternatives attached to
+	// the variant. This function will only execute if no matches have been found
 	if filters.Audios.Language != nil || filters.Captions.Language != nil {
 		h.filterVariantLanguage(v, filters)
 	}
@@ -198,6 +206,18 @@ func filterVariantCodecs(filterType ContentType, variantCodecs []string, support
 	}
 
 	return variantFound, nil
+}
+
+func filterVariantFrameRate(floatFPS float64, frameRates []parsers.FPS) bool {
+	strFPS := fmt.Sprintf("%f", floatFPS)
+
+	for _, fr := range frameRates {
+		if strFPS == string(fr) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // Returns true if a given variant matches the provided language filter

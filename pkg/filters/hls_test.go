@@ -1904,3 +1904,105 @@ https://existing.base/path/link_6.m3u8
 		})
 	}
 }
+
+func TestHLSFilter_FilterManifest_FrameRate(t *testing.T) {
+	masterManifestWithMultipleFrameRates := `#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC",FRAME-RATE=30.000
+https://existing.base/path/link_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4200,AVERAGE-BANDWIDTH=4200,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC",FRAME-RATE=30.000
+https://existing.base/path/link_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC",FRAME-RATE=59.940
+https://existing.base/path/link_4.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4100,AVERAGE-BANDWIDTH=4100,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC",FRAME-RATE=59.940
+https://existing.base/path/link_5.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC",FRAME-RATE=60.000
+https://existing.base/path/link_6.m3u8
+`
+
+	masterManifestWithout5994FrameRate := `#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC",FRAME-RATE=30.000
+https://existing.base/path/link_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4200,AVERAGE-BANDWIDTH=4200,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC",FRAME-RATE=30.000
+https://existing.base/path/link_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC",FRAME-RATE=60.000
+https://existing.base/path/link_6.m3u8
+`
+
+	masterManifestWithOnly5994FrameRate := `#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC",FRAME-RATE=59.940
+https://existing.base/path/link_4.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4100,AVERAGE-BANDWIDTH=4100,CODECS="avc1.64001f,mp4a.40.2",CLOSED-CAPTIONS="CC",FRAME-RATE=59.940
+https://existing.base/path/link_5.m3u8
+`
+
+	masterManifestWithNoVariants := `#EXTM3U
+#EXT-X-VERSION:3
+`
+
+	tests := []struct {
+		name                  string
+		filters               *parsers.MediaFilters
+		manifestContent       string
+		expectManifestContent string
+		expectErr             bool
+	}{
+		{
+			name:                  "when empty filter is given, expect no filtering to be done",
+			filters:               &parsers.MediaFilters{},
+			manifestContent:       masterManifestWithMultipleFrameRates,
+			expectManifestContent: masterManifestWithMultipleFrameRates,
+		},
+		{
+			name: "when framerate is set to 60, variant of 60fps is removed",
+			filters: &parsers.MediaFilters{
+				FrameRate: []parsers.FPS{"60.000", "30.000"},
+			},
+			manifestContent:       masterManifestWithMultipleFrameRates,
+			expectManifestContent: masterManifestWithOnly5994FrameRate,
+		},
+		{
+			name: "when framerate is set to 59.94, both variants of 59.94fps is removed",
+			filters: &parsers.MediaFilters{
+				FrameRate: []parsers.FPS{"59.940"},
+			},
+			manifestContent:       masterManifestWithMultipleFrameRates,
+			expectManifestContent: masterManifestWithout5994FrameRate,
+		},
+		{
+			name: "when all framerates are set, empty playlist is returned",
+			filters: &parsers.MediaFilters{
+				FrameRate: []parsers.FPS{"59.940", "60.000", "30.000"},
+			},
+			manifestContent:       masterManifestWithMultipleFrameRates,
+			expectManifestContent: masterManifestWithNoVariants,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			filter := NewHLSFilter("https://existing.base/path/master.m3u8", tt.manifestContent, config.Config{Hostname: "bakery.cbsi.video"})
+			manifest, err := filter.FilterManifest(tt.filters)
+
+			if err != nil && !tt.expectErr {
+				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				return
+			} else if err == nil && tt.expectErr {
+				t.Error("FilterManifest() expected an error, got nil")
+				return
+			}
+
+			if g, e := manifest, tt.expectManifestContent; g != e {
+				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+					cmp.Diff(g, e))
+			}
+
+		})
+	}
+}

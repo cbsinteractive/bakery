@@ -1134,7 +1134,11 @@ func TestDASHFilter_FilterFrameRate(t *testing.T) {
       <Representation bandwidth="2048" codecs="avc" frameRate="30000/1001" id="0"></Representation>
       <Representation bandwidth="4096" codecs="avc" frameRate="30000/1001" id="1"></Representation>
     </AdaptationSet>
-    <AdaptationSet id="1" lang="en" contentType="video">
+    <AdaptationSet frameRate="24000/1001" id="1" lang="en" contentType="video">
+      <Representation bandwidth="2048" codecs="avc" id="0"></Representation>
+      <Representation bandwidth="4096" codecs="avc" id="1"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="2" lang="en" contentType="video">
       <Representation bandwidth="2048" codecs="avc" frameRate="30" id="0"></Representation>
       <Representation bandwidth="4096" codecs="avc" frameRate="60" id="1"></Representation>
     </AdaptationSet>
@@ -1142,11 +1146,15 @@ func TestDASHFilter_FilterFrameRate(t *testing.T) {
 </MPD>
 `
 
-	manifestWithNoFractionFPS := `<?xml version="1.0" encoding="UTF-8"?>
+	manifestWithNo30000FractionFPS := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
   <Period>
-    <AdaptationSet id="0" lang="en" contentType="video">
+    <AdaptationSet frameRate="24000/1001" id="0" lang="en" contentType="video">
+      <Representation bandwidth="2048" codecs="avc" id="0"></Representation>
+      <Representation bandwidth="4096" codecs="avc" id="1"></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="1" lang="en" contentType="video">
       <Representation bandwidth="2048" codecs="avc" frameRate="30" id="0"></Representation>
       <Representation bandwidth="4096" codecs="avc" frameRate="60" id="1"></Representation>
     </AdaptationSet>
@@ -1186,9 +1194,9 @@ func TestDASHFilter_FilterFrameRate(t *testing.T) {
 			expectManifestContent: manifestWithFrameRates,
 		},
 		{
-			name: "when multiple frameratse are set, it removes all the representations associated",
+			name: "when multiple framerates are set, it removes all the representations associated",
 			filters: &parsers.MediaFilters{
-				FrameRate: []parsers.FPS{"30000/1001", "30"},
+				FrameRate: []parsers.FPS{"30000/1001", "24000/1001", "30"},
 			},
 			manifestContent:       manifestWithFrameRates,
 			expectManifestContent: manifestWithOnly60FPS,
@@ -1199,12 +1207,12 @@ func TestDASHFilter_FilterFrameRate(t *testing.T) {
 				FrameRate: []parsers.FPS{"30000/1001"},
 			},
 			manifestContent:       manifestWithFrameRates,
-			expectManifestContent: manifestWithNoFractionFPS,
+			expectManifestContent: manifestWithNo30000FractionFPS,
 		},
 		{
 			name: "when all framerates are sent, return an empty manifest",
 			filters: &parsers.MediaFilters{
-				FrameRate: []parsers.FPS{"30000/1001", "60", "30"},
+				FrameRate: []parsers.FPS{"30000/1001", "24000/1001", "60", "30"},
 			},
 			manifestContent:       manifestWithFrameRates,
 			expectManifestContent: manifestWithNoFrameRates,

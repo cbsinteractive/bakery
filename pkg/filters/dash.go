@@ -238,6 +238,12 @@ func (d *DASHFilter) filterFrameRate(filters *parsers.MediaFilters, manifest *mp
 	for _, period := range manifest.Periods {
 		var filteredAdaptationSets []*mpd.AdaptationSet
 		for _, as := range period.AdaptationSets {
+			if as.FrameRate != nil {
+				if matchFPS(*as.FrameRate, filters.FrameRate) {
+					continue
+				}
+			}
+
 			var filteredReps []*mpd.Representation
 			for _, r := range as.Representations {
 				if r.FrameRate == nil {
@@ -256,6 +262,7 @@ func (d *DASHFilter) filterFrameRate(filters *parsers.MediaFilters, manifest *mp
 			if len(as.Representations) != 0 {
 				filteredAdaptationSets = append(filteredAdaptationSets, as)
 			}
+
 		}
 
 		for i, as := range filteredAdaptationSets {

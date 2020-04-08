@@ -133,7 +133,6 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 		// the full string, the key and filters (3 elements).
 		// If it doesn't match, it means that the path is part
 		// of the official manifest path so we concatenate to it.
-		fmt.Println(parts)
 		subparts := re.FindStringSubmatch(part)
 		if len(subparts) != 3 {
 			if mf.parsePlugins(part) {

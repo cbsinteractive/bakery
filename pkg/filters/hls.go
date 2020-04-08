@@ -210,7 +210,7 @@ func filterVariantCodecs(filterType ContentType, variantCodecs []string, support
 
 func filterVariantFrameRate(floatFPS float64, frameRates []parsers.FPS) bool {
 	strFPS := fmt.Sprintf("%.3f", floatFPS)
-	fmt.Println(strFPS)
+
 	for _, fr := range frameRates {
 		if strFPS == string(fr) {
 			return true

@@ -5,7 +5,7 @@ nav_order: 5
 ---
 
 # I-Frame
-When set, the I-Frame filter wil remove the I-Frame from the playlist.
+When set, the I-Frame filter will remove the I-Frame from the playlist.
 
 ## Support
 

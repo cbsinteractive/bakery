@@ -5,6 +5,8 @@ github.com/cbsinteractive/go-dash v0.0.0-20200330181831-e1a70e66546e h1:EyS4oo12
 github.com/cbsinteractive/go-dash v0.0.0-20200330181831-e1a70e66546e/go.mod h1:c8Gxxfmh0jmZ6G+ISlpa315WBVkzd8mEhu6gN9mn5Qg=
 github.com/cbsinteractive/m3u8 v0.11.2-0.20200325171435-8e0775d77ebe h1:LrJMO5Mzei3D0+z2XYK0xNgFvh5XFnlAqN23SYDZVMk=
 github.com/cbsinteractive/m3u8 v0.11.2-0.20200325171435-8e0775d77ebe/go.mod h1:nqzOkfBiZJENr52zTVd/Dcl03yzphIMbJqkXGu+u080=
+github.com/cbsinteractive/m3u8 v0.11.2-0.20200409145508-96068f2f6ea5 h1:NvKauoblb/s2bMUZ3FaIW6spKemRxocrZspm45LE78k=
+github.com/cbsinteractive/m3u8 v0.11.2-0.20200409145508-96068f2f6ea5/go.mod h1:nqzOkfBiZJENr52zTVd/Dcl03yzphIMbJqkXGu+u080=
 github.com/cbsinteractive/propeller-client-go v0.0.0-20200310001146-17ec5e73de5d h1:V61xgXiD0dR2JhFBBCYtsdHceflIaZaau54rpjBIdm8=
 github.com/cbsinteractive/propeller-client-go v0.0.0-20200310001146-17ec5e73de5d/go.mod h1:+5V3mIMEOwqiyb4r3dBsvKtu23kQvJU97Bem9brNzQU=
 github.com/cbsinteractive/propeller-client-go v0.0.0-20200319211718-7097ea26d5bc h1:UFPDXjG2qCDPwtPSiWeUemN5sbjGmlehDbZ7Q2aV1G0=

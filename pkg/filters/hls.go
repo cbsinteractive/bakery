@@ -62,7 +62,7 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 	filteredManifest := m3u8.NewMasterPlaylist()
 
 	for _, v := range manifest.Variants {
-		if filters.IFrame && v.Iframe {
+		if filters.SuppressIFrame() && v.Iframe {
 			continue
 		}
 
@@ -355,8 +355,12 @@ func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3
 			continue
 		}
 
+		if filters.SuppressAds() && segment.SCTE != nil {
+			segment.SCTE = nil
+		}
+
 		if segment.ProgramDateTime == (time.Time{}) && append {
-			if err := appendSegment(h.manifestContent, segment, filteredPlaylist); err != nil {
+			if err := appendSegment(h.manifestURL, segment, filteredPlaylist); err != nil {
 				return "", fmt.Errorf("trimming segments: %w", err)
 			}
 			continue
@@ -365,12 +369,12 @@ func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3
 		append = inRange(filters.Trim.Start, filters.Trim.End, int(segment.ProgramDateTime.Unix()))
 
 		if append {
-			if err := appendSegment(h.manifestContent, segment, filteredPlaylist); err != nil {
+			if err := appendSegment(h.manifestURL, segment, filteredPlaylist); err != nil {
 				return "", fmt.Errorf("trimming segments: %w", err)
 			}
 		}
 
-		if maxSize < segment.Duration {
+		if maxSize < segment.Duration && append {
 			maxSize = segment.Duration
 		}
 	}
@@ -378,15 +382,29 @@ func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3
 	h.maxSegmentSize = maxSize
 	filteredPlaylist.Close()
 
-	return filteredPlaylist.Encode().String(), nil
+	return isEmpty(filteredPlaylist.Encode().String())
+}
+
+func isEmpty(p string) (string, error) {
+	emptyPlaylist := fmt.Sprintf("%v\n%v\n%v\n%v\n%v\n",
+		"#EXTM3U",
+		"#EXT-X-VERSION:3",
+		"#EXT-X-MEDIA-SEQUENCE:0",
+		"#EXT-X-TARGETDURATION:0",
+		"#EXT-X-ENDLIST",
+	)
+
+	var err error
+	if emptyPlaylist == p {
+		err = fmt.Errorf("No segments found in range. Is PDT set?")
+	}
+
+	return p, err
+
 }
 
 //appends segment to provided media playlist with absolute urls
 func appendSegment(manifest string, s *m3u8.MediaSegment, p *m3u8.MediaPlaylist) error {
-	if s.SCTE != nil { // add support for ads in mediafilters/parsers
-		return nil
-	}
-
 	absolute, err := getAbsoluteURL(manifest)
 	if err != nil {
 		return fmt.Errorf("formatting segment URLs: %w", err)

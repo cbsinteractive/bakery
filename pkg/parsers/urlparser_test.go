@@ -386,25 +386,59 @@ func TestURLParseUrl(t *testing.T) {
 			false,
 		},
 		{
-			"detect iframe filter when passed in url",
-			"v(i-frame)/path/here/with/master.m3u8",
+			"detect ads filter when passed in",
+			"tags(ads)/path/here/with/master.m3u8",
 			MediaFilters{
 				Protocol: ProtocolHLS,
-				IFrame:   true,
+				Tags: &Tags{
+					Ads: true,
+				},
 			},
 			"/path/here/with/master.m3u8",
 			false,
 		},
 		{
-			"detect iframe filter when passed in url with other nested filters",
-			"v(i-frame,avc,l(en))/path/here/with/master.m3u8",
+			"detect ads and iframe filter when passed in url with other nested filters",
+			"v(avc,l(en))/tags(iframe,ads)/path/here/with/master.m3u8",
 			MediaFilters{
 				Videos: NestedFilters{
 					Codecs:   []Codec{codecH264},
 					Language: []Language{langEN},
 				},
 				Protocol: ProtocolHLS,
-				IFrame:   true,
+				Tags: &Tags{
+					Ads:    true,
+					IFrame: true,
+				},
+			},
+			"/path/here/with/master.m3u8",
+			false,
+		},
+
+		{
+			"detect iframe filter when passed in url",
+			"tags(i-frame)/path/here/with/master.m3u8",
+			MediaFilters{
+				Protocol: ProtocolHLS,
+				Tags: &Tags{
+					IFrame: true,
+				},
+			},
+			"/path/here/with/master.m3u8",
+			false,
+		},
+		{
+			"detect iframe filter when passed in url with other nested filters",
+			"v(avc,l(en))/tags(iframe)/path/here/with/master.m3u8",
+			MediaFilters{
+				Videos: NestedFilters{
+					Codecs:   []Codec{codecH264},
+					Language: []Language{langEN},
+				},
+				Protocol: ProtocolHLS,
+				Tags: &Tags{
+					IFrame: true,
+				},
 			},
 			"/path/here/with/master.m3u8",
 			false,
@@ -431,11 +465,13 @@ func TestURLParseUrl(t *testing.T) {
 		},
 		{
 			"detect mutliple filters when fps filter is passed in url",
-			"v(i-frame)/fps(59.94,60)/path/here/to/master.m3u8",
+			"tags(i-frame)/fps(59.94,60)/path/here/to/master.m3u8",
 			MediaFilters{
 				FrameRate: []FPS{"59.94", "60"},
 				Protocol:  ProtocolHLS,
-				IFrame:    true,
+				Tags: &Tags{
+					IFrame: true,
+				},
 			},
 			"/path/here/to/master.m3u8",
 			false,

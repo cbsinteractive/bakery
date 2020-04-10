@@ -90,11 +90,18 @@ type MediaFilters struct {
 	Captions     NestedFilters `json:",omitempty"`
 	ContentTypes []ContentType `json:",omitempty"`
 	Plugins      []string      `json:",omitempty"`
-	IFrame       bool          `json:",omitempty"`
+	Tags         *Tags         `json:",omitempty"`
 	Trim         *Trim         `json:",omitempty"`
 	Bitrate      *Bitrate      `json:",omitempty"`
 	FrameRate    []FPS         `json:",omitempty"`
 	Protocol     Protocol      `json:"protocol"`
+}
+
+// Tags holds values of HLS tags that are to be suppressed
+// from the manifest
+type Tags struct {
+	Ads    bool `json:",omitempty"`
+	IFrame bool `json:",omitempty"`
 }
 
 // NestedFilters is a struct that holds values of filters
@@ -148,21 +155,20 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 
 		switch key := subparts[1]; key {
 		case "v":
-			for _, sf := range nestedFilters {
-				err := mf.getNestedFilters(sf, videoContent)
-				if err != nil {
+			for _, nf := range nestedFilters {
+				if err := mf.Videos.parse(nf); err != nil {
 					return keyError("Video", err)
 				}
 			}
 		case "a":
-			for _, sf := range nestedFilters {
-				if err := mf.getNestedFilters(sf, audioContent); err != nil {
+			for _, nf := range nestedFilters {
+				if err := mf.Audios.parse(nf); err != nil {
 					return keyError("Audio", err)
 				}
 			}
 		case "c":
-			for _, sf := range nestedFilters {
-				if err := mf.getNestedFilters(sf, captionContent); err != nil {
+			for _, nf := range nestedFilters {
+				if err := mf.Captions.parse(nf); err != nil {
 					return keyError("Captions", err)
 				}
 			}
@@ -195,6 +201,9 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 				Start: x,
 				End:   y,
 			}
+		case "tags": //only applied when trimming/serving hls media playlists
+			mf.Tags = &Tags{}
+			mf.Tags.parse(filters)
 		case "fps": //fps types in hls=float64, dash=string
 			for _, framerate := range filters {
 				fr := strings.ReplaceAll(framerate, ":", "/")
@@ -222,7 +231,7 @@ func (mf *MediaFilters) parsePlugins(path string) bool {
 	return false
 }
 
-func (mf *MediaFilters) getNestedFilters(nestedFilter string, streamType ContentType) error {
+func (nf *NestedFilters) parse(nestedFilter string) error {
 	// assumes nested filters are properly formatted
 	splitNestedFilter := urlParseRegexp.FindStringSubmatch(nestedFilter)
 	var key string
@@ -240,7 +249,7 @@ func (mf *MediaFilters) getNestedFilters(nestedFilter string, streamType Content
 	// where key = codec,codec,b
 	splitKey := strings.Split(key, ",")
 	if len(splitKey) == 1 {
-		return mf.parseNestedFilterKeys(streamType, key, param)
+		return nf.parseKeys(key, param)
 	}
 
 	var keys []string
@@ -256,7 +265,7 @@ func (mf *MediaFilters) getNestedFilters(nestedFilter string, streamType Content
 	}
 
 	for i := range keys {
-		err := mf.parseNestedFilterKeys(streamType, keys[i], params[i])
+		err := nf.parseKeys(keys[i], params[i])
 		if err != nil {
 			return err
 		}
@@ -266,18 +275,7 @@ func (mf *MediaFilters) getNestedFilters(nestedFilter string, streamType Content
 }
 
 // ParseNestedFilter takes a NestedFilter and sets Audios' or Videos' values accordingly.
-func (mf *MediaFilters) parseNestedFilterKeys(streamType ContentType, key string, values []string) error {
-	var nf *NestedFilters
-
-	switch streamType {
-	case audioContent:
-		nf = &mf.Audios
-	case videoContent:
-		nf = &mf.Videos
-	case captionContent:
-		nf = &mf.Captions
-	}
-
+func (nf *NestedFilters) parseKeys(key string, values []string) error {
 	switch key {
 	case "co":
 		for _, v := range values {
@@ -285,7 +283,7 @@ func (mf *MediaFilters) parseNestedFilterKeys(streamType ContentType, key string
 			case "hdr10":
 				nf.Codecs = append(nf.Codecs, Codec("hev1.2"), Codec("hvc1.2"))
 			case "i-frame":
-				mf.IFrame = true
+				return fmt.Errorf("To disable I-Frame, please pass via tags filter")
 			default:
 				nf.Codecs = append(nf.Codecs, Codec(v))
 			}
@@ -354,4 +352,35 @@ func parseAndValidateInts(values []string, max int) (int, int, error) {
 	}
 
 	return x, y, nil
+}
+
+func (t *Tags) parse(values []string) {
+	for _, tag := range values {
+		switch tag {
+		case "ads":
+			t.Ads = true
+		case "i-frame":
+			t.IFrame = true
+		case "iframe":
+			t.IFrame = true
+		}
+	}
+}
+
+// SuppressAds will evaluate whether the ad tag was set
+func (mf *MediaFilters) SuppressAds() bool {
+	if mf.Tags == nil {
+		return false
+	}
+
+	return mf.Tags.Ads
+}
+
+// SuppressIFrame will evaluate whether the i-frame tag was set
+func (mf *MediaFilters) SuppressIFrame() bool {
+	if mf.Tags == nil {
+		return false
+	}
+
+	return mf.Tags.IFrame
 }

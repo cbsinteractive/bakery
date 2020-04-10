@@ -21,8 +21,7 @@ Please reach out to the [Propeller](https://cbsinteractive.github.io/propeller) 
 
     $ export BAKERY_CLIENT_TIMEOUT=5s 
     $ export BAKERY_HTTP_PORT=:8082
-    $ export BAKERY_ORIGIN_HOST="https://streaming.cbs.com" 
-    $ export BAKERY_HOSTNAME="localhost:8082" // include port for local developement
+    $ export BAKERY_ORIGIN_HOST="https://streaming.cbs.com"
     $ export BAKERY_PROPELLER_HOST="http://propeller.com"
     $ export BAKERY_PROPELLER_CREDS="usr:pws"
 

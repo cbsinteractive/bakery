@@ -1,7 +1,7 @@
 ---
 title: Content Type
 parent: Filters
-nav_order: 8
+nav_order: 9
 ---
 
 # Content Type

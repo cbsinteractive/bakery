@@ -1,7 +1,7 @@
 ---
 title: Frame Rate
 parent: Filters
-nav_order: 9
+nav_order: 10
 ---
 
 # Frame Rate

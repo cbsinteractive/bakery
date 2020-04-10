@@ -28,6 +28,10 @@ yes | no  |
 | (start, end)   | t(1585335477,1585335677) |
 
 ## Limitations
+### Tags
+Tags in the media playlist will be passed through so long as they are within the boundaries of the provided `start` and `end`
+times. We currently have support for suppressing Ad tags in the media playlist, which can be found <a href="tags">here</a>.
+
 ### Segments
 Bakery will trim segments based on what is already advertised in the Variant Playlist. If you have a Live Playlist with a sliding window and only 10 segments advertised, you will only be able to trim within the range of those 10 segments. It is recommended that this feature be used on VOD or EVENT Playlists where the full segment archive is available. For Live playlist, you can increase the size of your retention window so that the sliding window can hold a longer range of segments. 
 
@@ -35,7 +39,7 @@ Bakery will trim segments based on what is already advertised in the Variant Pla
 The epoch timestamps provided should be relative to the Program Date Time advertised in your Variant Playlists.
 
 ### Program Date Time
-The Program Date Time must be enabled for every segment that is advertised in the manifest. 
+The Program Date Time is used to set the boundaries of the media playlist. It is recommended to have Program Date Time enabled for every segment that is advertised in the manifest. 
 
 ## Usage Example
 Range is supplied with `,` and no space in between the epoch timestamps

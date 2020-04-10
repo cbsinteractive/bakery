@@ -1334,3 +1334,14 @@ func TestDASHFilter_FilterRole_OverwriteValue(t *testing.T) {
 		})
 	}
 }
+
+func TestDASHFilter_GetMaxAge(t *testing.T) {
+	t.Run("max age not implemented in dash, returns empty string", func(t *testing.T) {
+		filter := NewDASHFilter("", "", config.Config{})
+		expect := ""
+		if g := filter.GetMaxAge(); g != expect {
+			t.Errorf("Wrong max age returned\ngot %v\nexpected: %v\ndiff: %v", g, expect,
+				cmp.Diff(g, expect))
+		}
+	})
+}

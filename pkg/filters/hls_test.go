@@ -1592,6 +1592,7 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00025.ts
 		filters               *parsers.MediaFilters
 		manifestContent       string
 		expectManifestContent string
+		expectAge             string
 		expectErr             bool
 	}{
 		{
@@ -1600,18 +1601,21 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00025.ts
 			filters:               &parsers.MediaFilters{Trim: trim},
 			manifestContent:       variantManifestWithRelativeURLs,
 			expectManifestContent: variantManifestTrimmed,
+			expectAge:             "3",
 		},
 		{
 			name:                  "when no filter is given, variant level manifest will hold absolute urls only",
 			filters:               &parsers.MediaFilters{Trim: trim},
 			manifestContent:       variantManifestWithAbsoluteURLs,
 			expectManifestContent: variantManifestTrimmed,
+			expectAge:             "3",
 		},
 		{
 			name:                  "when no pdt present for segment, empty manifest is returned",
 			filters:               &parsers.MediaFilters{Trim: trim},
 			manifestContent:       variantManifestWithNoPDT,
 			expectManifestContent: emptyVariantManifest,
+			expectAge:             "0",
 			expectErr:             true,
 		},
 	}
@@ -1633,6 +1637,11 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00025.ts
 			if g, e := manifest, tt.expectManifestContent; g != e {
 				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
+			}
+
+			if g := filter.GetMaxAge(); g != tt.expectAge {
+				t.Errorf("Wrong max age returned\ngot %v\nexpected: %v\ndiff: %v", g, tt.expectAge,
+					cmp.Diff(g, tt.expectAge))
 			}
 
 		})
@@ -1773,11 +1782,11 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00029.ts
 		filters               *parsers.MediaFilters
 		manifestContent       string
 		expectManifestContent string
+		expectAge             string
 		expectErr             bool
 	}{
 		{
-			name: "when trim filter is not set, the level manifest is not changed" +
-				"encoding string in the manifest",
+			name: "when trim filter is given and ads tag are not enabled, ads are decorated in the mainfest",
 			filters: &parsers.MediaFilters{
 				Trim: trim,
 				Tags: &parsers.Tags{
@@ -1786,10 +1795,10 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00029.ts
 			},
 			manifestContent:       variantManifestWithAds,
 			expectManifestContent: variantManifestTrimWithAds,
+			expectAge:             "3",
 		},
 		{
-			name: "when trim filter is given, variant level manifest have absolute url with base64" +
-				"encoding string in the manifest",
+			name: "when trim filter is given and ads tag is enabled, ads are suppressed from mainfest",
 			filters: &parsers.MediaFilters{
 				Trim: trim,
 				Tags: &parsers.Tags{
@@ -1798,6 +1807,7 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00029.ts
 			},
 			manifestContent:       variantManifestWithAds,
 			expectManifestContent: variantManifestTrimWithNoAds,
+			expectAge:             "3",
 		},
 	}
 
@@ -1818,6 +1828,11 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00029.ts
 			if g, e := manifest, tt.expectManifestContent; g != e {
 				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
+			}
+
+			if g := filter.GetMaxAge(); g != tt.expectAge {
+				t.Errorf("Wrong max age returned\ngot %v\nexpected: %v\ndiff: %v", g, tt.expectAge,
+					cmp.Diff(g, tt.expectAge))
 			}
 
 		})

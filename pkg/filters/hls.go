@@ -21,6 +21,7 @@ type execPluginHLS func(variant *m3u8.Variant)
 type HLSFilter struct {
 	manifestURL     string
 	manifestContent string
+	maxSegmentSize  float64
 	config          config.Config
 }
 
@@ -37,6 +38,11 @@ func NewHLSFilter(manifestURL, manifestContent string, c config.Config) *HLSFilt
 		manifestContent: manifestContent,
 		config:          c,
 	}
+}
+
+// GetMaxAge returns max_age to be overwritten via cache control headers
+func (h *HLSFilter) GetMaxAge() string {
+	return fmt.Sprintf("%.0f", h.maxSegmentSize/2)
 }
 
 // FilterManifest will be responsible for filtering the manifest
@@ -298,6 +304,10 @@ func (h *HLSFilter) normalizeTrimmedVariant(filters *parsers.MediaFilters, uri s
 		return "", err
 	}
 
+	if h.config.IsLocalHost() {
+		return fmt.Sprintf("http://%v%v/t(%v,%v)/%v.m3u8", h.config.Hostname, h.config.Listen, start, end, encoded), nil
+	}
+
 	return fmt.Sprintf("%v://%v/t(%v,%v)/%v.m3u8", u.Scheme, h.config.Hostname, start, end, encoded), nil
 }
 
@@ -335,36 +345,64 @@ func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3
 		return "", fmt.Errorf("filtering Rendition Manifest: %w", err)
 	}
 
+	// Append mode will be set to true when first segment is encountered in range.
+	// Once true, we can append segments with tags that don't normally carry PDT
+	// EX: #EXT-X-ASSET, #EXT-OATCLS-SCTE35, or any other custom tags advertised in playlist
+	var append bool
+	var maxSize float64
 	for _, segment := range m.Segments {
 		if segment == nil {
 			continue
 		}
 
-		if segment.ProgramDateTime == (time.Time{}) {
-			return "", fmt.Errorf("Program Date Time not set on segments")
+		if segment.ProgramDateTime == (time.Time{}) && append {
+			if err := appendSegment(h.manifestContent, segment, filteredPlaylist); err != nil {
+				return "", fmt.Errorf("trimming segments: %w", err)
+			}
+			continue
 		}
 
-		if inRange(filters.Trim.Start, filters.Trim.End, int(segment.ProgramDateTime.Unix())) {
-			absolute, err := getAbsoluteURL(h.manifestURL)
-			if err != nil {
-				return "", fmt.Errorf("formatting segment URLs: %w", err)
-			}
+		append = inRange(filters.Trim.Start, filters.Trim.End, int(segment.ProgramDateTime.Unix()))
 
-			segment.URI, err = combinedIfRelative(segment.URI, *absolute)
-			if err != nil {
-				return "", fmt.Errorf("formatting segment URLs: %w", err)
-			}
-
-			err = filteredPlaylist.AppendSegment(segment)
-			if err != nil {
+		if append {
+			if err := appendSegment(h.manifestContent, segment, filteredPlaylist); err != nil {
 				return "", fmt.Errorf("trimming segments: %w", err)
 			}
 		}
+
+		if maxSize < segment.Duration {
+			maxSize = segment.Duration
+		}
 	}
 
+	h.maxSegmentSize = maxSize
 	filteredPlaylist.Close()
 
 	return filteredPlaylist.Encode().String(), nil
+}
+
+//appends segment to provided media playlist with absolute urls
+func appendSegment(manifest string, s *m3u8.MediaSegment, p *m3u8.MediaPlaylist) error {
+	if s.SCTE != nil { // add support for ads in mediafilters/parsers
+		return nil
+	}
+
+	absolute, err := getAbsoluteURL(manifest)
+	if err != nil {
+		return fmt.Errorf("formatting segment URLs: %w", err)
+	}
+
+	s.URI, err = combinedIfRelative(s.URI, *absolute)
+	if err != nil {
+		return fmt.Errorf("formatting segment URLs: %w", err)
+	}
+
+	err = p.AppendSegment(s)
+	if err != nil {
+		return fmt.Errorf("trimming segments: %w", err)
+	}
+
+	return nil
 }
 
 //Returns absolute url of given manifest as a string

@@ -9,6 +9,7 @@ import (
 // Filter is an interface for HLS and DASH filters
 type Filter interface {
 	FilterManifest(filters *parsers.MediaFilters) (string, error)
+	GetMaxAge() string
 }
 
 // ContentType represents the content in the stream

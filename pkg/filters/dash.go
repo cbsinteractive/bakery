@@ -30,6 +30,12 @@ func NewDASHFilter(manifestURL, manifestContent string, c config.Config) *DASHFi
 	}
 }
 
+// GetMaxAge returns max_age to be overwritten via cache control headers
+// currently no support in dash for managing header
+func (d *DASHFilter) GetMaxAge() string {
+	return ""
+}
+
 // FilterManifest will be responsible for filtering the manifest according  to the MediaFilters
 func (d *DASHFilter) FilterManifest(filters *parsers.MediaFilters) (string, error) {
 	manifest, err := mpd.ReadFromString(d.manifestContent)

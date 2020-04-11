@@ -61,7 +61,7 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 	manifest := m.(*m3u8.MasterPlaylist)
 	filteredManifest := m3u8.NewMasterPlaylist()
 	filteredManifest.Twitch = manifest.Twitch
-	fmt.Println("hello")
+
 	for _, v := range manifest.Variants {
 		if filters.SuppressIFrame() && v.Iframe {
 			continue

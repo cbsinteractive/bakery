@@ -16,7 +16,6 @@ func LoadHandler(c config.Config) http.Handler {
 		if r.RequestURI == "/favicon.ico" {
 			return
 		}
-		fmt.Println("hello")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		logger := c.GetLogger()
 		logger.Infof("%s %s %s", r.Method, r.RequestURI, r.RemoteAddr)

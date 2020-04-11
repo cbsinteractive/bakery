@@ -305,8 +305,13 @@ func (h *HLSFilter) normalizeTrimmedVariant(filters *parsers.MediaFilters, uri s
 		return "", err
 	}
 
-	if h.config.IsLocalHost() {
+	switch {
+	case h.config.IsLocalHost() && filters.SuppressAds():
+		return fmt.Sprintf("http://%v%v/t(%v,%v)/tags(ads)/%v.m3u8", h.config.Hostname, h.config.Listen, start, end, encoded), nil
+	case h.config.IsLocalHost():
 		return fmt.Sprintf("http://%v%v/t(%v,%v)/%v.m3u8", h.config.Hostname, h.config.Listen, start, end, encoded), nil
+	case filters.SuppressAds():
+		return fmt.Sprintf("%v://%v/t(%v,%v)/tags(ads)/%v.m3u8", u.Scheme, h.config.Hostname, start, end, encoded), nil
 	}
 
 	return fmt.Sprintf("%v://%v/t(%v,%v)/%v.m3u8", u.Scheme, h.config.Hostname, start, end, encoded), nil

@@ -1371,6 +1371,48 @@ https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbG
 https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbGlua182Lm0zdTg.m3u8
 `
 
+	manifestWithFilteredAdsAndBase64EncodedVariantURLS := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="avc1.64001f,mp4a.40.2"
+https://bakery.cbsi.video/t(10000,100000)/tags(ads)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbGlua18xLm0zdTg.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4200,AVERAGE-BANDWIDTH=4200,CODECS="avc1.64001f,mp4a.40.2"
+https://bakery.cbsi.video/t(10000,100000)/tags(ads)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbGlua18yLm0zdTg.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="avc1.64001f,mp4a.40.2"
+https://bakery.cbsi.video/t(10000,100000)/tags(ads)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbGlua180Lm0zdTg.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4100,AVERAGE-BANDWIDTH=4100,CODECS="avc1.64001f,mp4a.40.2"
+https://bakery.cbsi.video/t(10000,100000)/tags(ads)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbGlua181Lm0zdTg.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="avc1.64001f,mp4a.40.2"
+https://bakery.cbsi.video/t(10000,100000)/tags(ads)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbGlua182Lm0zdTg.m3u8
+`
+
+	manifestWithBase64EncodedVariantURLSAndLocalHost := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="avc1.64001f,mp4a.40.2"
+http://localhost:8080/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbGlua18xLm0zdTg.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4200,AVERAGE-BANDWIDTH=4200,CODECS="avc1.64001f,mp4a.40.2"
+http://localhost:8080/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbGlua18yLm0zdTg.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="avc1.64001f,mp4a.40.2"
+http://localhost:8080/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbGlua180Lm0zdTg.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4100,AVERAGE-BANDWIDTH=4100,CODECS="avc1.64001f,mp4a.40.2"
+http://localhost:8080/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbGlua181Lm0zdTg.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="avc1.64001f,mp4a.40.2"
+http://localhost:8080/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbGlua182Lm0zdTg.m3u8
+`
+
+	manifestWithFilteredAdsAndBase64EncodedVariantURLSAndLocalHost := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="avc1.64001f,mp4a.40.2"
+http://localhost:8080/t(10000,100000)/tags(ads)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbGlua18xLm0zdTg.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4200,AVERAGE-BANDWIDTH=4200,CODECS="avc1.64001f,mp4a.40.2"
+http://localhost:8080/t(10000,100000)/tags(ads)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbGlua18yLm0zdTg.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="avc1.64001f,mp4a.40.2"
+http://localhost:8080/t(10000,100000)/tags(ads)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbGlua180Lm0zdTg.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4100,AVERAGE-BANDWIDTH=4100,CODECS="avc1.64001f,mp4a.40.2"
+http://localhost:8080/t(10000,100000)/tags(ads)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbGlua181Lm0zdTg.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4500,AVERAGE-BANDWIDTH=4500,CODECS="avc1.64001f,mp4a.40.2"
+http://localhost:8080/t(10000,100000)/tags(ads)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbGlua182Lm0zdTg.m3u8
+`
+
 	trim := &parsers.Trim{
 		Start: 10000,
 		End:   100000,
@@ -1381,6 +1423,7 @@ https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbG
 		filters               *parsers.MediaFilters
 		manifestContent       string
 		expectManifestContent string
+		config                config.Config
 		expectErr             bool
 	}{
 		{
@@ -1391,6 +1434,7 @@ https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbG
 			},
 			manifestContent:       masterManifestWithAbsoluteURLs,
 			expectManifestContent: manifestWithBase64EncodedVariantURLS,
+			config:                config.Config{Hostname: "bakery.cbsi.video"},
 		},
 		{
 			name: "when trim filter is given and master has relative urls, variant level manifest will point to " +
@@ -1400,6 +1444,33 @@ https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbG
 			},
 			manifestContent:       masterManifestWithRelativeURLs,
 			expectManifestContent: manifestWithBase64EncodedVariantURLS,
+			config:                config.Config{Hostname: "bakery.cbsi.video"},
+		},
+		{
+			name: "when trim and ads filter is given and master has absolute urls, variant level manifest will point to " +
+				"bakery with trim and ads filter and base64 encoding string in the manifest",
+			filters: &parsers.MediaFilters{
+				Trim: trim,
+				Tags: &parsers.Tags{
+					Ads: true,
+				},
+			},
+			manifestContent:       masterManifestWithAbsoluteURLs,
+			expectManifestContent: manifestWithFilteredAdsAndBase64EncodedVariantURLS,
+			config:                config.Config{Hostname: "bakery.cbsi.video"},
+		},
+		{
+			name: "when trim and ads filter is given and master has absolute urls, variant level manifest will point to " +
+				"bakery with trim and ads filter and base64 encoding string in the manifest",
+			filters: &parsers.MediaFilters{
+				Trim: trim,
+				Tags: &parsers.Tags{
+					Ads: true,
+				},
+			},
+			manifestContent:       masterManifestWithAbsoluteURLs,
+			expectManifestContent: manifestWithFilteredAdsAndBase64EncodedVariantURLS,
+			config:                config.Config{Hostname: "bakery.cbsi.video"},
 		},
 		{
 			name: "when bitrate and trim filter are given, variant level manifest will point to" +
@@ -1421,19 +1492,44 @@ https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9leGlzdGluZy5iYXNlL3BhdGgvbG
 			},
 			manifestContent:       masterManifestWithRelativeURLs,
 			expectManifestContent: manifestWithFilteredBitrateAndBase64EncodedVariantURLS,
+			config:                config.Config{Hostname: "bakery.cbsi.video"},
+		},
+		{
+			name: "when trim and ads filter, variant level manifest will point to localhost and port" +
+				"with trim and ads filter and base64 encoding string in the manifest",
+			filters: &parsers.MediaFilters{
+				Trim: trim,
+				Tags: &parsers.Tags{
+					Ads: true,
+				},
+			},
+			manifestContent:       masterManifestWithAbsoluteURLs,
+			expectManifestContent: manifestWithFilteredAdsAndBase64EncodedVariantURLSAndLocalHost,
+			config:                config.Config{Hostname: "localhost", Listen: ":8080"},
+		},
+		{
+			name: "when trim is set, variant level manifest will point to localhost and port" +
+				"with trim filter and base64 encoding string in the manifest",
+			filters: &parsers.MediaFilters{
+				Trim: trim,
+			},
+			manifestContent:       masterManifestWithAbsoluteURLs,
+			expectManifestContent: manifestWithBase64EncodedVariantURLSAndLocalHost,
+			config:                config.Config{Hostname: "localhost", Listen: ":8080"},
 		},
 		{
 			name:                  "when no filter is given, variant level manifest will hold absolute urls only",
 			filters:               &parsers.MediaFilters{},
 			manifestContent:       masterManifestWithRelativeURLs,
 			expectManifestContent: masterManifestWithAbsoluteURLs,
+			config:                config.Config{Hostname: "bakery.cbsi.video"},
 		},
 	}
 
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			filter := NewHLSFilter("https://existing.base/path/master.m3u8", tt.manifestContent, config.Config{Hostname: "bakery.cbsi.video"})
+			filter := NewHLSFilter("https://existing.base/path/master.m3u8", tt.manifestContent, tt.config)
 			manifest, err := filter.FilterManifest(tt.filters)
 
 			if err != nil && !tt.expectErr {

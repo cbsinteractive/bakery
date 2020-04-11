@@ -3,7 +3,7 @@ package filters
 import (
 	"strings"
 
-	"github.com/cbsinteractive/bakery/pkg/parsers"
+	"github.com/cbsinteractive/bakery/parsers"
 )
 
 // Filter is an interface for HLS and DASH filters

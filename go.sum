@@ -9,6 +9,8 @@ github.com/cbsinteractive/m3u8 v0.11.2-0.20200409145508-96068f2f6ea5 h1:NvKauobl
 github.com/cbsinteractive/m3u8 v0.11.2-0.20200409145508-96068f2f6ea5/go.mod h1:nqzOkfBiZJENr52zTVd/Dcl03yzphIMbJqkXGu+u080=
 github.com/cbsinteractive/m3u8 v0.11.2-0.20200410011537-c5a5a7a8e3cb h1:4n5iMEEHY80ub3KaYD9pHyAlQJ26edhSzHI3s41SWeo=
 github.com/cbsinteractive/m3u8 v0.11.2-0.20200410011537-c5a5a7a8e3cb/go.mod h1:nqzOkfBiZJENr52zTVd/Dcl03yzphIMbJqkXGu+u080=
+github.com/cbsinteractive/m3u8 v0.11.2-0.20200411022055-4abfe1f82646 h1:5FPuHdYTN/fea6rZUuizVZ1A/zJsDGHWdBbw+egpKQE=
+github.com/cbsinteractive/m3u8 v0.11.2-0.20200411022055-4abfe1f82646/go.mod h1:nqzOkfBiZJENr52zTVd/Dcl03yzphIMbJqkXGu+u080=
 github.com/cbsinteractive/propeller-client-go v0.0.0-20200310001146-17ec5e73de5d h1:V61xgXiD0dR2JhFBBCYtsdHceflIaZaau54rpjBIdm8=
 github.com/cbsinteractive/propeller-client-go v0.0.0-20200310001146-17ec5e73de5d/go.mod h1:+5V3mIMEOwqiyb4r3dBsvKtu23kQvJU97Bem9brNzQU=
 github.com/cbsinteractive/propeller-client-go v0.0.0-20200319211718-7097ea26d5bc h1:UFPDXjG2qCDPwtPSiWeUemN5sbjGmlehDbZ7Q2aV1G0=

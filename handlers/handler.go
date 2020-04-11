@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/cbsinteractive/bakery/pkg/config"
-	"github.com/cbsinteractive/bakery/pkg/filters"
-	"github.com/cbsinteractive/bakery/pkg/origin"
-	"github.com/cbsinteractive/bakery/pkg/parsers"
+	"github.com/cbsinteractive/bakery/config"
+	"github.com/cbsinteractive/bakery/filters"
+	"github.com/cbsinteractive/bakery/origin"
+	"github.com/cbsinteractive/bakery/parsers"
 )
 
 // LoadHandler loads the handler for all the requests
@@ -16,6 +16,7 @@ func LoadHandler(c config.Config) http.Handler {
 		if r.RequestURI == "/favicon.ico" {
 			return
 		}
+		fmt.Println("hello")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		logger := c.GetLogger()
 		logger.Infof("%s %s %s", r.Method, r.RequestURI, r.RemoteAddr)

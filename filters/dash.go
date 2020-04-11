@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/cbsinteractive/bakery/pkg/config"
-	"github.com/cbsinteractive/bakery/pkg/parsers"
+	"github.com/cbsinteractive/bakery/config"
+	"github.com/cbsinteractive/bakery/parsers"
 	"github.com/zencoder/go-dash/mpd"
 )
 

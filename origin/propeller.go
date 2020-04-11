@@ -3,7 +3,7 @@ package origin
 import (
 	"fmt"
 
-	"github.com/cbsinteractive/bakery/pkg/config"
+	"github.com/cbsinteractive/bakery/config"
 	propeller "github.com/cbsinteractive/propeller-client-go/pkg/client"
 )
 

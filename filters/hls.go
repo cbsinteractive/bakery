@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cbsinteractive/bakery/pkg/config"
-	"github.com/cbsinteractive/bakery/pkg/parsers"
+	"github.com/cbsinteractive/bakery/config"
+	"github.com/cbsinteractive/bakery/parsers"
 	"github.com/grafov/m3u8"
 )
 
@@ -60,7 +60,8 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 	// convert into the master playlist type
 	manifest := m.(*m3u8.MasterPlaylist)
 	filteredManifest := m3u8.NewMasterPlaylist()
-
+	filteredManifest.Twitch = manifest.Twitch
+	fmt.Println("hello")
 	for _, v := range manifest.Variants {
 		if filters.SuppressIFrame() && v.Iframe {
 			continue

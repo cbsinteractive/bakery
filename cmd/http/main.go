@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/cbsinteractive/bakery/pkg/config"
-	"github.com/cbsinteractive/bakery/pkg/handlers"
+	"github.com/cbsinteractive/bakery/config"
+	"github.com/cbsinteractive/bakery/handlers"
 )
 
 func main() {

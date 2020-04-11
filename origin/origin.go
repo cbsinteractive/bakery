@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/cbsinteractive/bakery/pkg/config"
+	"github.com/cbsinteractive/bakery/config"
 )
 
 //Origin interface is implemented on Manifest and Propeller struct

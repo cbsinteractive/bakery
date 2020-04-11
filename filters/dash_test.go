@@ -5,8 +5,8 @@ import (
 	"math"
 	"testing"
 
-	"github.com/cbsinteractive/bakery/pkg/config"
-	"github.com/cbsinteractive/bakery/pkg/parsers"
+	"github.com/cbsinteractive/bakery/config"
+	"github.com/cbsinteractive/bakery/parsers"
 	"github.com/google/go-cmp/cmp"
 )
 

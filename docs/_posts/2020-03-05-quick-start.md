@@ -94,9 +94,9 @@ Following the examples above you can start applying filters like so:
     http://bakery.dev.cbsivideo.com/a(co(mp4a),b(500,1000))/propeller/<org-id>/<channel-id>.m3u8
     ```
 
-    For more information on working with nested filters and targeting content types, check out the <a href="/filters/nested-filters/">documentation</a>!
+    For more information on working with nested filters and targeting content types, check out the <a href="/bakery/filters/nested-filters.html">documentation</a>!
 
-For more specific details and usage examples on specific filters and the values accepted by each, check out our documentation for filters <a href="/filters">here</a>!
+For more specific details and usage examples on specific filters and the values accepted by each, check out our documentation for filters <a href="/bakery/filters">here</a>!
 
 
 ## What's Next?

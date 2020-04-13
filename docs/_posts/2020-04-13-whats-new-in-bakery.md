@@ -5,11 +5,11 @@ category: whats-new
 ---
 
 # What's new in Bakery?
-We have increased our filter support. Check out the <a href="/filters">docs</a> for more details!
+We have increased our filter support. Check out the <a href="/bakery/filters">docs</a> for more details!
 
-- <a href="/filters/tags">I-Frame filtering in HLS</a>
-- <a href="/filters/language">Language filtering in both HLS and DASH</a>
-- <a href="/filters/frame-rate">Frame Rate filtering in both HLS and DASH</a>
+- <a href="/bakery/filters/tags.html">I-Frame filtering in HLS</a>
+- <a href="/bakery/filters/language.html">Language filtering in both HLS and DASH</a>
+- <a href="/bakery/filters/frame-rate.html">Frame Rate filtering in both HLS and DASH</a>
 
 
 ## Bugfixes & Improvements

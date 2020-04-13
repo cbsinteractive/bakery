@@ -9,7 +9,7 @@ We have increased our filter support. Check out the <a href="/filters">docs</a> 
 
 - <a href="/filters/tags">I-Frame filtering in HLS</a>
 - <a href="/filters/language">Language filtering in both HLS and DASH</a>
-- <a href="/filters/fps">Frame Rate filtering in both HLS and DASH</a>
+- <a href="/filters/frame-rate">Frame Rate filtering in both HLS and DASH</a>
 
 
 ## Bugfixes & Improvements

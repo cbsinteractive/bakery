@@ -30,7 +30,7 @@ yes | no  |
 ## Limitations
 ### Tags
 Tags in the media playlist will be passed through so long as they are within the boundaries of the provided `start` and `end`
-times. We currently have support for suppressing Ad tags in the media playlist, which can be found <a href="tags">here</a>.
+times. We currently have support for suppressing Ad tags in the media playlist, which can be found <a href="tags.html">here</a>.
 
 ### Segments
 Bakery will trim segments based on what is already advertised in the Variant Playlist. If you have a Live Playlist with a sliding window and only 10 segments advertised, you will only be able to trim within the range of those 10 segments. It is recommended that this feature be used on VOD or EVENT Playlists where the full segment archive is available. For Live playlist, you can increase the size of your retention window so that the sliding window can hold a longer range of segments. 

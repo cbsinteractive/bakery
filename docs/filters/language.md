@@ -26,7 +26,7 @@ The values supplied to the language filter should match the language code used i
 
 ## Limitations
 ### Content Type
-When used, this filter is applied to **ALL** types of audio and captions. We do not apply the language filter to a video target. If you want to target a specific audio or caption track, check out our <a href="/nested-filters">documentation</a> on nested filters for targeting based on content type. 
+When used, this filter is applied to **ALL** types of audio and captions. We do not apply the language filter to a video target. If you want to target a specific audio or caption track, check out our <a href="nested-filters.html">documentation</a> on nested filters for targeting based on content type. 
 
 ### Lanugage Code
 Different encoding engines will follow different language codes. Please use the language code used to build your playlist. For example, if using ISO 639-1, a value of `pt` targets only the country of Portugal and not the Portuguese language.

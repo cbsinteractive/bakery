@@ -10,7 +10,6 @@ import (
 )
 
 //Propeller struct holds basic config of a Propeller Channel
-//ClipID and ChannelID will never be set at the same time
 type Propeller struct {
 	URL string
 }

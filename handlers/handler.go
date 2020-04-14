@@ -65,8 +65,8 @@ func LoadHandler(c config.Config) http.Handler {
 		}
 
 		// set cache-control if servering hls media playlist
-		if maxAge := f.GetMaxAge(); maxAge != "" {
-			w.Header().Set("Cache-Control", fmt.Sprintf("max-age:%v", maxAge))
+		if maxAge := f.GetMaxAge(); maxAge != "" && maxAge != "0" {
+			w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%v", maxAge))
 		}
 
 		// write the filtered manifest to the response

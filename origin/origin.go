@@ -26,20 +26,7 @@ type Manifest struct {
 //Configure will return proper Origin interface
 func Configure(c config.Config, path string) (Origin, error) {
 	if strings.Contains(path, "propeller") {
-		parts := strings.Split(path, "/") //["", "propeller", "orgID", "channelID.m3u8"]
-		if len(parts) != 4 {
-			return &Propeller{}, fmt.Errorf("url path does not follow `/propeller/orgID/channelID.m3u8`")
-		}
-
-		orgID := parts[2]
-		channelID := strings.Split(parts[3], ".")[0] // split off .m3u8
-
-		o, err := NewPropeller(c.Propeller, orgID, channelID)
-		if err != nil {
-			return &Propeller{}, fmt.Errorf("configuring propeller origin: %w", err)
-		}
-
-		return o, nil
+		return configurePropeller(c, path)
 	}
 
 	//check if rendition URL

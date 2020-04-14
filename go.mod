@@ -7,7 +7,7 @@ replace github.com/grafov/m3u8 => github.com/cbsinteractive/m3u8 v0.11.2-0.20200
 go 1.13
 
 require (
-	github.com/cbsinteractive/propeller-client-go v0.0.0-20200325144512-9e4b6cb70b7a
+	github.com/cbsinteractive/propeller-go v0.0.0-20200414163032-ca64404c26d8
 	github.com/google/go-cmp v0.4.0
 	github.com/grafov/m3u8 v0.11.1
 	github.com/kelseyhightower/envconfig v1.4.0
@@ -17,5 +17,3 @@ require (
 	github.com/zencoder/go-dash v0.0.0-20200221191004-4c1e141085cb
 	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
 )
-
-replace github.com/cbsinteractive/propeller-client-go => /Users/kmejia/cbsi/go/src/github.com/cbsinteractive/propeller-client-go

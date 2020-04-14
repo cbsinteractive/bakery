@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/cbsinteractive/bakery/config"
-	propeller "github.com/cbsinteractive/propeller-client-go/pkg/client"
+	propeller "github.com/cbsinteractive/propeller-go/client"
 )
 
 //Propeller struct holds basic config of a Propeller Channel
@@ -65,11 +65,9 @@ func getPropellerChannelURL(p config.Propeller, orgID string, channelID string) 
 	if err != nil {
 		var se propeller.StatusError
 		if errors.As(err, &se) && se.NotFound() {
-			fmt.Println("fetching archive url")
 			return getPropellerClipURL(p, orgID, fmt.Sprintf("%v-archive", channelID))
 		}
 
-		fmt.Println(channel)
 		return "", fmt.Errorf("fetching channel from propeller: %w", err)
 	}
 
@@ -114,7 +112,8 @@ func getClipURL(clip propeller.Clip) (string, error) {
 	}
 
 	playback := playbackURL.String()
-	if playback != "" {
+	if playback == "" {
+		fmt.Println(playback)
 		return playback, fmt.Errorf("clip not ready")
 	}
 

@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	propeller "github.com/cbsinteractive/propeller-client-go/pkg/client"
+	propeller "github.com/cbsinteractive/propeller-go/client"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/sirupsen/logrus"
 )

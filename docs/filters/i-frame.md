@@ -33,8 +33,8 @@ yes | no   |
 ### Single value filter:
 
     // Removes I-Frame
-    $ http http://bakery.dev.cbsivideo.com/v(i-frame)/star_trek_discovery/S01/E01.m3u8
-    $ http http://bakery.dev.cbsivideo.com/v(iframe)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsivideo.com/tags(i-frame)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsivideo.com/tags(iframe)/star_trek_discovery/S01/E01.m3u8
 
 ### Multiple filters:
 Mutliple filters are supplied by using the `/` with no space in between

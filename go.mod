@@ -7,13 +7,15 @@ replace github.com/grafov/m3u8 => github.com/cbsinteractive/m3u8 v0.11.2-0.20200
 go 1.13
 
 require (
+	github.com/aws/aws-sdk-go v1.30.7 // indirect
+	github.com/cbsinteractive/pkg/tracing v0.0.0-20200409233703-f2037b1185c6
+	github.com/cbsinteractive/pkg/xrayutil v0.0.0-20200409233703-f2037b1185c6
 	github.com/cbsinteractive/propeller-go v0.0.0-20200414163032-ca64404c26d8
 	github.com/google/go-cmp v0.4.0
 	github.com/grafov/m3u8 v0.11.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/sirupsen/logrus v1.4.2
-	github.com/stretchr/testify v1.4.0 // indirect
 	github.com/zencoder/go-dash v0.0.0-20200221191004-4c1e141085cb
 	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
 )

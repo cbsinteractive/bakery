@@ -6,6 +6,7 @@ import (
 
 	"github.com/cbsinteractive/bakery/config"
 	"github.com/cbsinteractive/bakery/handlers"
+	"github.com/cbsinteractive/pkg/tracing"
 )
 
 func main() {
@@ -18,7 +19,7 @@ func main() {
 	handler := handlers.LoadHandler(c)
 
 	logger.Infof("Starting Bakery on %s", c.Listen)
-	http.Handle("/", handler)
+	http.Handle("/", c.Client.Tracer.Handle(tracing.FixedNamer("bakery"), handler))
 	if err := http.ListenAndServe(c.Listen, nil); err != nil {
 		log.Fatal(err)
 	}

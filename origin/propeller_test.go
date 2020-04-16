@@ -115,11 +115,11 @@ func TestPropeller_getClipURL(t *testing.T) {
 			for _, clip := range tc.clips {
 				u, err := getClipURL(clip)
 
-				// pending and error status channels should return error
+				// pending and error status clips should return error
 				if err != nil && !tc.expectError {
-					t.Errorf("getChannelURL() didn't expect an error, got %v", err)
+					t.Errorf("getClipURL() didn't expect an error, got %v", err)
 				} else if err == nil && tc.expectError {
-					t.Errorf("getChannelURL() expected error, got nil")
+					t.Errorf("getClipURL() expected error, got nil")
 				}
 
 				if tc.expectURL != u {

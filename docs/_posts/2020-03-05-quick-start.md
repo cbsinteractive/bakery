@@ -24,16 +24,7 @@ Then your `BAKERY_ORIGIN_HOST` was set to `http://streaming.cbsi.video` and your
 
 Bakery can act as a proxy to serve your Propeller channels!
 
-Propeller is the ViacomCBS live-streaming platform. Propeller can orchestrate and manage all of your cloud based resources needed for a live streaming environment. If you have a stream running out of Propeller, you can stream that channel via Bakery! 
-
-
-To play a Propeller channel you can make a Bakery request with the following scheme:
-
-    https://bakery.dev.cbsivideo.com/propeller/<org-id>/<channel-id>.m3u8
-
-For more information on working with Propeller, check out the documentation 
-<a href="https://cbsinteractive.github.io/propeller/">here</a> or reach out to the team on <a href="https://cbs.slack.com/app_redirect?channel=i-vidtech-propeller" target="_blank">Slack</a> to get all set up!
-
+You can find more information <a href="/bakery/propeller">here</a> for managing Propeller channels via Bakery.
 
 ## Applying Filters
 

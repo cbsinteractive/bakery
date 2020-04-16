@@ -6,9 +6,9 @@ has_toc: false
 ---
 
 # Propeller
+Propeller is the ViacomCBS live-streaming platform. Propeller can orchestrate and manage all of your cloud based resources needed for a live streaming environment. If you have a stream running out of Propeller, you can stream that channel via Bakery! 
 
-If you haven't had the chance, we suggest getting started with our <a href="/bakery/quick-start/2020/03/05/quick-start.html">Quick Start</a> guide before trying to proxy and filter your channels via Bakery. For help on
-managing playback of your Propeller channels via Bakery, check out the documentation below. 
+For help on managing playback of your Propeller channels via Bakery, check out the documentation below. 
 
 ## Playback
 
@@ -37,3 +37,8 @@ To request a Propeller clip via Bakery:
 
     https://bakery.dev.cbsivideo.com/propeller/<org-id>/clip/<clip-id>.m3u8
 
+
+
+## Help
+
+For more information on Propeller, check out the documentation <a href="https://cbsinteractive.github.io/propeller/">here</a> or reach out to the Propeller team on <a href="https://cbs.slack.com/app_redirect?channel=i-vidtech-propeller" target="_blank">Slack</a> to get all set up!

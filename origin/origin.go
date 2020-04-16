@@ -1,9 +1,11 @@
 package origin
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"net/url"
 	"strings"
 
@@ -70,7 +72,15 @@ func (m *Manifest) FetchManifest(c config.Config) (string, error) {
 }
 
 func fetch(c config.Config, manifestURL string) (string, error) {
-	resp, err := c.Client.New().Get(manifestURL)
+	req, err := http.NewRequest(http.MethodGet, manifestURL, nil)
+	if err != nil {
+		return "", fmt.Errorf("generating request to fetch manifest: %w", err)
+	}
+
+	ctx, cancel := context.WithTimeout(c.Client.Context, c.Client.Timeout)
+	defer cancel()
+
+	resp, err := c.Client.New().Do(req.WithContext(ctx))
 	if err != nil {
 		return "", fmt.Errorf("fetching manifest: %w", err)
 	}

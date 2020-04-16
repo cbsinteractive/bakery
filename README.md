@@ -24,8 +24,18 @@ Please reach out to the [Propeller](https://cbsinteractive.github.io/propeller) 
     $ export BAKERY_ORIGIN_HOST="https://streaming.cbs.com"
     $ export BAKERY_PROPELLER_HOST="http://propeller.com"
     $ export BAKERY_PROPELLER_CREDS="usr:pws"
+    $ export BAKERY_ENABLE_XRAY=false
+    $ export BAKERY_ENABLE_XRAY_PLUGINS=false #for local debugging, if XRAY is enabled, set this to false
 
 Note that `BAKERY_ORIGIN_HOST` will be the base URL of your manifest files.
+
+#### Setup a local AWS XRay Daemon
+
+If you have enabled XRAY to run on your local machine, you will need to an xray daemon.
+
+For help on setting up a local instance, check the AWS documentation [here](https://docs.aws.amazon.com/xray/latest/devguide/xray-daemon-local.html)
+
+Bakery will connect to the Daemon on the default port
 
 #### Run the API:
 

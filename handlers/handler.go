@@ -13,6 +13,7 @@ import (
 // LoadHandler loads the handler for all the requests
 func LoadHandler(c config.Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		c.Client.SetContext(r)
 		if r.RequestURI == "/favicon.ico" {
 			return
 		}

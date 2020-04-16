@@ -88,7 +88,7 @@ func getChannelURL(channel propeller.Channel) (string, error) {
 	}
 
 	playback := playbackURL.String()
-	if playback != "" {
+	if playback == "" {
 		return playback, fmt.Errorf("channel not ready")
 	}
 

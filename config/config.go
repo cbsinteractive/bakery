@@ -21,24 +21,30 @@ type Config struct {
 	LogLevel   string `envconfig:"LOG_LEVEL" default:"debug"`
 	OriginHost string `envconfig:"ORIGIN_HOST"`
 	Hostname   string `envconfig:"HOSTNAME"  default:"localhost"`
+	Tracer
 	Client
 	Propeller
 }
 
-// Propeller holds the client ands its associated credentials
+//Tracer holds configuration for initating the tracing of requests
+type Tracer struct {
+	EnableXRay        bool `envconfig:"ENABLE_XRAY" default:"false"`
+	EnableXRayPlugins bool `envconfig:"ENABLE_XRAY_PLUGINS" default:"false"`
+}
+
+// Propeller holds associated credentials for propeller api
 type Propeller struct {
-	Host   string `envconfig:"PROPELLER_HOST"`
-	Creds  string `envconfig:"PROPELLER_CREDS"`
-	Client *propeller.Client
+	Host  string `envconfig:"PROPELLER_HOST"`
+	Creds string `envconfig:"PROPELLER_CREDS"`
+	Auth  propeller.Auth
+	API   *url.URL
 }
 
 // Client will issue requests to the manifest
 type Client struct {
-	Context           context.Context
-	Timeout           time.Duration `envconfig:"CLIENT_TIMEOUT" default:"5s"`
-	EnableXRay        bool          `envconfig:"ENABLE_XRAY" default:"false"`
-	EnableXRayPlugins bool          `envconfig:"ENABLE_XRAY_PLUGINS" default:"false"`
-	Tracer            tracing.Tracer
+	Context context.Context
+	Timeout time.Duration `envconfig:"CLIENT_TIMEOUT" default:"5s"`
+	Tracer  tracing.Tracer
 }
 
 // New creates a new instance of the HTTP Client
@@ -64,18 +70,18 @@ func LoadConfig() (Config, error) {
 		return c, err
 	}
 
-	c.Client.init(c.GetLogger())
+	c.Client.Tracer = c.Tracer.init(c.GetLogger())
 
 	return c, c.Propeller.init()
 }
 
 // init will set up the tracer to track clients requests
-func (c *Client) init(logger *logrus.Logger) {
+func (t *Tracer) init(logger *logrus.Logger) tracing.Tracer {
 	var tracer tracing.Tracer
 
-	if c.EnableXRay {
+	if t.EnableXRay {
 		tracer = xrayutil.XrayTracer{
-			EnableAWSPlugins: c.EnableXRayPlugins,
+			EnableAWSPlugins: t.EnableXRayPlugins,
 			InfoLogFn:        logger.Infof,
 		}
 	} else {
@@ -87,10 +93,9 @@ func (c *Client) init(logger *logrus.Logger) {
 		logger.Fatalf("initializing tracer: %v", err)
 	}
 
-	c.Tracer = tracer
+	return tracer
 }
 
-// init will set up the propeller client to track clients requests
 func (p *Propeller) init() error {
 	if p.Host == "" || p.Creds == "" {
 		return fmt.Errorf("your Propeller configs are not set")
@@ -101,9 +106,26 @@ func (p *Propeller) init() error {
 		return fmt.Errorf("parsing propeller host url: %w", err)
 	}
 
-	p.Client, err = propeller.NewClient(p.Creds, pURL)
+	auth, err := propeller.NewAuth(p.Creds, pURL.String())
+	if err != nil {
+		return err
+	}
 
-	return err
+	p.Auth = auth
+	p.API = pURL
+
+	return nil
+}
+
+// NewClient will set up the propeller client to track clients requests
+func (p *Propeller) NewClient(c Client) (*propeller.Client, error) {
+	return &propeller.Client{
+		HostURL: p.API,
+		Context: c.Context,
+		Timeout: c.Timeout,
+		Client:  c.Tracer.Client(&http.Client{}),
+		Auth:    p.Auth,
+	}, nil
 }
 
 // IsLocalHost returns true if env is localhost

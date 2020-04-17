@@ -14,7 +14,7 @@ type Propeller struct {
 	URL string
 }
 
-type fetchURL func(config.Propeller, string, string) (string, error)
+type fetchURL func(*propeller.Client, string, string) (string, error)
 
 func configurePropeller(c config.Config, path string) (Origin, error) {
 	// Propeller channels can be requested in multiple formats.
@@ -31,10 +31,10 @@ func configurePropeller(c config.Config, path string) (Origin, error) {
 	orgID := parts[2]
 
 	if strings.Contains(parts[3], "clip") {
-		return NewPropeller(c.Propeller, orgID, extractID(parts[4]), getPropellerClipURL)
+		return NewPropeller(c, orgID, extractID(parts[4]), getPropellerClipURL)
 	}
 
-	return NewPropeller(c.Propeller, orgID, extractID(parts[3]), getPropellerChannelURL)
+	return NewPropeller(c, orgID, extractID(parts[3]), getPropellerChannelURL)
 }
 
 //GetPlaybackURL will retrieve url
@@ -48,8 +48,13 @@ func (p *Propeller) FetchManifest(c config.Config) (string, error) {
 }
 
 //NewPropeller returns a propeller struct
-func NewPropeller(p config.Propeller, orgID string, endpointID string, get fetchURL) (*Propeller, error) {
-	propellerURL, err := get(p, orgID, endpointID)
+func NewPropeller(c config.Config, orgID string, endpointID string, get fetchURL) (*Propeller, error) {
+	client, err := c.Propeller.NewClient(c.Client)
+	if err != nil {
+		return &Propeller{}, fmt.Errorf("configuring propeller client: %w", err)
+	}
+
+	propellerURL, err := get(client, orgID, endpointID)
 	if err != nil {
 		return &Propeller{}, fmt.Errorf("fetching propeller channel: %w", err)
 	}
@@ -59,12 +64,12 @@ func NewPropeller(p config.Propeller, orgID string, endpointID string, get fetch
 	}, nil
 }
 
-func getPropellerChannelURL(p config.Propeller, orgID string, channelID string) (string, error) {
-	channel, err := p.Client.GetChannel(orgID, channelID)
+func getPropellerChannelURL(client *propeller.Client, orgID string, channelID string) (string, error) {
+	channel, err := client.GetChannel(orgID, channelID)
 	if err != nil {
 		var se propeller.StatusError
 		if errors.As(err, &se) && se.NotFound() {
-			return getPropellerClipURL(p, orgID, fmt.Sprintf("%v-archive", channelID))
+			return getPropellerClipURL(client, orgID, fmt.Sprintf("%v-archive", channelID))
 		}
 
 		return "", fmt.Errorf("fetching channel from propeller: %w", err)
@@ -95,8 +100,8 @@ func getChannelURL(channel propeller.Channel) (string, error) {
 	return playback, nil
 }
 
-func getPropellerClipURL(p config.Propeller, orgID string, clipID string) (string, error) {
-	clip, err := p.Client.GetClip(orgID, clipID)
+func getPropellerClipURL(client *propeller.Client, orgID string, clipID string) (string, error) {
+	clip, err := client.GetClip(orgID, clipID)
 	if err != nil {
 		return "", fmt.Errorf("fetching clip from propeller: %w", err)
 	}

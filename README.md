@@ -31,7 +31,7 @@ Note that `BAKERY_ORIGIN_HOST` will be the base URL of your manifest files.
 
 #### Setup a local AWS XRay Daemon
 
-If you have enabled XRAY to run on your local machine, you will need to an xray daemon.
+If you want to enable XRAY to run on your local machine, you will need to run an xray daemon locally.
 
 For help on setting up a local instance, check the AWS documentation [here](https://docs.aws.amazon.com/xray/latest/devguide/xray-daemon-local.html)
 

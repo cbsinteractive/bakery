@@ -40,7 +40,7 @@ type Propeller struct {
 	API   *url.URL
 }
 
-// Client will issue requests to the manifest
+// Client holds configuration for http clients
 type Client struct {
 	Context context.Context
 	Timeout time.Duration `envconfig:"CLIENT_TIMEOUT" default:"5s"`

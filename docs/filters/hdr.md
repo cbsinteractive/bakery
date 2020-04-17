@@ -48,5 +48,5 @@ Mutli value filters are `,` with no space in between
 Mutliple filters are supplied by using the `/` with no space in between
 
     // Removes HDR10 and include Audio with bitrate range of 500Kbps and 1MB
-    $ http http://bakery.dev.cbsivideo.com/v(hdr10)/a(b(500,1000))/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsivideo.com/v(hdr10)/a(b(500000,1000000))/star_trek_discovery/S01/E01.m3u8
 

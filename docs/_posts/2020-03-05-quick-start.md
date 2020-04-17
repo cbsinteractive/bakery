@@ -78,11 +78,11 @@ Following the examples above you can start applying filters like so:
     <br>Some filters can be nested as a way to target assets of a specific content type. For example, if you wanted to remove AAC (MPEG-4) audio and filter the results within 500 Kbps and 1MB, you could make the following request to Bakery:
 
     ```
-    http://bakery.dev.cbsivideo.com/a(co(mp4a),b(500,1000))/star_trek_discovery/S01/E01.m3u8
+    http://bakery.dev.cbsivideo.com/a(co(mp4a),b(500000,1000000))/star_trek_discovery/S01/E01.m3u8
     ```
     for a Propeller channel:
     ```
-    http://bakery.dev.cbsivideo.com/a(co(mp4a),b(500,1000))/propeller/<org-id>/<channel-id>.m3u8
+    http://bakery.dev.cbsivideo.com/a(co(mp4a),b(500000,1000000))/propeller/<org-id>/<channel-id>.m3u8
     ```
 
     For more information on working with nested filters and targeting content types, check out the <a href="/bakery/filters/nested-filters.html">documentation</a>!

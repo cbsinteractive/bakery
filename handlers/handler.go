@@ -32,21 +32,21 @@ func LoadHandler(c config.Config) http.Handler {
 		// parse all the filters from the URL
 		masterManifestPath, mediaFilters, err := parsers.URLParse(r.URL.Path)
 		if err != nil {
-			httpError(c, w, err, "failed parsing url", http.StatusInternalServerError)
+			httpError(logger, w, err, "failed parsing filters", http.StatusInternalServerError)
 			return
 		}
 
 		//configure origin from path
 		manifestOrigin, err := origin.Configure(c, masterManifestPath)
 		if err != nil {
-			httpError(c, w, err, "failed configuring origin", http.StatusInternalServerError)
+			httpError(logger, w, err, "failed configuring origin", http.StatusInternalServerError)
 			return
 		}
 
 		// fetch manifest from origin
 		manifestContent, err := manifestOrigin.FetchManifest(c)
 		if err != nil {
-			httpError(c, w, err, "failed fetching origin manifest content", http.StatusInternalServerError)
+			httpError(logger, w, err, "failed fetching origin manifest content", http.StatusInternalServerError)
 			return
 		}
 
@@ -62,14 +62,14 @@ func LoadHandler(c config.Config) http.Handler {
 			w.Header().Set("Content-Type", "application/dash+xml")
 		default:
 			err := fmt.Errorf("unsupported protocol %q", mediaFilters.Protocol)
-			httpError(c, w, err, "failed to select filter", http.StatusBadRequest)
+			httpError(logger, w, err, "failed to select filter", http.StatusBadRequest)
 			return
 		}
 
 		// apply the filters to the origin manifest
 		filteredManifest, err := f.FilterManifest(mediaFilters)
 		if err != nil {
-			httpError(c, w, err, "failed to filter manifest", http.StatusInternalServerError)
+			httpError(logger, w, err, "failed to filter manifest", http.StatusInternalServerError)
 			return
 		}
 
@@ -81,10 +81,4 @@ func LoadHandler(c config.Config) http.Handler {
 		// write the filtered manifest to the response
 		fmt.Fprint(w, filteredManifest)
 	})
-}
-
-func httpError(c config.Config, w http.ResponseWriter, err error, message string, code int) {
-	logger := c.GetLogger()
-	logger.WithError(err).Infof(message)
-	http.Error(w, message+": "+err.Error(), code)
 }

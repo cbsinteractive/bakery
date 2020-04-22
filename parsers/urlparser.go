@@ -116,7 +116,7 @@ var urlParseRegexp = regexp.MustCompile(`(.*?)\((.*)\)`)
 var nestedFilterRegexp = regexp.MustCompile(`\),`)
 
 func keyError(key string, e error) (string, *MediaFilters, error) {
-	return "", &MediaFilters{}, fmt.Errorf("Error parsing filter key: %v. Got error: %w", key, e)
+	return "", &MediaFilters{}, fmt.Errorf("%v: %w", key, e)
 }
 
 // URLParse will generate a MediaFilters struct with

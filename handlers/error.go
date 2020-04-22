@@ -15,6 +15,8 @@ type ErrorResponse struct {
 }
 
 func httpError(logger *logrus.Logger, w http.ResponseWriter, err error, message string, code int) {
+	logger.WithError(err).Infof(message)
+
 	errList := strings.Split(err.Error(), ": ")
 	errMap := make(map[string][]string)
 	errMap[errList[0]] = errList[1:]
@@ -26,8 +28,8 @@ func httpError(logger *logrus.Logger, w http.ResponseWriter, err error, message 
 
 	if e != nil {
 		http.Error(w, message+": "+err.Error(), code)
+		return
 	}
 
-	logger.WithError(err).Infof(message)
 	http.Error(w, string(eResp), code)
 }

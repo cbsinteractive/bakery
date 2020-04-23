@@ -21,13 +21,13 @@ type env map[string]string
 // getConfig will return a config to use in tests based on provided values
 func getConfig(listen, log, host, token string, c Client, t Tracer, p Propeller) Config {
 	return Config{
-		Listen:    ":8080",
-		LogLevel:  "debug",
-		Hostname:  "localhost",
-		AuthToken: "",
-		Client:    c,
-		Tracer:    t,
-		Propeller: p,
+		Listen:      ":8080",
+		LogLevel:    "debug",
+		Hostname:    "localhost",
+		OriginToken: "",
+		Client:      c,
+		Tracer:      t,
+		Propeller:   p,
 	}
 }
 
@@ -85,13 +85,13 @@ func TestConfig_LoadConfig(t *testing.T) {
 		{
 			name: "When loading Config, if env vars not set, throw error for propeller creds for client",
 			expectConfig: Config{
-				Listen:    ":8080",
-				LogLevel:  "debug",
-				Hostname:  "localhost",
-				AuthToken: "",
-				Client:    getClientConfig(nil, time.Duration(5*time.Second), tracing.NoopTracer{}),
-				Tracer:    getTracerConfig(false, false),
-				Propeller: getPropellerConfig("", "", "", ""),
+				Listen:      ":8080",
+				LogLevel:    "debug",
+				Hostname:    "localhost",
+				OriginToken: "",
+				Client:      getClientConfig(nil, time.Duration(5*time.Second), tracing.NoopTracer{}),
+				Tracer:      getTracerConfig(false, false),
+				Propeller:   getPropellerConfig("", "", "", ""),
 			},
 			expectErr: true,
 		},
@@ -102,13 +102,13 @@ func TestConfig_LoadConfig(t *testing.T) {
 				map[string]string{"BAKERY_PROPELLER_HOST": "http://propeller.dev.com"},
 			},
 			expectConfig: Config{
-				Listen:    ":8080",
-				LogLevel:  "debug",
-				Hostname:  "localhost",
-				AuthToken: "",
-				Client:    getClientConfig(nil, time.Duration(5*time.Second), tracing.NoopTracer{}),
-				Tracer:    getTracerConfig(false, false),
-				Propeller: getPropellerConfig("http", "propeller.dev.com", "usr", "pw"),
+				Listen:      ":8080",
+				LogLevel:    "debug",
+				Hostname:    "localhost",
+				OriginToken: "",
+				Client:      getClientConfig(nil, time.Duration(5*time.Second), tracing.NoopTracer{}),
+				Tracer:      getTracerConfig(false, false),
+				Propeller:   getPropellerConfig("http", "propeller.dev.com", "usr", "pw"),
 			},
 		},
 	}
@@ -181,25 +181,25 @@ func TestConfig_Authentication(t *testing.T) {
 			name:   "When localhost, return authentication true",
 			token:  "",
 			expect: true,
-			c:      Config{Hostname: "localhost", AuthToken: ""},
+			c:      Config{Hostname: "localhost", OriginToken: ""},
 		},
 		{
 			name:   "When localhost, return authentication true even if token is set",
 			token:  "",
 			expect: true,
-			c:      Config{Hostname: "localhost", AuthToken: "sometoken"},
+			c:      Config{Hostname: "localhost", OriginToken: "sometoken"},
 		},
 		{
 			name:   "When token is properly set and not localhost, return authentication true",
 			token:  "authenticateMeImValid",
 			expect: true,
-			c:      Config{Hostname: "bakery.com", AuthToken: "authenticateMeImValid"},
+			c:      Config{Hostname: "bakery.com", OriginToken: "authenticateMeImValid"},
 		},
 		{
 			name:   "When token is not properly set and not localhost, return authentication false",
 			token:  "",
 			expect: false,
-			c:      Config{Hostname: "bakery.com", AuthToken: "authenticateMeImValid"},
+			c:      Config{Hostname: "bakery.com", OriginToken: "authenticateMeImValid"},
 		},
 	}
 

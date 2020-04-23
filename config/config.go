@@ -17,11 +17,11 @@ import (
 
 // Config holds all the configuration for this service
 type Config struct {
-	Listen     string `envconfig:"HTTP_PORT" default:":8080"`
-	LogLevel   string `envconfig:"LOG_LEVEL" default:"debug"`
-	OriginHost string `envconfig:"ORIGIN_HOST"`
-	Hostname   string `envconfig:"HOSTNAME"  default:"localhost"`
-	AuthToken  string `envconfig:"AUTH_TOKEN"`
+	Listen      string `envconfig:"HTTP_PORT" default:":8080"`
+	LogLevel    string `envconfig:"LOG_LEVEL" default:"debug"`
+	OriginHost  string `envconfig:"ORIGIN_HOST"`
+	Hostname    string `envconfig:"HOSTNAME"  default:"localhost"`
+	OriginToken string `envconfig:"ORIGIN_TOKEN"`
 	Tracer
 	Client
 	Propeller
@@ -131,7 +131,7 @@ func (p *Propeller) NewClient(c Client) *propeller.Client {
 
 // Authenticate will check the token passed in request
 func (c Config) Authenticate(token string) bool {
-	if c.AuthToken == token {
+	if c.OriginToken == token {
 		return true
 	}
 

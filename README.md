@@ -23,7 +23,7 @@ Please reach out to the [Propeller](https://cbsinteractive.github.io/propeller) 
     $ export BAKERY_HTTP_PORT=:8082
     $ export BAKERY_ORIGIN_HOST="https://streaming.cbs.com"
     $ export BAKERY_PROPELLER_HOST="http://propeller.com"
-    $ export BAKERY_PROPELLER_CREDS="usr:pws"
+    $ export BAKERY_PROPELLER_CREDS="usr:pw"
     $ export BAKERY_ENABLE_XRAY=false
     $ export BAKERY_ENABLE_XRAY_PLUGINS=false #for local debugging, if XRAY is enabled, set this to false
 

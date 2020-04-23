@@ -21,6 +21,7 @@ type Config struct {
 	LogLevel   string `envconfig:"LOG_LEVEL" default:"debug"`
 	OriginHost string `envconfig:"ORIGIN_HOST"`
 	Hostname   string `envconfig:"HOSTNAME"  default:"localhost"`
+	AuthToken  string `envconfig:"AUTH_TOKEN"`
 	Tracer
 	Client
 	Propeller
@@ -118,14 +119,27 @@ func (p *Propeller) init() error {
 }
 
 // NewClient will set up the propeller client to track clients requests
-func (p *Propeller) NewClient(c Client) (*propeller.Client, error) {
+func (p *Propeller) NewClient(c Client) *propeller.Client {
 	return &propeller.Client{
 		HostURL: p.API,
 		Context: c.Context,
 		Timeout: c.Timeout,
 		Client:  c.Tracer.Client(&http.Client{}),
 		Auth:    p.Auth,
-	}, nil
+	}
+}
+
+// Authenticate will check the token passed in request
+func (c Config) Authenticate(token string) bool {
+	if c.AuthToken == token {
+		return true
+	}
+
+	if c.IsLocalHost() {
+		return true
+	}
+
+	return false
 }
 
 // IsLocalHost returns true if env is localhost

@@ -14,6 +14,10 @@ import (
 func LoadHandler(c config.Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c.Client.SetContext(r)
+		if !c.Authenticate(r.Header.Get("x-bakery-origin-token")) {
+			httpError(c, w, fmt.Errorf("authentication"), "failed authenticating request", http.StatusForbidden)
+			return
+		}
 		if r.RequestURI == "/favicon.ico" {
 			return
 		}

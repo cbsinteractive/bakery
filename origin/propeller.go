@@ -49,10 +49,7 @@ func (p *Propeller) FetchManifest(c config.Config) (string, error) {
 
 //NewPropeller returns a propeller struct
 func NewPropeller(c config.Config, orgID string, endpointID string, get fetchURL) (*Propeller, error) {
-	client, err := c.Propeller.NewClient(c.Client)
-	if err != nil {
-		return &Propeller{}, fmt.Errorf("configuring propeller client: %w", err)
-	}
+	client := c.Propeller.NewClient(c.Client)
 
 	propellerURL, err := get(client, orgID, endpointID)
 	if err != nil {

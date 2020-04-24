@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"testing"
 
+	test "github.com/cbsinteractive/bakery/tests"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -110,17 +111,12 @@ func TestHandler_ErrorResponse(t *testing.T) {
 		},
 	}
 
-	// set handler
-	c, err := testConfig()
-	if err != nil {
-		t.Fatalf("error parsing test config")
-	}
-	handler := LoadHandler(c)
-
 	for _, tc := range tests {
-		//mock client response
-		SetDoFuncReturns = tc.mockResp
-
+		c, err := testConfig(test.MockClient(tc.mockResp))
+		if err != nil {
+			t.Fatalf("error parsing test config")
+		}
+		handler := LoadHandler(c)
 		// set req + response recorder and serve it
 		req := getRequest(tc.url, t)
 		rec := getResponseRecorder()

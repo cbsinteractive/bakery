@@ -9,23 +9,11 @@ import (
 	"time"
 
 	"github.com/cbsinteractive/bakery/config"
+	test "github.com/cbsinteractive/bakery/tests"
 	"github.com/cbsinteractive/pkg/tracing"
 )
 
-// FakeClient is the client to be mocked
-type FakeClient struct {
-	DoFunc func(req *http.Request) (*http.Response, error)
-}
-
-// SetDoFuncReturns will set the resp of the fake client
-var SetDoFuncReturns func(req *http.Request) (*http.Response, error)
-
-// Do is the fake client's Do function
-func (f FakeClient) Do(req *http.Request) (*http.Response, error) {
-	return SetDoFuncReturns(req)
-}
-
-func testConfig() (config.Config, error) {
+func testConfig(fc test.FakeClient) (config.Config, error) {
 	timeout, err := time.ParseDuration("5s")
 	if err != nil {
 		return config.Config{}, err
@@ -39,7 +27,7 @@ func testConfig() (config.Config, error) {
 		Client: config.Client{
 			Timeout:    timeout,
 			Tracer:     tracing.NoopTracer{},
-			HTTPClient: FakeClient{},
+			HTTPClient: fc,
 		},
 	}, nil
 }

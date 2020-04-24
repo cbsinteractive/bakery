@@ -19,3 +19,5 @@ require (
 	github.com/zencoder/go-dash v0.0.0-20200221191004-4c1e141085cb
 	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
 )
+
+replace github.com/cbsinteractive/propeller-go => /Users/kmejia/cbsi/go/src/github.com/cbsinteractive/propeller-go

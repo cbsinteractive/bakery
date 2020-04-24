@@ -36,10 +36,10 @@ func (p *Propeller) init(trace tracing.Tracer, timeout time.Duration) error {
 	}
 
 	p.Client = propeller.Client{
-		HostURL: pURL,
-		Timeout: timeout,
-		Client:  trace.Client(&http.Client{}),
-		Auth:    auth,
+		HostURL:    pURL,
+		Timeout:    timeout,
+		HTTPClient: trace.Client(&http.Client{}),
+		Auth:       auth,
 	}
 
 	return nil

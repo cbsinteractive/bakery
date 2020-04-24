@@ -14,16 +14,19 @@ import (
 func LoadHandler(c config.Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c.Client.SetContext(r)
+
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		logger := c.GetLogger()
+		logger.Infof("%s %s %s", r.Method, r.RequestURI, r.RemoteAddr)
+
 		if !c.Authenticate(r.Header.Get("x-bakery-origin-token")) {
 			httpError(c, w, fmt.Errorf("authentication"), "failed authenticating request", http.StatusForbidden)
 			return
 		}
+
 		if r.RequestURI == "/favicon.ico" {
 			return
 		}
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		logger := c.GetLogger()
-		logger.Infof("%s %s %s", r.Method, r.RequestURI, r.RemoteAddr)
 
 		// parse all the filters from the URL
 		masterManifestPath, mediaFilters, err := parsers.URLParse(r.URL.Path)

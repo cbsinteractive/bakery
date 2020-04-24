@@ -8,6 +8,7 @@ import (
 	"github.com/cbsinteractive/bakery/filters"
 	"github.com/cbsinteractive/bakery/origin"
 	"github.com/cbsinteractive/bakery/parsers"
+	"github.com/sirupsen/logrus"
 )
 
 // LoadHandler loads the handler for all the requests
@@ -17,14 +18,15 @@ func LoadHandler(c config.Config) http.Handler {
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		logger := c.GetLogger()
-		logger.Infof("%s %s %s", r.Method, r.RequestURI, r.RemoteAddr)
+		logger.WithFields(logrus.Fields{
+			"method":      r.Method,
+			"headers":     r.Header,
+			"uri":         r.RequestURI,
+			"remote-addr": r.RemoteAddr,
+		}).Info("recieved request")
 
 		if !c.Authenticate(r.Header.Get("x-bakery-origin-token")) {
 			httpError(c, w, fmt.Errorf("authentication"), "failed authenticating request", http.StatusForbidden)
-			return
-		}
-
-		if r.RequestURI == "/favicon.ico" {
 			return
 		}
 

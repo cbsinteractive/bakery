@@ -20,7 +20,6 @@ func LoadHandler(c config.Config) http.Handler {
 		logger := c.GetLogger()
 		logger.WithFields(logrus.Fields{
 			"method":      r.Method,
-			"headers":     r.Header,
 			"uri":         r.RequestURI,
 			"remote-addr": r.RemoteAddr,
 		}).Info("recieved request")

@@ -22,7 +22,7 @@ func LoadHandler(c config.Config) http.Handler {
 			"method":      r.Method,
 			"uri":         r.RequestURI,
 			"remote-addr": r.RemoteAddr,
-		}).Info("recieved request")
+		}).Info("received request")
 
 		if !c.Authenticate(r.Header.Get("x-bakery-origin-token")) {
 			httpError(c, w, fmt.Errorf("authentication"), "failed authenticating request", http.StatusForbidden)

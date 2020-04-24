@@ -3,10 +3,13 @@ package config
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp/cmpopts"
 
 	"github.com/sirupsen/logrus"
 
@@ -34,9 +37,10 @@ func getConfig(listen, log, host, token string, c Client, t Tracer, p Propeller)
 // getClientConfig will return a Cient config to use in tests based on provided values
 func getClientConfig(c context.Context, t time.Duration, trace tracing.Tracer) Client {
 	return Client{
-		Context: c,
-		Timeout: t,
-		Tracer:  trace,
+		Context:    c,
+		Timeout:    t,
+		Tracer:     trace,
+		HTTPClient: trace.Client(&http.Client{Timeout: t}),
 	}
 }
 
@@ -49,7 +53,7 @@ func getTracerConfig(xray, plugin bool) Tracer {
 }
 
 // getPropellerConfig will return a Propeller config to use in tests based on provided values
-func getPropellerConfig(scheme, hostname, usr, pw string) Propeller {
+func getPropellerConfig(scheme, hostname, usr, pw string, t time.Duration, client HTTPClient) Propeller {
 	var creds, host string
 
 	if usr != "" && pw != "" {
@@ -63,19 +67,29 @@ func getPropellerConfig(scheme, hostname, usr, pw string) Propeller {
 	return Propeller{
 		Host:  host,
 		Creds: creds,
-		Auth: propeller.Auth{
-			User: usr,
-			Pass: pw,
-			Host: hostname,
-		},
-		API: &url.URL{
-			Scheme: scheme,
-			Host:   hostname,
+		Client: propeller.Client{
+			Auth: propeller.Auth{
+				User: usr,
+				Pass: pw,
+				Host: hostname,
+			},
+			HostURL: &url.URL{
+				Scheme: scheme,
+				Host:   hostname,
+			},
+			Timeout:    t,
+			HTTPClient: client,
 		},
 	}
 }
 
 func TestConfig_LoadConfig(t *testing.T) {
+	noopTracer := tracing.NoopTracer{}
+	disabledTraceConfig := getTracerConfig(false, false)
+
+	defaultTime := time.Duration(5 * time.Second)
+	defaultClientConfig := getClientConfig(nil, defaultTime, noopTracer)
+
 	tests := []struct {
 		name         string
 		envs         []env
@@ -89,9 +103,9 @@ func TestConfig_LoadConfig(t *testing.T) {
 				LogLevel:    "debug",
 				Hostname:    "localhost",
 				OriginToken: "",
-				Client:      getClientConfig(nil, time.Duration(5*time.Second), tracing.NoopTracer{}),
-				Tracer:      getTracerConfig(false, false),
-				Propeller:   getPropellerConfig("", "", "", ""),
+				Client:      defaultClientConfig,
+				Tracer:      disabledTraceConfig,
+				Propeller:   getPropellerConfig("", "", "", "", time.Duration(0*time.Second), nil),
 			},
 			expectErr: true,
 		},
@@ -106,9 +120,9 @@ func TestConfig_LoadConfig(t *testing.T) {
 				LogLevel:    "debug",
 				Hostname:    "localhost",
 				OriginToken: "",
-				Client:      getClientConfig(nil, time.Duration(5*time.Second), tracing.NoopTracer{}),
-				Tracer:      getTracerConfig(false, false),
-				Propeller:   getPropellerConfig("http", "propeller.dev.com", "usr", "pw"),
+				Client:      defaultClientConfig,
+				Tracer:      disabledTraceConfig,
+				Propeller:   getPropellerConfig("http", "propeller.dev.com", "usr", "pw", defaultTime, noopTracer.Client(&http.Client{})),
 			},
 		},
 	}
@@ -131,9 +145,12 @@ func TestConfig_LoadConfig(t *testing.T) {
 				return
 			}
 
-			if !cmp.Equal(got, tc.expectConfig) {
-				t.Errorf("Wrong config loaded\ngot %v\nexpected %v\ndiff: %v",
-					got, tc.expectConfig, cmp.Diff(got, tc.expectConfig))
+			// Safe to ignore asthe unexported field is `err` field does not get triggered
+			// during manual creation of the propeller Client config.
+			ignore := cmpopts.IgnoreUnexported(propeller.Client{})
+			if !cmp.Equal(got, tc.expectConfig, ignore) {
+				t.Errorf("Wrong Tracer config loaded\ngot %v\nexpected %v\ndiff: %v",
+					got, tc.expectConfig, cmp.Diff(got, tc.expectConfig, ignore))
 			}
 		})
 	}

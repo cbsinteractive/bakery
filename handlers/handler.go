@@ -19,13 +19,13 @@ func LoadHandler(c config.Config) http.Handler {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		logger := c.GetLogger()
 		logger.WithFields(logrus.Fields{
-			"method":      r.Method,
-			"uri":         r.RequestURI,
-			"remote-addr": r.RemoteAddr,
+			"method": r.Method,
+			"uri":    r.RequestURI,
+			"ip":     r.RemoteAddr,
 		}).Info("received request")
 
 		if !c.Authenticate(r.Header.Get("x-bakery-origin-token")) {
-			httpError(c, w, fmt.Errorf("authentication"), "failed authenticating request", http.StatusForbidden)
+			httpError(logger, w, fmt.Errorf("authentication"), "failed authenticating request", http.StatusForbidden)
 			return
 		}
 

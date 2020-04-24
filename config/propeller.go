@@ -15,8 +15,6 @@ import (
 type Propeller struct {
 	Host  string `envconfig:"PROPELLER_HOST"`
 	Creds string `envconfig:"PROPELLER_CREDS"`
-	Auth  propeller.Auth
-	API   *url.URL
 	propeller.Client
 }
 

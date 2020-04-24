@@ -19,15 +19,14 @@ func LoadHandler(c config.Config) http.Handler {
 		c.Client.SetContext(r)
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		logger := c.GetLogger()
-		ctxLog := logger.WithFields(logrus.Fields{
+		ctxLog := c.GetLogger().WithFields(logrus.Fields{
 			"method": r.Method,
 			"uri":    r.RequestURI,
-			"raddr":  r.RemoteAddr,
-			"ref":    r.Referer(),
-			"ua":     r.UserAgent(),
 		})
-		ctxLog.Info("received request")
+		ctxLog.WithFields(logrus.Fields{
+			"ref": r.Referer(),
+			"ua":  r.UserAgent(),
+		}).Info("received request")
 
 		if !c.Authenticate(r.Header.Get("x-bakery-origin-token")) {
 			e := NewErrorResponse("failed authenticating request", fmt.Errorf("authentication"))

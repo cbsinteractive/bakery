@@ -33,6 +33,8 @@ github.com/cbsinteractive/propeller-client-go v0.0.0-20200325144512-9e4b6cb70b7a
 github.com/cbsinteractive/propeller-client-go v0.0.0-20200325144512-9e4b6cb70b7a/go.mod h1:lhWDwJP8cNfWbls5viRm6pAgDsbg1Hmdjpj7TQn5Cfg=
 github.com/cbsinteractive/propeller-go v0.0.0-20200414163032-ca64404c26d8 h1:Cxrctrfa8tOJHI5xF50Hqy/cZzcvPanfGNUk3RRuX2A=
 github.com/cbsinteractive/propeller-go v0.0.0-20200414163032-ca64404c26d8/go.mod h1:kEPvrrAaFufSkTd/ofH5nNFsBa3uzTJRRV+0ztx1nCQ=
+github.com/cbsinteractive/propeller-go v0.0.0-20200424170524-41b023ada10e h1:LeRpzthmVMf9D7KvTOcVmO1ZLNui0jQdnZdJm4He3PY=
+github.com/cbsinteractive/propeller-go v0.0.0-20200424170524-41b023ada10e/go.mod h1:kEPvrrAaFufSkTd/ofH5nNFsBa3uzTJRRV+0ztx1nCQ=
 github.com/davecgh/go-spew v0.0.0-20160907170601-6d212800a42e/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

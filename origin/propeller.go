@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/cbsinteractive/bakery/config"
 	propeller "github.com/cbsinteractive/propeller-go/client"
 )
@@ -25,7 +27,13 @@ func configurePropeller(c config.Config, path string) (Origin, error) {
 	parts := strings.Split(path, "/")
 
 	if len(parts) < 4 {
-		return &Propeller{}, fmt.Errorf("url path does not follow `/propeller/orgID/channelID.m3u8`")
+		err := fmt.Errorf("propeller origin: request format is not `/propeller/orgID/channelID.m3u8`")
+		log := c.GetLogger()
+		log.WithFields(logrus.Fields{
+			"origin":  "propeller",
+			"request": path,
+		}).Error(err)
+		return &Propeller{}, err
 	}
 
 	orgID := parts[2]
@@ -43,17 +51,24 @@ func (p *Propeller) GetPlaybackURL() string {
 }
 
 //FetchManifest will grab manifest contents of configured origin
-func (p *Propeller) FetchManifest(c config.Config) (string, error) {
+func (p *Propeller) FetchManifest(c config.Client) (string, error) {
 	return fetch(c, p.URL)
 }
 
 //NewPropeller returns a propeller struct
 func NewPropeller(c config.Config, orgID string, endpointID string, get fetchURL) (*Propeller, error) {
-	client := c.Propeller.NewClient(c.Client)
+	c.Propeller.UpdateContext(c.Client.Context)
 
-	propellerURL, err := get(client, orgID, endpointID)
+	propellerURL, err := get(&c.Propeller.Client, orgID, endpointID)
 	if err != nil {
-		return &Propeller{}, fmt.Errorf("fetching propeller channel: %w", err)
+		err := fmt.Errorf("propeller origin: %w", err)
+		log := c.GetLogger()
+		log.WithFields(logrus.Fields{
+			"origin":      "propeller",
+			"org-id":      orgID,
+			"manifest-id": endpointID,
+		}).Error(err)
+		return &Propeller{}, err
 	}
 
 	return &Propeller{
@@ -69,7 +84,7 @@ func getPropellerChannelURL(client *propeller.Client, orgID string, channelID st
 			return getPropellerClipURL(client, orgID, fmt.Sprintf("%v-archive", channelID))
 		}
 
-		return "", fmt.Errorf("fetching channel from propeller: %w", err)
+		return "", fmt.Errorf("fetching channel: %w", err)
 	}
 
 	return getChannelURL(channel)
@@ -86,12 +101,12 @@ func getChannelURL(channel propeller.Channel) (string, error) {
 
 	playbackURL, err := channel.URL()
 	if err != nil {
-		return "", fmt.Errorf("reading url from propeller channel: %w", err)
+		return "", fmt.Errorf("parsing channel url: %w", err)
 	}
 
 	playback := playbackURL.String()
 	if playback == "" {
-		return playback, fmt.Errorf("channel not ready")
+		return playback, fmt.Errorf("channel status: not ready")
 	}
 
 	return playback, nil
@@ -100,7 +115,7 @@ func getChannelURL(channel propeller.Channel) (string, error) {
 func getPropellerClipURL(client *propeller.Client, orgID string, clipID string) (string, error) {
 	clip, err := client.GetClip(orgID, clipID)
 	if err != nil {
-		return "", fmt.Errorf("fetching clip from propeller: %w", err)
+		return "", fmt.Errorf("fetching clip: %w", err)
 	}
 
 	return getClipURL(clip)
@@ -109,13 +124,13 @@ func getPropellerClipURL(client *propeller.Client, orgID string, clipID string) 
 func getClipURL(clip propeller.Clip) (string, error) {
 	playbackURL, err := clip.URL()
 	if err != nil {
-		return "", fmt.Errorf("reading url from propeller clip: %w", err)
+		return "", fmt.Errorf("parsings clip url: %w", err)
 	}
 
 	playback := playbackURL.String()
 	if playback == "" {
 		fmt.Println(playback)
-		return playback, fmt.Errorf("clip not ready")
+		return playback, fmt.Errorf("clip status: not ready")
 	}
 
 	return playback, nil

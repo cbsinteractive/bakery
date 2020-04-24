@@ -1,10 +1,13 @@
 package config
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 
+	"github.com/cbsinteractive/pkg/tracing"
 	propeller "github.com/cbsinteractive/propeller-go/client"
 )
 
@@ -14,9 +17,10 @@ type Propeller struct {
 	Creds string `envconfig:"PROPELLER_CREDS"`
 	Auth  propeller.Auth
 	API   *url.URL
+	propeller.Client
 }
 
-func (p *Propeller) init() error {
+func (p *Propeller) init(trace tracing.Tracer, timeout time.Duration) error {
 	if p.Host == "" || p.Creds == "" {
 		return fmt.Errorf("your Propeller configs are not set")
 	}
@@ -31,19 +35,17 @@ func (p *Propeller) init() error {
 		return err
 	}
 
-	p.Auth = auth
-	p.API = pURL
+	p.Client = propeller.Client{
+		HostURL: pURL,
+		Timeout: timeout,
+		Client:  trace.Client(&http.Client{}),
+		Auth:    auth,
+	}
 
 	return nil
 }
 
-// NewClient will set up the propeller client to track clients requests
-func (p *Propeller) NewClient(c Client) (*propeller.Client, error) {
-	return &propeller.Client{
-		HostURL: p.API,
-		Context: c.Context,
-		Timeout: c.Timeout,
-		Client:  c.Tracer.Client(&http.Client{}),
-		Auth:    p.Auth,
-	}, nil
+//UpdateContext will update client context
+func (p *Propeller) UpdateContext(ctx context.Context) {
+	p.Client.Context = ctx
 }

@@ -21,17 +21,12 @@ type Client struct {
 	HTTPClient
 }
 
-// New creates a new instance of the HTTP Client
-func (c Client) New() HTTPClient {
-	if c.HTTPClient != nil { // only set during testing
-		return c.HTTPClient
-	}
-
-	// https://medium.com/@nate510/don-t-use-go-s-default-http-client-4804cb19f779
-	return c.Tracer.Client(&http.Client{
+// SetContext will set the context on the incoming requests
+func (c *Client) init(t tracing.Tracer) {
+	c.Tracer = t
+	c.HTTPClient = c.Tracer.Client(&http.Client{
 		Timeout: c.Timeout,
 	})
-
 }
 
 // SetContext will set the context on the incoming requests

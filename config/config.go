@@ -27,9 +27,10 @@ func LoadConfig() (Config, error) {
 		return c, err
 	}
 
-	c.Client.Tracer = c.Tracer.init(c.GetLogger())
+	tracer := c.Tracer.init(c.GetLogger())
+	c.Client.init(tracer)
 
-	return c, c.Propeller.init()
+	return c, c.Propeller.init(tracer, c.Client.Timeout)
 }
 
 // Authenticate will check the token passed in request

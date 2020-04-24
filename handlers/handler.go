@@ -44,9 +44,9 @@ func LoadHandler(c config.Config) http.Handler {
 		}
 
 		// fetch manifest from origin
-		manifestContent, err := manifestOrigin.FetchManifest(c)
+		manifestContent, err := manifestOrigin.FetchManifest(c.Client)
 		if err != nil {
-			httpError(logger, w, err, "failed fetching origin manifest content", http.StatusInternalServerError)
+			httpError(logger, w, err, "failed fetching manifest", http.StatusInternalServerError)
 			return
 		}
 

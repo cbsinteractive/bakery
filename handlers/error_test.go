@@ -30,7 +30,7 @@ func TestHandler_ErrorResponse(t *testing.T) {
 			},
 			expectStatus: 500,
 			expectErr: ErrorResponse{
-				Message: "failed fetching origin manifest content",
+				Message: "failed fetching manifest",
 				Errors: map[string][]string{
 					"fetching manifest": []string{"returning http status of 403"},
 				},
@@ -56,7 +56,7 @@ func TestHandler_ErrorResponse(t *testing.T) {
 			expectErr: ErrorResponse{
 				Message: "failed configuring origin",
 				Errors: map[string][]string{
-					"url path does not follow `/propeller/orgID/channelID.m3u8`": []string{},
+					"propeller origin": []string{"request format is not `/propeller/orgID/channelID.m3u8`"},
 				},
 			},
 		},

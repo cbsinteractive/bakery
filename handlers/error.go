@@ -12,11 +12,40 @@ import (
 type ErrorResponse struct {
 	Message string              `json:"message"`
 	Errors  map[string][]string `json:"errors"`
+	Err     error
 }
 
-func httpError(logger *logrus.Logger, w http.ResponseWriter, err error, message string, code int) {
-	logger.WithError(err).Infof(message)
+//NewErrorResponse holds a formatted error response
+func NewErrorResponse(message string, err error) ErrorResponse {
+	errList := strings.Split(err.Error(), ": ")
+	errMap := make(map[string][]string)
+	errMap[errList[0]] = errList[1:]
+	return ErrorResponse{
+		Message: message,
+		Errors:  errMap,
+		Err:     err,
+	}
+}
 
+// HandleError will both log and handle the http error for a given error
+func (e *ErrorResponse) HandleError(log *logrus.Entry, w http.ResponseWriter, code int) {
+	logError(log, e.Message, e.Err)
+	httpError(w, code, *e)
+}
+
+func logError(log *logrus.Entry, message string, err error) {
+	log.WithError(err).Infof(message)
+}
+func httpError(w http.ResponseWriter, code int, e ErrorResponse) {
+	eResp, err := json.Marshal(e)
+	if err != nil {
+		http.Error(w, e.Message+": "+e.Err.Error(), code)
+		return
+	}
+	http.Error(w, string(eResp), code)
+}
+
+func httpErrorTEST(w http.ResponseWriter, err error, message string, code int) {
 	errList := strings.Split(err.Error(), ": ")
 	errMap := make(map[string][]string)
 	errMap[errList[0]] = errList[1:]

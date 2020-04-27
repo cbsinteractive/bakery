@@ -179,7 +179,7 @@ func (d *DASHFilter) filterAdaptationSetLanguage(filters *parsers.MediaFilters, 
 				continue
 			}
 
-			var langs []parsers.Language
+			var langs []string
 			switch ContentType(*as.ContentType) {
 			case audioContentType:
 				langs = filters.Audios.Language
@@ -203,7 +203,7 @@ func (d *DASHFilter) filterAdaptationSetLanguage(filters *parsers.MediaFilters, 
 }
 
 func (d *DASHFilter) filterAdaptationSetContentType(filters *parsers.MediaFilters, manifest *mpd.MPD) {
-	filteredAdaptationSetTypes := map[parsers.ContentType]struct{}{}
+	filteredAdaptationSetTypes := map[string]struct{}{}
 	for _, streamType := range filters.ContentTypes {
 		filteredAdaptationSetTypes[streamType] = struct{}{}
 	}
@@ -215,7 +215,7 @@ func (d *DASHFilter) filterAdaptationSetContentType(filters *parsers.MediaFilter
 		asIndex := 0
 		for _, as := range period.AdaptationSets {
 			if as.ContentType != nil {
-				if _, filtered := filteredAdaptationSetTypes[parsers.ContentType(*as.ContentType)]; filtered {
+				if _, filtered := filteredAdaptationSetTypes[*as.ContentType]; filtered {
 					continue
 				}
 			}
@@ -328,7 +328,7 @@ func (d *DASHFilter) filterBandwidth(filters *parsers.MediaFilters, manifest *mp
 	}
 }
 
-func matchLang(l string, langs []parsers.Language) bool {
+func matchLang(l string, langs []string) bool {
 	for _, lang := range langs {
 		if string(lang) == l {
 			return true
@@ -355,7 +355,7 @@ func matchCodec(codec string, ct ContentType, supportedCodecs map[string]struct{
 	return false
 }
 
-func matchFPS(fps string, framerates []parsers.FPS) bool {
+func matchFPS(fps string, framerates []string) bool {
 	for _, fr := range framerates {
 		if string(fr) == fps {
 			return true

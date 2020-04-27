@@ -16,6 +16,7 @@ type Filter interface {
 type ContentType string
 
 const (
+	imageContentType   ContentType = "image"
 	captionContentType ContentType = "text"
 	audioContentType   ContentType = "audio"
 	videoContentType   ContentType = "video"
@@ -35,7 +36,7 @@ const (
 	wvttCodec  CodecFilterID = "wvtt"
 )
 
-// ValidCodecs returns a map of all formatted values for a given codec filter
+// ValidCodecs returns a boolean value for a given codec filter
 func ValidCodecs(codec string, filter CodecFilterID) bool {
 	return strings.Contains(codec, string(filter))
 }

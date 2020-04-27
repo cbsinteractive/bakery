@@ -68,11 +68,6 @@ func LoadHandler(c config.Config) http.Handler {
 		case parsers.ProtocolDASH:
 			f = filters.NewDASHFilter(manifestOrigin.GetPlaybackURL(), manifestContent, c)
 			w.Header().Set("Content-Type", "application/dash+xml")
-		default:
-			err := fmt.Errorf("unsupported protocol %q", mediaFilters.Protocol)
-			e := NewErrorResponse("failed to select filter", err)
-			e.HandleError(ctxLog, w, http.StatusBadRequest)
-			return
 		}
 
 		// apply the filters to the origin manifest

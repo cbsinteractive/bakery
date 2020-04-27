@@ -266,7 +266,7 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 			name: "when all video codecs are supplied, all video is stripped from a manifest",
 			filters: &parsers.MediaFilters{
 				Videos: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"hvc", "hev", "avc", "dvh"},
+					Codecs: []string{"hvc", "hev", "avc", "dvh"},
 				},
 			},
 			manifestContent:       manifestWithMultiVideoCodec,
@@ -276,7 +276,7 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 			name: "when a video filter is supplied with HEVC and AVC, HEVC and AVC is stripped from manifest",
 			filters: &parsers.MediaFilters{
 				Videos: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"hvc", "hev", "avc"},
+					Codecs: []string{"hvc", "hev", "avc"},
 				},
 			},
 			manifestContent:       manifestWithMultiVideoCodec,
@@ -286,7 +286,7 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 			name: "when a video filter is suplied with Dolby Vision ID, dolby vision is stripped from manifest",
 			filters: &parsers.MediaFilters{
 				Videos: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"dvh"},
+					Codecs: []string{"dvh"},
 				},
 			},
 			manifestContent:       manifestWithMultiVideoCodec,
@@ -296,7 +296,7 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 			name: "when a video filter is suplied with HEVC ID, HEVC is stripped from manifest",
 			filters: &parsers.MediaFilters{
 				Videos: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"hvc", "hev"},
+					Codecs: []string{"hvc", "hev"},
 				},
 			},
 			manifestContent:       manifestWithMultiVideoCodec,
@@ -306,7 +306,7 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 			name: "when a video filter is suplied with AVC, AVC is stripped from manifest",
 			filters: &parsers.MediaFilters{
 				Videos: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"avc"},
+					Codecs: []string{"avc"},
 				},
 			},
 			manifestContent:       manifestWithMultiVideoCodec,
@@ -316,7 +316,7 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 			name: "when a video filter is suplied with HDR10, all hevc main10 profiles are stripped from manifest",
 			filters: &parsers.MediaFilters{
 				Videos: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"hvc1.2", "hev1.2"},
+					Codecs: []string{"hvc1.2", "hev1.2"},
 				},
 			},
 			manifestContent:       manifestWithMultiVideoCodec,
@@ -418,7 +418,7 @@ func TestDASHFilter_FilterManifest_audioCodecs(t *testing.T) {
 			name: "when all codecs are applied, audio is stripped from a manifest",
 			filters: &parsers.MediaFilters{
 				Audios: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"ac-3", "ec-3"},
+					Codecs: []string{"ac-3", "ec-3"},
 				},
 			},
 			manifestContent:       manifestWithEAC3AndAC3AudioCodec,
@@ -428,7 +428,7 @@ func TestDASHFilter_FilterManifest_audioCodecs(t *testing.T) {
 			name: "when an audio filter is supplied with Enhanced AC-3 codec, Enhanced AC-3 is stripped out",
 			filters: &parsers.MediaFilters{
 				Audios: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"ec-3"},
+					Codecs: []string{"ec-3"},
 				},
 			},
 			manifestContent:       manifestWithEAC3AndAC3AudioCodec,
@@ -438,7 +438,7 @@ func TestDASHFilter_FilterManifest_audioCodecs(t *testing.T) {
 			name: "when an audio filter is supplied with AC-3 codec, AC-3 is stripped out",
 			filters: &parsers.MediaFilters{
 				Audios: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"ac-3"},
+					Codecs: []string{"ac-3"},
 				},
 			},
 			manifestContent:       manifestWithEAC3AndAC3AudioCodec,
@@ -528,7 +528,7 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 				"manifest",
 			filters: &parsers.MediaFilters{
 				Captions: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"stpp", "wvtt"},
+					Codecs: []string{"stpp", "wvtt"},
 				},
 			},
 			manifestContent:       manifestWithWVTTAndSTPPCaptions,
@@ -539,7 +539,7 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 				"filtered out",
 			filters: &parsers.MediaFilters{
 				Captions: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"stpp"},
+					Codecs: []string{"stpp"},
 				},
 			},
 			manifestContent:       manifestWithWVTTAndSTPPCaptions,
@@ -550,7 +550,7 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 				"filtered out",
 			filters: &parsers.MediaFilters{
 				Captions: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"wvtt"},
+					Codecs: []string{"wvtt"},
 				},
 			},
 			manifestContent:       manifestWithWVTTAndSTPPCaptions,
@@ -668,7 +668,7 @@ func TestDASHFilter_FilterManifest_filterStreams(t *testing.T) {
 		{
 			name: "when video streams are filtered, the manifest contains no video adaptation sets",
 			filters: &parsers.MediaFilters{
-				ContentTypes: []parsers.ContentType{"video"},
+				ContentTypes: []string{"video"},
 			},
 			manifestContent:       manifestWithAudioAndVideoStreams,
 			expectManifestContent: manifestWithOnlyAudioStreams,
@@ -676,7 +676,7 @@ func TestDASHFilter_FilterManifest_filterStreams(t *testing.T) {
 		{
 			name: "when audio streams are filtered, the manifest contains no audio adaptation sets",
 			filters: &parsers.MediaFilters{
-				ContentTypes: []parsers.ContentType{"audio"},
+				ContentTypes: []string{"audio"},
 			},
 			manifestContent:       manifestWithAudioAndVideoStreams,
 			expectManifestContent: manifestWithOnlyVideoStreams,
@@ -685,7 +685,7 @@ func TestDASHFilter_FilterManifest_filterStreams(t *testing.T) {
 			name: "when audio and video streams are filtered, the manifest contains no audio or " +
 				"video adaptation sets",
 			filters: &parsers.MediaFilters{
-				ContentTypes: []parsers.ContentType{"video", "audio"},
+				ContentTypes: []string{"video", "audio"},
 			},
 			manifestContent:       manifestWithAudioAndVideoStreams,
 			expectManifestContent: manifestWithoutStreams,
@@ -1068,10 +1068,10 @@ func TestDASHFilter_FilterManifest_LanguageFilter(t *testing.T) {
 			name: "when es lang is set, adaptation sets with es are stripped from manifest",
 			filters: &parsers.MediaFilters{
 				Audios: parsers.NestedFilters{
-					Language: []parsers.Language{"es"},
+					Language: []string{"es"},
 				},
 				Captions: parsers.NestedFilters{
-					Language: []parsers.Language{"es"},
+					Language: []string{"es"},
 				},
 			},
 			manifestContent:       manifestWithMultiLanguages,
@@ -1081,10 +1081,10 @@ func TestDASHFilter_FilterManifest_LanguageFilter(t *testing.T) {
 			name: "when es and pt lang is set, adaptation sets with es and pt are stripped from manifest",
 			filters: &parsers.MediaFilters{
 				Audios: parsers.NestedFilters{
-					Language: []parsers.Language{"es", "pt"},
+					Language: []string{"es", "pt"},
 				},
 				Captions: parsers.NestedFilters{
-					Language: []parsers.Language{"es", "pt"},
+					Language: []string{"es", "pt"},
 				},
 			},
 			manifestContent:       manifestWithMultiLanguages,
@@ -1094,7 +1094,7 @@ func TestDASHFilter_FilterManifest_LanguageFilter(t *testing.T) {
 			name: "when es, pt, and en caption filters are set, expect those captions to be removed",
 			filters: &parsers.MediaFilters{
 				Captions: parsers.NestedFilters{
-					Language: []parsers.Language{"es", "pt", "en"},
+					Language: []string{"es", "pt", "en"},
 				},
 			},
 			manifestContent:       manifestWithMultiLanguages,
@@ -1196,7 +1196,7 @@ func TestDASHFilter_FilterFrameRate(t *testing.T) {
 		{
 			name: "when multiple framerates are set, it removes all the representations associated",
 			filters: &parsers.MediaFilters{
-				FrameRate: []parsers.FPS{"30000/1001", "24000/1001", "30"},
+				FrameRate: []string{"30000/1001", "24000/1001", "30"},
 			},
 			manifestContent:       manifestWithFrameRates,
 			expectManifestContent: manifestWithOnly60FPS,
@@ -1204,7 +1204,7 @@ func TestDASHFilter_FilterFrameRate(t *testing.T) {
 		{
 			name: "when framerate is set with fraction representation, it removes its associated representations",
 			filters: &parsers.MediaFilters{
-				FrameRate: []parsers.FPS{"30000/1001"},
+				FrameRate: []string{"30000/1001"},
 			},
 			manifestContent:       manifestWithFrameRates,
 			expectManifestContent: manifestWithNo30000FractionFPS,
@@ -1212,7 +1212,7 @@ func TestDASHFilter_FilterFrameRate(t *testing.T) {
 		{
 			name: "when all framerates are sent, return an empty manifest",
 			filters: &parsers.MediaFilters{
-				FrameRate: []parsers.FPS{"30000/1001", "24000/1001", "60", "30"},
+				FrameRate: []string{"30000/1001", "24000/1001", "60", "30"},
 			},
 			manifestContent:       manifestWithFrameRates,
 			expectManifestContent: manifestWithNoFrameRates,

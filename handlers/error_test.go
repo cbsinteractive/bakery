@@ -44,7 +44,7 @@ func TestHandler_ErrorResponse(t *testing.T) {
 			url:          "/b(10000,10)/origin/some/path/to/master.mpd",
 			auth:         "authenticate-me",
 			mockResp:     default200Response(),
-			expectStatus: 500,
+			expectStatus: 400,
 			expectErr: ErrorResponse{
 				Message: "failed parsing filters",
 				Errors: map[string][]string{
@@ -72,9 +72,9 @@ func TestHandler_ErrorResponse(t *testing.T) {
 			mockResp:     default200Response(),
 			expectStatus: 400,
 			expectErr: ErrorResponse{
-				Message: "failed to select filter",
+				Message: "failed parsing filters",
 				Errors: map[string][]string{
-					`unsupported protocol ""`: []string{},
+					"Protocol": []string{"unsupported protocol"},
 				},
 			},
 		},

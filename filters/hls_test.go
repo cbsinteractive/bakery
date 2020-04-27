@@ -257,7 +257,7 @@ http://existing.base/uri/link_8.m3u8
 			name: "when all audio codecs are supplied, expect audio to be stripped out",
 			filters: &parsers.MediaFilters{
 				Audios: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"mp4a", "ec-3", "ac-3"},
+					Codecs: []string{"mp4a", "ec-3", "ac-3"},
 				},
 			},
 			manifestContent:       manifestWithAllAudio,
@@ -267,7 +267,7 @@ http://existing.base/uri/link_8.m3u8
 			name: "when filter is supplied with ac-3 and mp4a, expect variants with ac-3 and/or mp4a to be stripped out",
 			filters: &parsers.MediaFilters{
 				Audios: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"mp4a", "ac-3"},
+					Codecs: []string{"mp4a", "ac-3"},
 				},
 			},
 			manifestContent:       manifestWithAllAudio,
@@ -277,7 +277,7 @@ http://existing.base/uri/link_8.m3u8
 			name: "when filter is supplied with ac-3, expect variants with ac-3 to be stripped out",
 			filters: &parsers.MediaFilters{
 				Audios: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"ac-3"},
+					Codecs: []string{"ac-3"},
 				},
 			},
 			manifestContent:       manifestWithAllAudio,
@@ -287,7 +287,7 @@ http://existing.base/uri/link_8.m3u8
 			name: "when filter is supplied with mp4a, expect variants with mp4a to be stripped out",
 			filters: &parsers.MediaFilters{
 				Audios: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"mp4a"},
+					Codecs: []string{"mp4a"},
 				},
 			},
 			manifestContent:       manifestWithAllAudio,
@@ -297,7 +297,7 @@ http://existing.base/uri/link_8.m3u8
 			name: "when filter is supplied with ec-3 and ac-3, expect variants with ec-3 and ac-3 to be stripped out",
 			filters: &parsers.MediaFilters{
 				Audios: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"ec-3", "ac-3"},
+					Codecs: []string{"ec-3", "ac-3"},
 				},
 			},
 			manifestContent:       manifestWithAllAudio,
@@ -307,7 +307,7 @@ http://existing.base/uri/link_8.m3u8
 			name: "when filter is supplied with ec-3 and mp4a, expect variants with ec-3 and/or mp4a to be stripped out",
 			filters: &parsers.MediaFilters{
 				Audios: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"mp4a", "ec-3"},
+					Codecs: []string{"mp4a", "ec-3"},
 				},
 			},
 			manifestContent:       manifestWithAllAudio,
@@ -466,7 +466,7 @@ http://existing.base/uri/link_9.m3u8
 			name: "when all video codecs are supplied, expect variants with avc, hevc, and/or dvh to be stripped out",
 			filters: &parsers.MediaFilters{
 				Videos: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"avc", "hvc", "dvh"},
+					Codecs: []string{"avc", "hvc", "dvh"},
 				},
 			},
 			manifestContent:       manifestWithAllVideo,
@@ -476,7 +476,7 @@ http://existing.base/uri/link_9.m3u8
 			name: "when filter is supplied with avc, expect variants with avc to be stripped out",
 			filters: &parsers.MediaFilters{
 				Videos: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"avc"},
+					Codecs: []string{"avc"},
 				},
 			},
 			manifestContent:       manifestWithAllVideo,
@@ -486,7 +486,7 @@ http://existing.base/uri/link_9.m3u8
 			name: "when filter is supplied with hevc, expect hevc to be stripped out",
 			filters: &parsers.MediaFilters{
 				Videos: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"hvc"},
+					Codecs: []string{"hvc"},
 				},
 			},
 			manifestContent:       manifestWithAllVideo,
@@ -496,7 +496,7 @@ http://existing.base/uri/link_9.m3u8
 			name: "when filter is supplied with dvh, expect dvh to be stripped out",
 			filters: &parsers.MediaFilters{
 				Videos: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"dvh"},
+					Codecs: []string{"dvh"},
 				},
 			},
 			manifestContent:       manifestWithAllVideo,
@@ -506,7 +506,7 @@ http://existing.base/uri/link_9.m3u8
 			name: "when filter is supplied with avc and hevc, expect variants with avc and hevc to be stripped out",
 			filters: &parsers.MediaFilters{
 				Videos: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"avc", "hvc"},
+					Codecs: []string{"avc", "hvc"},
 				},
 			},
 			manifestContent:       manifestWithAllVideo,
@@ -516,7 +516,7 @@ http://existing.base/uri/link_9.m3u8
 			name: "when filter is supplied with avc and dvh, expect variants with avc and dvh to be stripped out",
 			filters: &parsers.MediaFilters{
 				Videos: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"avc", "dvh"},
+					Codecs: []string{"avc", "dvh"},
 				},
 			},
 			manifestContent:       manifestWithAllVideo,
@@ -619,7 +619,7 @@ http://existing.base/uri/link_7.m3u8
 			name: "when all caption filters are supplied, expect all caption variants with captions to be stripped out",
 			filters: &parsers.MediaFilters{
 				Captions: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"stpp", "wvtt"},
+					Codecs: []string{"stpp", "wvtt"},
 				},
 			},
 			manifestContent:       manifestWithAllCaptions,
@@ -629,7 +629,7 @@ http://existing.base/uri/link_7.m3u8
 			name: "when filter is supplied with wvtt, expect variants with wvtt to be stripped out",
 			filters: &parsers.MediaFilters{
 				Captions: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"wvtt"},
+					Codecs: []string{"wvtt"},
 				},
 			},
 			manifestContent:       manifestWithAllCaptions,
@@ -639,7 +639,7 @@ http://existing.base/uri/link_7.m3u8
 			name: "when filter is supplied with stpp, expect variants with wvtt to be stripped out",
 			filters: &parsers.MediaFilters{
 				Captions: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"stpp"},
+					Codecs: []string{"stpp"},
 				},
 			},
 			manifestContent:       manifestWithAllCaptions,
@@ -806,10 +806,10 @@ http://existing.base/uri/link_14.m3u8
 			name: "when filter is supplied with audio (ec-3 and mp4a) and video (hevc and dvh), expect variants with ec-3, mp4a, hevc, and/or dvh to be stripped out",
 			filters: &parsers.MediaFilters{
 				Videos: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"hvc", "dvh"},
+					Codecs: []string{"hvc", "dvh"},
 				},
 				Audios: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"ec-3", "mp4a"},
+					Codecs: []string{"ec-3", "mp4a"},
 				},
 			},
 			manifestContent:       manifestWithAllCodecs,
@@ -819,10 +819,10 @@ http://existing.base/uri/link_14.m3u8
 			name: "when filter is supplied with audio (mp4a) and video (hevc and dvh), expect variants with mp4a, hevc, and/or dvh to be stripped out",
 			filters: &parsers.MediaFilters{
 				Videos: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"hvc", "dvh"},
+					Codecs: []string{"hvc", "dvh"},
 				},
 				Audios: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"mp4a"},
+					Codecs: []string{"mp4a"},
 				},
 			},
 			manifestContent:       manifestWithAllCodecs,
@@ -832,10 +832,10 @@ http://existing.base/uri/link_14.m3u8
 			name: "when filter is supplied with audio (ec-3 and mp4a) and captions (stpp), expect variants with ec-3, mp4a, and/or stpp to be stripped out",
 			filters: &parsers.MediaFilters{
 				Captions: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"stpp"},
+					Codecs: []string{"stpp"},
 				},
 				Audios: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"ec-3", "mp4a"},
+					Codecs: []string{"ec-3", "mp4a"},
 				},
 			},
 			manifestContent:       manifestWithAllCodecs,
@@ -845,13 +845,13 @@ http://existing.base/uri/link_14.m3u8
 			name: "when filter is supplied with audio (ec-3 and mp4a), video (hevc and dvh), and captions (stpp), expect variants with ec-3, mp4a, hevc, dvh, and/or stpp to be stripped out",
 			filters: &parsers.MediaFilters{
 				Captions: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"stpp"},
+					Codecs: []string{"stpp"},
 				},
 				Videos: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"hvc", "dvh"},
+					Codecs: []string{"hvc", "dvh"},
 				},
 				Audios: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"ec-3", "mp4a"},
+					Codecs: []string{"ec-3", "mp4a"},
 				},
 			},
 			manifestContent:       manifestWithAllCodecs,
@@ -861,13 +861,13 @@ http://existing.base/uri/link_14.m3u8
 			name: "when filtering out all codecs except avc video, expect variants with ac-3, ec-3, mp4a, hevc, and/or dvh to be stripped out",
 			filters: &parsers.MediaFilters{
 				Captions: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"stpp", "wvtt"},
+					Codecs: []string{"stpp", "wvtt"},
 				},
 				Videos: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"hvc", "dvh"},
+					Codecs: []string{"hvc", "dvh"},
 				},
 				Audios: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"ac-3", "ec-3", "mp4a"},
+					Codecs: []string{"ac-3", "ec-3", "mp4a"},
 				},
 			},
 			manifestContent:       manifestWithAllCodecs,
@@ -1011,7 +1011,7 @@ http://existing.base/uri/link_13.m3u8
 					},
 				},
 				Audios: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"ec-3"},
+					Codecs: []string{"ec-3"},
 					Bitrate: &parsers.Bitrate{
 						Min: 4000,
 						Max: 6000,
@@ -1025,7 +1025,7 @@ http://existing.base/uri/link_13.m3u8
 			name: "when filtering out video (avc and hevc) and filtering in bandwidth range 4000-6000, expect variants with avc, hevc, and/or not in range to be stripped out",
 			filters: &parsers.MediaFilters{
 				Videos: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"avc", "hvc"},
+					Codecs: []string{"avc", "hvc"},
 					Bitrate: &parsers.Bitrate{
 						Min: 4000,
 						Max: 6000,
@@ -1045,14 +1045,14 @@ http://existing.base/uri/link_13.m3u8
 			name: "when filtering out audio (ac-3, mp4a) and video (hevc and dvh) and filtering in bandwidth range 4000-6000, expect variants with ac-3, mp4a, hevc, dvh, and/or not in range to be stripped out",
 			filters: &parsers.MediaFilters{
 				Videos: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"hvc", "dvh"},
+					Codecs: []string{"hvc", "dvh"},
 					Bitrate: &parsers.Bitrate{
 						Min: 4000,
 						Max: 6000,
 					},
 				},
 				Audios: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"ac-3", "mp4a"},
+					Codecs: []string{"ac-3", "mp4a"},
 					Bitrate: &parsers.Bitrate{
 						Min: 4000,
 						Max: 6000,
@@ -1066,7 +1066,7 @@ http://existing.base/uri/link_13.m3u8
 			name: "when filtering out captions (stpp) and filtering in bandwidth range 4000-6000, expect variants with stpp and/or not in range to be stripped out",
 			filters: &parsers.MediaFilters{
 				Captions: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"stpp"},
+					Codecs: []string{"stpp"},
 				},
 				Videos: parsers.NestedFilters{
 					Bitrate: &parsers.Bitrate{
@@ -1094,7 +1094,7 @@ http://existing.base/uri/link_13.m3u8
 					},
 				},
 				Audios: parsers.NestedFilters{
-					Codecs: []parsers.Codec{"ac-3", "ec-3", "mp4a"},
+					Codecs: []string{"ac-3", "ec-3", "mp4a"},
 					Bitrate: &parsers.Bitrate{
 						Min: 4000,
 						Max: 6000,
@@ -2056,7 +2056,7 @@ https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_
 			name: "when multiple audio languages are passed in, remove all those languages of type audio",
 			filters: &parsers.MediaFilters{
 				Audios: parsers.NestedFilters{
-					Language: []parsers.Language{"da", "de", "es", "pt"},
+					Language: []string{"da", "de", "es", "pt"},
 				},
 			},
 			manifestContent:       masterManifestWithMultipleLangs,
@@ -2066,10 +2066,10 @@ https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_
 			name: "when multiple audio and caption languages are passed in, remove provided audio and caption languages ",
 			filters: &parsers.MediaFilters{
 				Audios: parsers.NestedFilters{
-					Language: []parsers.Language{"da", "de", "en"},
+					Language: []string{"da", "de", "en"},
 				},
 				Captions: parsers.NestedFilters{
-					Language: []parsers.Language{"en"},
+					Language: []string{"en"},
 				},
 			},
 			manifestContent:       masterManifestWithMultipleLangs,
@@ -2079,7 +2079,7 @@ https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_
 			name: "when caption languages are passed in, remove provided subtitles and caption languages ",
 			filters: &parsers.MediaFilters{
 				Captions: parsers.NestedFilters{
-					Language: []parsers.Language{"eng"},
+					Language: []string{"eng"},
 				},
 			},
 			manifestContent:       masterManifestWithEnglishSubsAndCaptions,
@@ -2272,7 +2272,7 @@ https://existing.base/path/link_5.m3u8
 		{
 			name: "when framerate is set to 60, variant of 60fps is removed",
 			filters: &parsers.MediaFilters{
-				FrameRate: []parsers.FPS{"60.000", "30.000"},
+				FrameRate: []string{"60.000", "30.000"},
 			},
 			manifestContent:       masterManifestWithMultipleFrameRates,
 			expectManifestContent: masterManifestWithOnly5994FrameRate,
@@ -2280,7 +2280,7 @@ https://existing.base/path/link_5.m3u8
 		{
 			name: "when framerate is set to 59.94, both variants of 59.94fps is removed",
 			filters: &parsers.MediaFilters{
-				FrameRate: []parsers.FPS{"59.940"},
+				FrameRate: []string{"59.940"},
 			},
 			manifestContent:       masterManifestWithMultipleFrameRates,
 			expectManifestContent: masterManifestWithout5994FrameRate,
@@ -2288,7 +2288,7 @@ https://existing.base/path/link_5.m3u8
 		{
 			name: "when all framerates are set, empty playlist is returned",
 			filters: &parsers.MediaFilters{
-				FrameRate: []parsers.FPS{"59.940", "60.000", "30.000"},
+				FrameRate: []string{"59.940", "60.000", "30.000"},
 			},
 			manifestContent:       masterManifestWithMultipleFrameRates,
 			expectManifestContent: masterManifestWithNoVariants,

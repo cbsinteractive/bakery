@@ -10,61 +10,32 @@ import (
 	"time"
 )
 
-// VideoType is the video codec we need in a given playlist
-type VideoType string
+// MediaFilters is a struct that carry all the information passed via url
+type MediaFilters struct {
+	Videos       NestedFilters `json:",omitempty"`
+	Audios       NestedFilters `json:",omitempty"`
+	Captions     NestedFilters `json:",omitempty"`
+	ContentTypes []string      `json:",omitempty"`
+	Plugins      []string      `json:",omitempty"`
+	Tags         *Tags         `json:",omitempty"`
+	Trim         *Trim         `json:",omitempty"`
+	Bitrate      *Bitrate      `json:",omitempty"`
+	FrameRate    []string      `json:",omitempty"`
+	Protocol     Protocol      `json:"protocol"`
+}
 
-// AudioType is the audio codec we need in a given playlist
-type AudioType string
-
-// Language is the language we need in a given playlist
-type Language string
-
-// CaptionType is an allowed caption format for the stream
-type CaptionType string
-
-// ContentType represents one stream type (e.g. video, audio, text)
-type ContentType string
-
-// Codec represents the codec of the ContentType
-type Codec string
+// NestedFilters is a struct that holds values of filters
+// that can be nested within certain Media Filters
+type NestedFilters struct {
+	Bitrate  *Bitrate `json:",omitempty"`
+	Codecs   []string `json:",omitempty"`
+	Language []string `json:",omitempty"`
+}
 
 // Protocol describe the valid protocols
 type Protocol string
 
-// FPS represents the frames per second of a given video
-type FPS string
-
 const (
-	videoHDR10       VideoType = "hdr10"
-	videoDolbyVision VideoType = "dovi"
-	videoHEVC        VideoType = "hevc"
-	videoH264        VideoType = "avc"
-	videoIFrame      VideoType = "i-frame"
-
-	audioAAC                AudioType = "aac"
-	audioAC3                AudioType = "ac-3"
-	audioEnhacedAC3         AudioType = "ec-3"
-	audioNoAudioDescription AudioType = "noAd"
-
-	langEN   Language = "en"
-	langPT   Language = "pt"
-	langPTBR Language = "pt-BR"
-	langES   Language = "es"
-	langESMX Language = "es-MX"
-
-	codecHDR10              Codec = "hdr10"
-	codecDolbyVision        Codec = "dovi"
-	codecHEVC               Codec = "hevc"
-	codecH264               Codec = "avc"
-	codecAAC                Codec = "aac"
-	codecAC3                Codec = "ac-3"
-	codecEnhancedAC3        Codec = "ec-3"
-	codecNoAudioDescription Codec = "noAd"
-
-	videoContent   ContentType = "video"
-	audioContent   ContentType = "audio"
-	captionContent ContentType = "caption"
-
 	// ProtocolHLS for manifest in hls
 	ProtocolHLS Protocol = "hls"
 	// ProtocolDASH for manifests in dash
@@ -83,20 +54,6 @@ type Bitrate struct {
 	Min int `json:",omitempty"`
 }
 
-// MediaFilters is a struct that carry all the information passed via url
-type MediaFilters struct {
-	Videos       NestedFilters `json:",omitempty"`
-	Audios       NestedFilters `json:",omitempty"`
-	Captions     NestedFilters `json:",omitempty"`
-	ContentTypes []ContentType `json:",omitempty"`
-	Plugins      []string      `json:",omitempty"`
-	Tags         *Tags         `json:",omitempty"`
-	Trim         *Trim         `json:",omitempty"`
-	Bitrate      *Bitrate      `json:",omitempty"`
-	FrameRate    []FPS         `json:",omitempty"`
-	Protocol     Protocol      `json:"protocol"`
-}
-
 // Tags holds values of HLS tags that are to be suppressed
 // from the manifest
 type Tags struct {
@@ -104,16 +61,29 @@ type Tags struct {
 	IFrame bool `json:",omitempty"`
 }
 
-// NestedFilters is a struct that holds values of filters
-// that can be nested within certain Media Filters
-type NestedFilters struct {
-	Bitrate  *Bitrate   `json:",omitempty"`
-	Codecs   []Codec    `json:",omitempty"`
-	Language []Language `json:",omitempty"`
-}
-
 var urlParseRegexp = regexp.MustCompile(`(.*?)\((.*)\)`)
 var nestedFilterRegexp = regexp.MustCompile(`\),`)
+
+var codecSupported = map[string]struct{}{
+	"hdr10": struct{}{}, //H265 main profile 2
+	"dvh":   struct{}{}, //Dolby Vision
+	"hevc":  struct{}{}, //H265
+	"hvc":   struct{}{}, //H265
+	"avc":   struct{}{}, //h264
+	"av1":   struct{}{}, //AV1
+	"mp4a":  struct{}{}, //AAC audio
+	"ac-3":  struct{}{}, //AC3 audio
+	"ec-3":  struct{}{}, //Enhanved AC3
+	"stpp":  struct{}{}, //Subtitles
+	"wvtt":  struct{}{}, //WebVTT
+}
+
+var contentSupported = map[string]struct{}{
+	"image": struct{}{},
+	"text":  struct{}{},
+	"audio": struct{}{},
+	"video": struct{}{},
+}
 
 func keyError(key string, e error) (string, *MediaFilters, error) {
 	return "", &MediaFilters{}, fmt.Errorf("%v: %w", key, e)
@@ -133,6 +103,8 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 		mf.Protocol = ProtocolHLS
 	} else if strings.Contains(urlpath, ".mpd") {
 		mf.Protocol = ProtocolDASH
+	} else {
+		return keyError("Protocol", fmt.Errorf("unsupported protocol"))
 	}
 
 	for _, part := range parts {
@@ -174,12 +146,16 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 			}
 		case "ct":
 			for _, contentType := range filters {
-				mf.ContentTypes = append(mf.ContentTypes, ContentType(contentType))
+				if _, valid := contentSupported[contentType]; !valid {
+					err := fmt.Errorf("Content Type %v is not supported", contentType)
+					return keyError("Content Type", err)
+				}
+				mf.ContentTypes = append(mf.ContentTypes, contentType)
 			}
 		case "l":
 			for _, lang := range filters {
-				mf.Audios.Language = append(mf.Audios.Language, Language(lang))
-				mf.Captions.Language = append(mf.Captions.Language, Language(lang))
+				mf.Audios.Language = append(mf.Audios.Language, lang)
+				mf.Captions.Language = append(mf.Captions.Language, lang)
 			}
 		case "b":
 			x, y, err := parseAndValidateInts(filters, math.MaxInt32)
@@ -207,7 +183,7 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 		case "fps": //fps types in hls=float64, dash=string
 			for _, framerate := range filters {
 				fr := strings.ReplaceAll(framerate, ":", "/")
-				mf.FrameRate = append(mf.FrameRate, FPS(fr))
+				mf.FrameRate = append(mf.FrameRate, fr)
 			}
 		}
 	}
@@ -281,16 +257,17 @@ func (nf *NestedFilters) parseKeys(key string, values []string) error {
 		for _, v := range values {
 			switch v {
 			case "hdr10":
-				nf.Codecs = append(nf.Codecs, Codec("hev1.2"), Codec("hvc1.2"))
-			case "i-frame":
-				return fmt.Errorf("To disable I-Frame, please pass via tags filter")
+				nf.Codecs = append(nf.Codecs, "hev1.2", "hvc1.2")
 			default:
-				nf.Codecs = append(nf.Codecs, Codec(v))
+				if _, valid := codecSupported[v]; !valid {
+					return fmt.Errorf("Codec %v is not supported", v)
+				}
+				nf.Codecs = append(nf.Codecs, v)
 			}
 		}
 	case "l":
 		for _, v := range values {
-			nf.Language = append(nf.Language, Language(v))
+			nf.Language = append(nf.Language, v)
 		}
 	case "b":
 		x, y, err := parseAndValidateInts(values, math.MaxInt32)

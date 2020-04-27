@@ -215,7 +215,7 @@ func filterVariantCodecs(filterType ContentType, variantCodecs []string, support
 	return variantFound, nil
 }
 
-func filterVariantFrameRate(floatFPS float64, frameRates []parsers.FPS) bool {
+func filterVariantFrameRate(floatFPS float64, frameRates []string) bool {
 	strFPS := fmt.Sprintf("%.3f", floatFPS)
 
 	for _, fr := range frameRates {
@@ -233,7 +233,7 @@ func (h *HLSFilter) filterVariantLanguage(v *m3u8.Variant, filters *parsers.Medi
 		return
 	}
 
-	match := func(alt *m3u8.Alternative, langs []parsers.Language) bool {
+	match := func(alt *m3u8.Alternative, langs []string) bool {
 		if langs == nil {
 			return false
 		}

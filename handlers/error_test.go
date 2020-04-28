@@ -120,32 +120,34 @@ func TestHandler_ErrorResponse(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		c := testConfig(test.MockClient(tc.mockResp))
-		handler := LoadHandler(c)
-		// set req + response recorder and serve it
-		req := getRequest(tc.url, t)
-		req.Header.Set("x-bakery-origin-token", tc.auth)
-		rec := getResponseRecorder()
-		handler.ServeHTTP(rec, req)
+		t.Run(tc.name, func(t *testing.T) {
+			c := testConfig(test.MockClient(tc.mockResp))
+			handler := LoadHandler(c)
+			// set req + response recorder and serve it
+			req := getRequest(tc.url, t)
+			req.Header.Set("x-bakery-origin-token", tc.auth)
+			rec := getResponseRecorder()
+			handler.ServeHTTP(rec, req)
 
-		res := rec.Result()
-		defer res.Body.Close()
+			res := rec.Result()
+			defer res.Body.Close()
 
-		if res.StatusCode != tc.expectStatus {
-			t.Errorf("expected status 500; got %v", res.StatusCode)
-		}
+			if res.StatusCode != tc.expectStatus {
+				t.Errorf("expected status %v; got %v", tc.expectStatus, res.StatusCode)
+			}
 
-		body, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			t.Fatal(err)
-		}
+			body, err := ioutil.ReadAll(res.Body)
+			if err != nil {
+				t.Fatal(err)
+			}
 
-		var got ErrorResponse
-		json.Unmarshal(body, &got)
-		if !cmp.Equal(got, tc.expectErr) {
-			t.Errorf("Wrong error returned\ngot %v\nexpected: %v\ndiff: %v",
-				got, tc.expectErr, cmp.Diff(got, tc.expectErr))
-		}
+			var got ErrorResponse
+			json.Unmarshal(body, &got)
+			if !cmp.Equal(got, tc.expectErr) {
+				t.Errorf("Wrong error returned\ngot %v\nexpected: %v\ndiff: %v",
+					got, tc.expectErr, cmp.Diff(got, tc.expectErr))
+			}
+		})
 	}
 
 }

@@ -38,7 +38,7 @@ func LoadHandler(c config.Config) http.Handler {
 		masterManifestPath, mediaFilters, err := parsers.URLParse(r.URL.Path)
 		if err != nil {
 			e := NewErrorResponse("failed parsing filters", err)
-			e.HandleError(ctxLog, w, http.StatusInternalServerError)
+			e.HandleError(ctxLog, w, http.StatusBadRequest)
 			return
 		}
 

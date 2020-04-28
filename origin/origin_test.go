@@ -170,28 +170,28 @@ func TestOrigin_Configure(t *testing.T) {
 		{
 			name:      "when origin is of type propeller in wrong format, return error",
 			path:      "/propeller/chanID.m3u8",
-			c:         config.Config{},
+			c:         config.Config{LogLevel: "panic"},
 			expected:  &Propeller{},
 			expectErr: true,
 		},
 		{
 			name:      "when origin is of type propeller in wrong format, return error",
 			path:      "/propeller/chanID.m3u8",
-			c:         config.Config{},
+			c:         config.Config{LogLevel: "panic"},
 			expected:  &Propeller{},
 			expectErr: true,
 		},
 		{
 			name:     "when origin path is at root but not base64 encoded, return default origin type",
 			path:     fmt.Sprintf("/%v.m3u8", base64.RawURLEncoding.EncodeToString([]byte(absTestURL.String()))),
-			c:        config.Config{OriginHost: "host"},
+			c:        config.Config{LogLevel: "panic", OriginHost: "host"},
 			expected: &DefaultOrigin{Origin: "host", URL: *absTestURL},
 		},
 
 		{
 			name:     "when origin path is at root but not base64 encoded, return default origin type",
 			path:     relTestURL.String(),
-			c:        config.Config{OriginHost: "host"},
+			c:        config.Config{LogLevel: "panic", OriginHost: "host"},
 			expected: &DefaultOrigin{Origin: "host", URL: *relTestURL},
 		},
 	}

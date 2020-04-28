@@ -13,15 +13,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//Origin interface is implemented on Manifest and Propeller struct
+//Origin interface is implemented by DefaultOrigin and Propeller struct
 type Origin interface {
 	GetPlaybackURL() string
 	FetchManifest(c config.Client) (string, error)
 }
 
-//Manifest struct holds Origin and Path of Manifest
-//Variant level manifests will be base64 encoded absolute path
-type Manifest struct {
+//DefaultOrigin struct holds Origin and Path of DefaultOrigin
+//Variant level DefaultOrigins will be base64 encoded absolute path
+type DefaultOrigin struct {
 	Origin string
 	URL    url.URL
 }
@@ -43,39 +43,39 @@ func Configure(c config.Config, path string) (Origin, error) {
 				"origin":  "variant manifest",
 				"request": path,
 			}).Error(err)
-			return &Manifest{}, err
+			return &DefaultOrigin{}, err
 		}
 		path = variantURL
 	}
 
-	return NewManifest(c.OriginHost, path)
+	return NewDefaultOrigin(c.OriginHost, path)
 }
 
-//NewManifest returns a new Origin struct
-func NewManifest(origin string, p string) (*Manifest, error) {
+//NewDefaultOrigin returns a new Origin struct
+func NewDefaultOrigin(origin string, p string) (*DefaultOrigin, error) {
 	u, err := url.Parse(p)
 	if err != nil {
-		return &Manifest{}, nil
+		return &DefaultOrigin{}, nil
 	}
 
-	return &Manifest{
+	return &DefaultOrigin{
 		Origin: origin,
 		URL:    *u,
 	}, nil
 }
 
 //GetPlaybackURL will retrieve url
-func (m *Manifest) GetPlaybackURL() string {
-	if m.URL.IsAbs() {
-		return m.URL.String()
+func (d *DefaultOrigin) GetPlaybackURL() string {
+	if d.URL.IsAbs() {
+		return d.URL.String()
 	}
 
-	return m.Origin + m.URL.String()
+	return d.Origin + d.URL.String()
 }
 
-//FetchManifest will grab manifest contents of configured origin
-func (m *Manifest) FetchManifest(c config.Client) (string, error) {
-	return fetch(c, m.GetPlaybackURL())
+//FetchManifest will grab DefaultOrigin contents of configured origin
+func (d *DefaultOrigin) FetchManifest(c config.Client) (string, error) {
+	return fetch(c, d.GetPlaybackURL())
 }
 
 func fetch(client config.Client, manifestURL string) (string, error) {

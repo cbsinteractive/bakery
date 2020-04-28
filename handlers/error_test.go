@@ -16,6 +16,7 @@ func TestHandler_ErrorResponse(t *testing.T) {
 	tests := []struct {
 		name         string
 		url          string
+		auth         string
 		mockResp     func(req *http.Request) (*http.Response, error)
 		expectErr    ErrorResponse
 		expectStatus int
@@ -23,6 +24,7 @@ func TestHandler_ErrorResponse(t *testing.T) {
 		{
 			name: "when manifest returns 4xx, expect 500  w/ err msg reflecting origin status code",
 			url:  "origin/some/path/to/master.m3u8",
+			auth: "authenticate-me",
 			mockResp: func(*http.Request) (*http.Response, error) {
 				return &http.Response{
 					StatusCode: 403,
@@ -40,6 +42,7 @@ func TestHandler_ErrorResponse(t *testing.T) {
 		{
 			name:         "when request is made with bad filters, expect error from parser",
 			url:          "/b(10000,10)/origin/some/path/to/master.mpd",
+			auth:         "authenticate-me",
 			mockResp:     default200Response(),
 			expectStatus: 500,
 			expectErr: ErrorResponse{
@@ -52,6 +55,7 @@ func TestHandler_ErrorResponse(t *testing.T) {
 		{
 			name:         "when propeller channel is passed with bad path, expect 500 status code w/ err msg reflecting origin configuration",
 			url:          "propeller/master.m3u8",
+			auth:         "authenticate-me",
 			mockResp:     default200Response(),
 			expectStatus: 500,
 			expectErr: ErrorResponse{
@@ -64,6 +68,7 @@ func TestHandler_ErrorResponse(t *testing.T) {
 		{
 			name:         "when request is made without protocol, proper error response is thrown",
 			url:          "/some/random/request",
+			auth:         "authenticate-me",
 			mockResp:     default200Response(),
 			expectStatus: 400,
 			expectErr: ErrorResponse{
@@ -76,6 +81,7 @@ func TestHandler_ErrorResponse(t *testing.T) {
 		{
 			name:         "when request is made and bad HLS manifest is returned, expect error",
 			url:          "origin/some/path/to/master.m3u8",
+			auth:         "authenticate-me",
 			mockResp:     default200Response(),
 			expectStatus: 500,
 			expectErr: ErrorResponse{
@@ -88,6 +94,7 @@ func TestHandler_ErrorResponse(t *testing.T) {
 		{
 			name:         "when request is made and bad MPD manifest is returned, expect error",
 			url:          "origin/some/path/to/master.mpd",
+			auth:         "authenticate-me",
 			mockResp:     default200Response(),
 			expectStatus: 500,
 			expectErr: ErrorResponse{
@@ -98,27 +105,26 @@ func TestHandler_ErrorResponse(t *testing.T) {
 			},
 		},
 		{
-			name:         "when request is made and bad MPD manifest is returned, expect error",
+			name:         "when request is made with bad auth headers, expect authentication error",
 			url:          "origin/some/path/to/master.mpd",
+			auth:         "bad-token",
 			mockResp:     default200Response(),
-			expectStatus: 500,
+			expectStatus: 403,
 			expectErr: ErrorResponse{
-				Message: "failed to filter manifest",
+				Message: "failed authenticating request",
 				Errors: map[string][]string{
-					"EOF": []string{},
+					"authentication": []string{},
 				},
 			},
 		},
 	}
 
 	for _, tc := range tests {
-		c, err := testConfig(test.MockClient(tc.mockResp))
-		if err != nil {
-			t.Fatalf("error parsing test config")
-		}
+		c := testConfig(test.MockClient(tc.mockResp))
 		handler := LoadHandler(c)
 		// set req + response recorder and serve it
 		req := getRequest(tc.url, t)
+		req.Header.Set("x-bakery-origin-token", tc.auth)
 		rec := getResponseRecorder()
 		handler.ServeHTTP(rec, req)
 

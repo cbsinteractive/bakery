@@ -27,7 +27,7 @@ func NewErrorResponse(message string, err error) ErrorResponse {
 	}
 }
 
-// HandleError will both log and handle the http error for a given error
+// HandleError will both log and handle the http error for a given error response
 func (e *ErrorResponse) HandleError(log *logrus.Entry, w http.ResponseWriter, code int) {
 	logError(log, e.Message, e.Err)
 	httpError(w, code, *e)
@@ -36,29 +36,12 @@ func (e *ErrorResponse) HandleError(log *logrus.Entry, w http.ResponseWriter, co
 func logError(log *logrus.Entry, message string, err error) {
 	log.WithError(err).Infof(message)
 }
+
 func httpError(w http.ResponseWriter, code int, e ErrorResponse) {
 	eResp, err := json.Marshal(e)
 	if err != nil {
 		http.Error(w, e.Message+": "+e.Err.Error(), code)
 		return
 	}
-	http.Error(w, string(eResp), code)
-}
-
-func httpErrorTEST(w http.ResponseWriter, err error, message string, code int) {
-	errList := strings.Split(err.Error(), ": ")
-	errMap := make(map[string][]string)
-	errMap[errList[0]] = errList[1:]
-
-	eResp, e := json.Marshal(ErrorResponse{
-		Message: message,
-		Errors:  errMap,
-	})
-
-	if e != nil {
-		http.Error(w, message+": "+err.Error(), code)
-		return
-	}
-
 	http.Error(w, string(eResp), code)
 }

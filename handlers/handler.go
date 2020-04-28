@@ -14,6 +14,8 @@ import (
 // LoadHandler loads the handler for all the requests
 func LoadHandler(c config.Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		//set context on client which is copied over
+		//when fetching manifest and configuring origins
 		c.Client.SetContext(r)
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -82,7 +84,7 @@ func LoadHandler(c config.Config) http.Handler {
 			return
 		}
 
-		// set cache-control if servering hls media playlist
+		// set cache-control if serving hls media playlist
 		if maxAge := f.GetMaxAge(); maxAge != "" && maxAge != "0" {
 			w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%v", maxAge))
 		}

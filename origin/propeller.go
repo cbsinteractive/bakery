@@ -104,12 +104,7 @@ func getChannelURL(channel propeller.Channel) (string, error) {
 		return "", fmt.Errorf("parsing channel url: %w", err)
 	}
 
-	playback := playbackURL.String()
-	if playback == "" {
-		return playback, fmt.Errorf("channel status: not ready")
-	}
-
-	return playback, nil
+	return playbackURL.String(), nil
 }
 
 func getPropellerClipURL(client *propeller.Client, orgID string, clipID string) (string, error) {
@@ -124,12 +119,11 @@ func getPropellerClipURL(client *propeller.Client, orgID string, clipID string) 
 func getClipURL(clip propeller.Clip) (string, error) {
 	playbackURL, err := clip.URL()
 	if err != nil {
-		return "", fmt.Errorf("parsings clip url: %w", err)
+		return "", fmt.Errorf("parsing clip url: %w", err)
 	}
 
 	playback := playbackURL.String()
 	if playback == "" {
-		fmt.Println(playback)
 		return playback, fmt.Errorf("clip status: not ready")
 	}
 

@@ -19,13 +19,16 @@ func LoadHandler(c config.Config) http.Handler {
 		c.Client.SetContext(r)
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		//context log with fields to be used
 		ctxLog := c.GetLogger().WithFields(logrus.Fields{
 			"method": r.Method,
 			"uri":    r.RequestURI,
 		})
+		//log initial request w/ additional fields
 		ctxLog.WithFields(logrus.Fields{
-			"ref": r.Referer(),
-			"ua":  r.UserAgent(),
+			"raddr": r.RemoteAddr,
+			"ref":   r.Referer(),
+			"ua":    r.UserAgent(),
 		}).Info("received request")
 
 		if !c.Authenticate(r.Header.Get("x-bakery-origin-token")) {

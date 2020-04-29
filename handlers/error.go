@@ -12,14 +12,19 @@ import (
 type ErrorResponse struct {
 	Message string              `json:"message"`
 	Errors  map[string][]string `json:"errors"`
-	Err     error
+	Err     error               `json:"-"`
 }
 
 //NewErrorResponse holds a formatted error response
+//Errors returned from the parser, origin, filter packages
+//Will return in a `key: err` format. Where the key signals
+//the package scope source of the error
 func NewErrorResponse(message string, err error) ErrorResponse {
 	errList := strings.Split(err.Error(), ": ")
-	errMap := make(map[string][]string)
-	errMap[errList[0]] = errList[1:]
+	errMap := map[string][]string{
+		errList[0]: errList[1:],
+	}
+
 	return ErrorResponse{
 		Message: message,
 		Errors:  errMap,

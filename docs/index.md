@@ -42,7 +42,7 @@ Unsure how to get started? Check out our quick start tutorial!
 Check out our Filters <a href="/bakery/filters">here</a>!
 
 ## Hosted Environment
-- Dev: bakery.dev.cbsivideo.com
+- Dev: bakery.dev.cbsi.video
 - Prod: bakery.cbsi.video
 
 ## Help

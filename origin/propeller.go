@@ -91,7 +91,9 @@ func getPropellerChannelURL(client *propeller.Client, orgID string, channelID st
 }
 
 func getChannelURL(channel propeller.Channel) (string, error) {
-	if channel.Ads {
+	//If a channel is "stopped", it will have an #EXT-X-ENDLIST tag
+	//in its manifest, causing the DAI live playlist to 404.
+	if channel.Ads && channel.Status == "running" {
 		return channel.AdsURL, nil
 	}
 

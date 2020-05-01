@@ -8,13 +8,14 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func getChannel(ads bool, captions bool, play string) propeller.Channel {
+func getChannel(ads bool, captions bool, play string, status string) propeller.Channel {
 	return propeller.Channel{
 		Ads:         ads,
 		AdsURL:      "some-ad-url.com",
 		Captions:    captions,
 		CaptionsURL: "some-caption-url.com",
 		PlaybackURL: play,
+		Status:      status,
 	}
 }
 
@@ -26,9 +27,9 @@ func getClip(status string, desc string, play string) propeller.Clip {
 	}
 }
 
-func mockChannelResp(ads bool, captions bool, play string) func(*propeller.Client, string, string) (string, error) {
+func mockChannelResp(ads, captions bool, play, status string) func(*propeller.Client, string, string) (string, error) {
 	return func(*propeller.Client, string, string) (string, error) {
-		return getChannelURL(getChannel(ads, captions, play))
+		return getChannelURL(getChannel(ads, captions, play, status))
 	}
 }
 
@@ -47,7 +48,7 @@ func TestPropeller_NewPropeller(t *testing.T) {
 	}{
 		{
 			name:     "when creating new propeller channel, expect playbackURL in config",
-			fetch:    mockChannelResp(false, false, "playbackurl.com"),
+			fetch:    mockChannelResp(false, false, "playbackurl.com", "running"),
 			expected: &Propeller{URL: "playbackurl.com"},
 		},
 		{
@@ -88,32 +89,43 @@ func TestPropeller_getChannelURL(t *testing.T) {
 		errStr      string
 	}{
 		{
-			name: "When ads are set, ad url is returned regardless of other values",
+			name: "When ads are set, ad url is returned when channel is running and regardless of other values",
 			channels: []propeller.Channel{
-				getChannel(true, false, "who cares"),
-				getChannel(true, true, "who cares again"),
+				getChannel(true, false, "who cares", "running"),
+				getChannel(true, true, "who cares again", "running"),
 			},
 			expectURL: "some-ad-url.com",
 		},
 		{
 			name: "When ads are false and captions are set, ad url is returned regardless of other values",
 			channels: []propeller.Channel{
-				getChannel(false, true, "who cares"),
-				getChannel(false, true, "who cares again"),
+				getChannel(false, true, "who cares", "running"),
+				getChannel(false, true, "who cares again", "running"),
 			},
 			expectURL: "some-caption-url.com",
 		},
 		{
 			name: "When ads and captions are NOT set, playback url is returned",
 			channels: []propeller.Channel{
-				getChannel(false, false, "playback-url.com"),
+				getChannel(false, false, "playback-url.com", "running"),
+			},
+			expectURL: "playback-url.com",
+		},
+
+		{
+			name: "When ads are set but channel isn't running, return playbackURL",
+			channels: []propeller.Channel{
+				getChannel(true, false, "playback-url.com", "stopping"),
+				getChannel(true, false, "playback-url.com", "ready"),
+				getChannel(true, false, "playback-url.com", "pending"),
+				getChannel(true, false, "playback-url.com", "starting"),
 			},
 			expectURL: "playback-url.com",
 		},
 		{
 			name: "When ads, captions, and playbackURL are NOT set, error is thrown",
 			channels: []propeller.Channel{
-				getChannel(false, false, ""),
+				getChannel(false, false, "", "running"),
 			},
 			expectURL:   "",
 			expectError: true,

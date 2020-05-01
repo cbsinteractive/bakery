@@ -39,10 +39,10 @@ func configurePropeller(c config.Config, path string) (Origin, error) {
 	orgID := parts[2]
 
 	if strings.Contains(parts[3], "clip") {
-		return NewPropeller(c, orgID, extractID(parts[4]), getPropellerClipURL)
+		return NewPropeller(c, orgID, extractID(parts[len(parts)-1]), getPropellerClipURL)
 	}
 
-	return NewPropeller(c, orgID, extractID(parts[3]), getPropellerChannelURL)
+	return NewPropeller(c, orgID, extractID(parts[len(parts)-1]), getPropellerChannelURL)
 }
 
 //GetPlaybackURL will retrieve url

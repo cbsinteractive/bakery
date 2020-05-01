@@ -215,3 +215,36 @@ func TestPropeller_getClipURL(t *testing.T) {
 
 	}
 }
+
+func TestPropeller_extractID(t *testing.T) {
+	tests := []struct {
+		name       string
+		manifest   []string
+		expectedID []string
+	}{
+		{
+			name: "When extracting ids from manifest path, return correct id",
+			manifest: []string{
+				"id.m3u8",
+				"id",
+			},
+			expectedID: []string{
+				"id",
+				"id",
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			for i, m := range tc.manifest {
+				got := extractID(m)
+
+				if got != tc.expectedID[i] {
+					t.Errorf("Wrong ID reurned. expect: %v, got %v", tc.expectedID[i], got)
+				}
+			}
+		})
+
+	}
+}

@@ -3,6 +3,7 @@ package origin
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -18,16 +19,16 @@ type Propeller struct {
 
 type fetchURL func(*propeller.Client, string, string) (string, error)
 
-func configurePropeller(c config.Config, path string) (Origin, error) {
-	// Propeller channels can be requested in multiple formats.
-	// When split, the parts in the path should evaluate to the following:
-	// /propeller/orgID/channelID.m3u8
-	// /propeller/orgID/clip/clipID.m3u8
-	// /propeller/orgID/channelID/outputID.m3u8
-	parts := strings.Split(path, "/")
+// propellerPaths defines the multiple path formats allowed for propeller
+// channels and clips
+var propellerPaths = []*regexp.Regexp{
+	regexp.MustCompile(`/propeller/(?P<orgID>.+)/clip/(?P<clipID>.+).m3u8`),
+	regexp.MustCompile(`/propeller/(?P<orgID>.+)/(?P<channelID>.+).m3u8`),
+}
 
-	if len(parts) < 4 {
-		err := fmt.Errorf("propeller origin: request format is not `/propeller/orgID/channelID.m3u8`")
+func configurePropeller(c config.Config, path string) (Origin, error) {
+	urlValues, err := parsePropellerPath(path)
+	if err != nil {
 		log := c.GetLogger()
 		log.WithFields(logrus.Fields{
 			"origin":  "propeller",
@@ -36,13 +37,14 @@ func configurePropeller(c config.Config, path string) (Origin, error) {
 		return &Propeller{}, err
 	}
 
-	orgID := parts[2]
+	orgID := urlValues["orgID"]
+	channelID := urlValues["channelID"]
+	clipID := urlValues["clipID"]
 
-	if strings.Contains(parts[3], "clip") {
-		return NewPropeller(c, orgID, extractID(parts[len(parts)-1]), getPropellerClipURL)
+	if clipID != "" {
+		return NewPropeller(c, orgID, clipID, getPropellerClipURL)
 	}
-
-	return NewPropeller(c, orgID, extractID(parts[len(parts)-1]), getPropellerChannelURL)
+	return NewPropeller(c, orgID, channelID, getPropellerChannelURL)
 }
 
 //GetPlaybackURL will retrieve url
@@ -74,6 +76,27 @@ func NewPropeller(c config.Config, orgID string, endpointID string, get fetchURL
 	return &Propeller{
 		URL: propellerURL,
 	}, nil
+}
+
+// parsePropellerPath matches path against all proellerPaths patterns and return a map
+// of values extracted from that url
+//
+// Return error if path does not match with any url
+func parsePropellerPath(path string) (map[string]string, error) {
+	values := make(map[string]string)
+	for _, pattern := range propellerPaths {
+		match := pattern.FindStringSubmatch(path)
+		if len(match) == 0 {
+			continue
+		}
+		for i, name := range pattern.SubexpNames() {
+			if i != 0 {
+				values[name] = match[i]
+			}
+		}
+		return values, nil
+	}
+	return map[string]string{}, errors.New("propeller origin: request format is not `/propeller/orgID/channelID.m3u8`")
 }
 
 func getPropellerChannelURL(client *propeller.Client, orgID string, channelID string) (string, error) {

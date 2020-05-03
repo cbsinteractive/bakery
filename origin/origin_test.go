@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"testing"
 	"time"
@@ -160,6 +161,9 @@ func TestOrigin_Configure(t *testing.T) {
 		t.Error("Unable to make test urls")
 	}
 
+	cfg, teardown := configMockPropellerAPI()
+	defer teardown()
+
 	tests := []struct {
 		name      string
 		path      string
@@ -175,11 +179,40 @@ func TestOrigin_Configure(t *testing.T) {
 			expectErr: true,
 		},
 		{
-			name:      "when origin is of type propeller in wrong format, return error",
-			path:      "/propeller/chanID.m3u8",
-			c:         config.Config{LogLevel: "panic"},
-			expected:  &Propeller{},
-			expectErr: true,
+			name:     "when origin path is of type propeller for channel manifest with simple playback_url",
+			path:     "/propeller/org123/ch-playback-url.m3u8",
+			c:        cfg,
+			expected: &Propeller{URL: "http://cdn.com/ch.m3u8"},
+		},
+		{
+			name:     "when origin path is of type propeller for channel manifest with captions",
+			path:     "/propeller/org123/ch-captions-url.m3u8",
+			c:        cfg,
+			expected: &Propeller{URL: "http://captions.com/ch.m3u8"},
+		},
+		{
+			name:     "when origin path is of type propeller for channel manifest with ads and status running",
+			path:     "/propeller/org123/ch-ads-running.m3u8",
+			c:        cfg,
+			expected: &Propeller{URL: "http://ads.com/ch.m3u8"},
+		},
+		{
+			name:     "when origin path is of type propeller for channel manifest with ads and status not running",
+			path:     "/propeller/org123/ch-ads-not-running.m3u8",
+			c:        cfg,
+			expected: &Propeller{URL: "http://cdn.com/ch.m3u8"}, // use playback_url
+		},
+		{
+			name:     "when origin path is of type propeller for channel manifest when not found try clip archive",
+			path:     "/propeller/org123/ch-not-found.m3u8",
+			c:        cfg,
+			expected: &Propeller{URL: "http://cdn.com/ch-archive.m3u8"},
+		},
+		{
+			name:     "when origin path is of type propeller for clip manifest",
+			path:     "/propeller/org123/clip/clip-123.m3u8",
+			c:        cfg,
+			expected: &Propeller{URL: "http://cdn.com/clip-123.m3u8"},
 		},
 		{
 			name:     "when origin path is at root but not base64 encoded, return default origin type",
@@ -187,7 +220,6 @@ func TestOrigin_Configure(t *testing.T) {
 			c:        config.Config{LogLevel: "panic", OriginHost: "host"},
 			expected: &DefaultOrigin{Origin: "host", URL: *absTestURL},
 		},
-
 		{
 			name:     "when origin path is at root but not base64 encoded, return default origin type",
 			path:     relTestURL.String(),
@@ -216,4 +248,59 @@ func TestOrigin_Configure(t *testing.T) {
 		})
 
 	}
+}
+
+// configMockPropellerAPI returns a config.Config object with a mocked version of Propeller
+// API that returns hard-coded responses
+//
+// Make sure to call teardown() when the test is over
+func configMockPropellerAPI() (cfg config.Config, teardown func()) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.String() {
+		case "/v1/organization/org123/channel/ch-playback-url":
+			fmt.Fprint(w, `{
+				"playback_url": "http://cdn.com/ch.m3u8"
+			}`)
+		case "/v1/organization/org123/channel/ch-captions-url":
+			fmt.Fprint(w, `{
+				"auto_captions": true,
+				"playback_url_auto_captions": "http://captions.com/ch.m3u8"
+			}`)
+		case "/v1/organization/org123/channel/ch-ads-running":
+			fmt.Fprint(w, `{
+				"ads": true,
+				"status": "running",
+				"playback_url_ads": "http://ads.com/ch.m3u8"
+			}`)
+		case "/v1/organization/org123/channel/ch-ads-not-running":
+			fmt.Fprint(w, `{
+				"ads": true,
+				"status": "ready",
+				"playback_url": "http://cdn.com/ch.m3u8",
+				"playback_url_ads": "http://ads.com/ch.m3u8"
+			}`)
+		case "/v1/organization/org123/channel/ch-not-found":
+			w.WriteHeader(404)
+			fmt.Fprint(w, `{"message": "channel not found"}`)
+		case "/v1/organization/org123/clip/ch-not-found-archive":
+			fmt.Fprint(w, `{
+				"status": "created",
+				"url": "http://cdn.com/ch-archive.m3u8"
+			}`)
+		case "/v1/organization/org123/clip/clip-123":
+			fmt.Fprint(w, `{
+				"status": "created",
+				"url": "http://cdn.com/clip-123.m3u8"
+			}`)
+		default:
+			w.WriteHeader(404)
+			fmt.Fprintf(w, "unknown url to mock propeller api: %v", r.URL)
+		}
+	}))
+
+	tsURL, _ := url.Parse(ts.URL)
+	cfg = config.Config{LogLevel: "panic"}
+	cfg.Propeller.Client.HostURL = tsURL
+
+	return cfg, ts.Close
 }

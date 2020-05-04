@@ -132,25 +132,9 @@ type channelURLGetter struct {
 func (g *channelURLGetter) GetURL(client propellerClient) (string, error) {
 	channel, err := client.GetChannel(g.orgID, g.channelID)
 	if err != nil {
-		if g.errChannelNotFound(err) {
-			return g.getArchiveURL(client)
-		}
-		return "", fmt.Errorf("fetching channel: %w", err)
+		return handleGetUrlChannelNotFound(err, g.orgID, g.channelID, client)
 	}
 	return g.getURL(channel)
-}
-
-func (g *channelURLGetter) errChannelNotFound(err error) bool {
-	var se propeller.StatusError
-	return errors.As(err, &se) && se.NotFound()
-}
-
-func (g *channelURLGetter) getArchiveURL(client propellerClient) (string, error) {
-	clipGetter := &clipURLGetter{
-		orgID:  g.orgID,
-		clipID: fmt.Sprintf("%v-archive", g.channelID),
-	}
-	return clipGetter.GetURL(client)
 }
 
 func (g *channelURLGetter) getURL(channel propeller.Channel) (string, error) {
@@ -182,29 +166,13 @@ type outputURLGetter struct {
 func (g *outputURLGetter) GetURL(client propellerClient) (string, error) {
 	channel, err := client.GetChannel(g.orgID, g.channelID)
 	if err != nil {
-		if g.errChannelNotFound(err) {
-			return g.getArchiveURL(client)
-		}
-		return "", fmt.Errorf("fetching channel: %w", err)
+		return handleGetUrlChannelNotFound(err, g.orgID, g.channelID, client)
 	}
 	output, err := channel.FindOutput(g.outputID)
 	if err != nil {
 		return "", fmt.Errorf("finding channel output: %w", err)
 	}
 	return g.getURL(&channel, output)
-}
-
-func (g *outputURLGetter) errChannelNotFound(err error) bool {
-	var se propeller.StatusError
-	return errors.As(err, &se) && se.NotFound()
-}
-
-func (g *outputURLGetter) getArchiveURL(client propellerClient) (string, error) {
-	clipGetter := &clipURLGetter{
-		orgID:  g.orgID,
-		clipID: fmt.Sprintf("%v-archive", g.channelID),
-	}
-	return clipGetter.GetURL(client)
 }
 
 func (g *outputURLGetter) getURL(channel *propeller.Channel, output *propeller.ChannelOutput) (string, error) {
@@ -218,6 +186,22 @@ func (g *outputURLGetter) getURL(channel *propeller.Channel, output *propeller.C
 		return output.PlaybackURL, nil
 	}
 	return "", errors.New("Channel output not ready")
+}
+
+// handleGetUrlChannelNotFound is an error handler used when trying to GET a channel
+// in Propeller API and it failed
+//
+// When a channel is not found in Propeller we try to get the Clip archive URL
+func handleGetUrlChannelNotFound(err error, orgID string, channelID string, client propellerClient) (string, error) {
+	var se propeller.StatusError
+	if errors.As(err, &se) && se.NotFound() {
+		clipGetter := &clipURLGetter{
+			orgID:  orgID,
+			clipID: fmt.Sprintf("%v-archive", channelID),
+		}
+		return clipGetter.GetURL(client)
+	}
+	return "", err
 }
 
 // clipURLGetter is a urlGetter for a Propeller clip

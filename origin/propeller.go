@@ -59,17 +59,19 @@ func (p *Propeller) FetchManifest(c config.Client) (string, error) {
 func NewPropeller(c config.Config, orgID string, endpointID string, get fetchURL) (*Propeller, error) {
 	c.Propeller.UpdateContext(c.Client.Context)
 
+	log := c.GetLogger().WithFields(logrus.Fields{
+		"origin":      "propeller",
+		"org-id":      orgID,
+		"manifest-id": endpointID,
+	})
+
 	propellerURL, err := get(&c.Propeller.Client, orgID, endpointID)
 	if err != nil {
-		err := fmt.Errorf("propeller origin: %w", err)
-		log := c.GetLogger()
-		log.WithFields(logrus.Fields{
-			"origin":      "propeller",
-			"org-id":      orgID,
-			"manifest-id": endpointID,
-		}).Error(err)
+		log.Error(err)
 		return &Propeller{}, err
 	}
+
+	log.Infof("configured propeller channel. url=%v", propellerURL)
 
 	return &Propeller{
 		URL: propellerURL,

@@ -172,47 +172,29 @@ func TestOrigin_Configure(t *testing.T) {
 		expectErr bool
 	}{
 		{
-			name:      "when origin is of type propeller in wrong format, return error",
-			path:      "/propeller/chanID.m3u8",
-			c:         config.Config{LogLevel: "panic"},
-			expected:  &Propeller{},
-			expectErr: true,
-		},
-		{
-			name:     "when origin path is of type propeller for channel manifest with simple playback_url",
-			path:     "/propeller/org123/ch-playback-url.m3u8",
+			name:     "when origin path is of type propeller for channel manifest",
+			path:     "/propeller/org123/channel-123.m3u8",
 			c:        cfg,
 			expected: &Propeller{URL: "http://cdn.com/ch.m3u8"},
 		},
 		{
-			name:     "when origin path is of type propeller for channel manifest with captions",
-			path:     "/propeller/org123/ch-captions-url.m3u8",
+			name:     "when origin path is of type propeller for channel output manifest",
+			path:     "/propeller/org123/channel-with-output/output-123.m3u8",
 			c:        cfg,
-			expected: &Propeller{URL: "http://captions.com/ch.m3u8"},
-		},
-		{
-			name:     "when origin path is of type propeller for channel manifest with ads and status running",
-			path:     "/propeller/org123/ch-ads-running.m3u8",
-			c:        cfg,
-			expected: &Propeller{URL: "http://ads.com/ch.m3u8"},
-		},
-		{
-			name:     "when origin path is of type propeller for channel manifest with ads and status not running",
-			path:     "/propeller/org123/ch-ads-not-running.m3u8",
-			c:        cfg,
-			expected: &Propeller{URL: "http://cdn.com/ch.m3u8"}, // use playback_url
-		},
-		{
-			name:     "when origin path is of type propeller for channel manifest when not found try clip archive",
-			path:     "/propeller/org123/ch-not-found.m3u8",
-			c:        cfg,
-			expected: &Propeller{URL: "http://cdn.com/ch-archive.m3u8"},
+			expected: &Propeller{URL: "http://cdn.com/output-123.m3u8"},
 		},
 		{
 			name:     "when origin path is of type propeller for clip manifest",
 			path:     "/propeller/org123/clip/clip-123.m3u8",
 			c:        cfg,
 			expected: &Propeller{URL: "http://cdn.com/clip-123.m3u8"},
+		},
+		{
+			name:      "when origin is of type propeller in wrong format, return error",
+			path:      "/propeller/chanID.m3u8",
+			c:         config.Config{LogLevel: "panic"},
+			expected:  &Propeller{},
+			expectErr: true,
 		},
 		{
 			name:     "when origin path is at root but not base64 encoded, return default origin type",
@@ -233,7 +215,7 @@ func TestOrigin_Configure(t *testing.T) {
 			got, err := Configure(tc.c, tc.path)
 
 			if err != nil && !tc.expectErr {
-				t.Errorf("Configure() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("Configure() didnt expect an error to be returned, got: %q", err)
 				return
 			} else if err == nil && tc.expectErr {
 				t.Error("Configure() expected an error, got nil")
@@ -241,7 +223,7 @@ func TestOrigin_Configure(t *testing.T) {
 			}
 
 			if !cmp.Equal(got, tc.expected) {
-				t.Errorf("Wrong Origin returned\ngot %v\nexpected: %v\ndiff: %v",
+				t.Errorf("Wrong Origin returned\ngot %q\nexpected: %q\ndiff: %v",
 					got, tc.expected, cmp.Diff(got, tc.expected))
 			}
 
@@ -257,35 +239,17 @@ func TestOrigin_Configure(t *testing.T) {
 func configMockPropellerAPI() (cfg config.Config, teardown func()) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.String() {
-		case "/v1/organization/org123/channel/ch-playback-url":
+		case "/v1/organization/org123/channel/channel-123":
 			fmt.Fprint(w, `{
 				"playback_url": "http://cdn.com/ch.m3u8"
 			}`)
-		case "/v1/organization/org123/channel/ch-captions-url":
+		case "/v1/organization/org123/channel/channel-with-output":
 			fmt.Fprint(w, `{
-				"auto_captions": true,
-				"playback_url_auto_captions": "http://captions.com/ch.m3u8"
-			}`)
-		case "/v1/organization/org123/channel/ch-ads-running":
-			fmt.Fprint(w, `{
-				"ads": true,
-				"status": "running",
-				"playback_url_ads": "http://ads.com/ch.m3u8"
-			}`)
-		case "/v1/organization/org123/channel/ch-ads-not-running":
-			fmt.Fprint(w, `{
-				"ads": true,
-				"status": "ready",
 				"playback_url": "http://cdn.com/ch.m3u8",
-				"playback_url_ads": "http://ads.com/ch.m3u8"
-			}`)
-		case "/v1/organization/org123/channel/ch-not-found":
-			w.WriteHeader(404)
-			fmt.Fprint(w, `{"message": "channel not found"}`)
-		case "/v1/organization/org123/clip/ch-not-found-archive":
-			fmt.Fprint(w, `{
-				"status": "created",
-				"url": "http://cdn.com/ch-archive.m3u8"
+				"outputs": [{
+					"id": "output-123",
+					"playback_url": "http://cdn.com/output-123.m3u8"
+				}]
 			}`)
 		case "/v1/organization/org123/clip/clip-123":
 			fmt.Fprint(w, `{

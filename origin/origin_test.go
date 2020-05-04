@@ -262,7 +262,10 @@ func configMockPropellerAPI() (cfg config.Config, teardown func()) {
 		}
 	}))
 
-	tsURL, _ := url.Parse(ts.URL)
+	tsURL, err := url.Parse(ts.URL)
+	if err != nil {
+		panic(fmt.Sprintf("go httptest server returned invalid url: %v (%v)", ts.URL, err))
+	}
 	cfg = config.Config{LogLevel: "panic"}
 	cfg.Propeller.Client.HostURL = tsURL
 

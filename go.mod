@@ -10,7 +10,7 @@ require (
 	github.com/aws/aws-sdk-go v1.30.7 // indirect
 	github.com/cbsinteractive/pkg/tracing v0.0.0-20200409233703-f2037b1185c6
 	github.com/cbsinteractive/pkg/xrayutil v0.0.0-20200409233703-f2037b1185c6
-	github.com/cbsinteractive/propeller-go v0.0.0-20200424170524-41b023ada10e
+	github.com/cbsinteractive/propeller-go v0.0.0-20200503222720-e53e98ec6b80
 	github.com/google/go-cmp v0.4.0
 	github.com/grafov/m3u8 v0.11.1
 	github.com/kelseyhightower/envconfig v1.4.0

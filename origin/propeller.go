@@ -105,7 +105,7 @@ func parsePropellerPath(path string) (map[string]string, error) {
 		}
 		return values, nil
 	}
-	return map[string]string{}, errors.New("propeller origin: request format is not `/propeller/orgID/channelID.m3u8`")
+	return nil, fmt.Errorf("propeller origin: invalid url format %v", path)
 }
 
 // propellerClient interface is the subset of methods from propeller-go client used by this module

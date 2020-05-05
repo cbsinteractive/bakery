@@ -144,7 +144,7 @@ func TestPropeller_channelURLGetter(t *testing.T) {
 				if err != nil && tc.expectErrStr == "" {
 					t.Errorf("channelURLGetter.GetURL() didn't expect an error, got %v", err)
 				} else if err == nil && tc.expectErrStr != "" {
-					t.Errorf("channelURLGetter.GetURL() expected error, got nil")
+					t.Error("channelURLGetter.GetURL() expected error, got nil")
 				} else if err != nil && err.Error() != tc.expectErrStr {
 					t.Errorf("channelURLGetter.GetURL() got wrong error. expected: %q, got %q", tc.expectErrStr, err.Error())
 				}
@@ -213,7 +213,7 @@ func TestPropeller_channelURLGetter_getArchive(t *testing.T) {
 			if err != nil && tc.expectErrStr == "" {
 				t.Errorf("returned unexpected error: %q", err)
 			} else if err == nil && tc.expectErrStr != "" {
-				t.Errorf("expected error, got nil")
+				t.Error("expected error, got nil")
 			} else if err != nil && err.Error() != tc.expectErrStr {
 				t.Errorf("got wrong error. expected: %q, got %q", tc.expectErrStr, err.Error())
 			}

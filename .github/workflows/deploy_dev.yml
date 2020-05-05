@@ -23,6 +23,8 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Configure git for private modules
         run: git config --global url."https://${AUTH}@github.com".insteadOf "https://github.com"
+      - name: Don't check checksum of private repo
+        run: go env -w "GONOSUMDB=github.com/cbsinteractive"
       - name: Checkout code
         uses: actions/checkout@v1
       - name: Test

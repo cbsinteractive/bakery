@@ -61,7 +61,7 @@ func TestHandler_ErrorResponse(t *testing.T) {
 			expectErr: ErrorResponse{
 				Message: "failed configuring origin",
 				Errors: map[string][]string{
-					"propeller origin": []string{"request format is not `/propeller/orgID/channelID.m3u8`"},
+					"propeller origin": []string{"invalid url format /propeller/master.m3u8"},
 				},
 			},
 		},

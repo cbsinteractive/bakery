@@ -161,7 +161,7 @@ func TestOrigin_Configure(t *testing.T) {
 		t.Error("Unable to make test urls")
 	}
 
-	cfg, teardown := configMockPropellerAPI()
+	cfg, teardown := configMockPropellerAPI(t)
 	defer teardown()
 
 	tests := []struct {
@@ -236,7 +236,7 @@ func TestOrigin_Configure(t *testing.T) {
 // API that returns hard-coded responses
 //
 // Make sure to call teardown() when the test is over
-func configMockPropellerAPI() (cfg config.Config, teardown func()) {
+func configMockPropellerAPI(tb testing.TB) (cfg config.Config, teardown func()) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.String() {
 		case "/v1/organization/org123/channel/channel-123":
@@ -264,7 +264,7 @@ func configMockPropellerAPI() (cfg config.Config, teardown func()) {
 
 	tsURL, err := url.Parse(ts.URL)
 	if err != nil {
-		panic(fmt.Sprintf("go httptest server returned invalid url: %v (%v)", ts.URL, err))
+		tb.Fatalf("go httptest server returned invalid url: %v (%v)", ts.URL, err)
 	}
 	cfg = config.Config{LogLevel: "panic"}
 	cfg.Propeller.Client.HostURL = tsURL

@@ -8,8 +8,6 @@ RUN mkdir -p ~/.ssh && umask 0077 && echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa \
 	&& git config --global url."git@github.com:".insteadOf https://github.com/ \
 	&& ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-RUN go env -w "GONOSUMDB=github.com/cbsinteractive"
-
 WORKDIR /bakery
 
 COPY go.mod .

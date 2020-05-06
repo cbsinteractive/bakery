@@ -62,6 +62,8 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 	filteredManifest := m3u8.NewMasterPlaylist()
 	filteredManifest.Twitch = manifest.Twitch
 
+	var trimmedAlternatives []string
+
 	for _, v := range manifest.Variants {
 		if filters.SuppressIFrame() && v.Iframe {
 			continue
@@ -89,6 +91,10 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 		uri := normalizedVariant.URI
 		if filters.Trim != nil {
 			uri, err = h.normalizeTrimmedVariant(filters, uri)
+			if err != nil {
+				return "", err
+			}
+			trimmedAlternatives, err = h.normalizeTrimmedVariantAlternatives(filters, v, trimmedAlternatives);
 			if err != nil {
 				return "", err
 			}
@@ -433,4 +439,32 @@ func appendSegment(manifest string, s *m3u8.MediaSegment, p *m3u8.MediaPlaylist)
 func getAbsoluteURL(path string) (*url.URL, error) {
 	absoluteURL, _ := filepath.Split(path)
 	return url.Parse(absoluteURL)
+}
+
+func alreadyProcessedAlternative(groupId string, processedGroupIds []string) bool {
+	for _, processedGroupId := range processedGroupIds {
+		if processedGroupId == groupId {
+			return true
+		}
+	}
+	return false
+}
+
+// Replaces the variant's subtitle alternative uris if they have not been trimmed already.
+// Returns a list of group ids that have already been trimmed (so they only get trimmed once)
+func (h *HLSFilter) normalizeTrimmedVariantAlternatives(filters *parsers.MediaFilters, v *m3u8.Variant, trimmedAlternatives []string) ([]string, error) {
+	for _, alt := range v.Alternatives {
+		if alreadyProcessedAlternative(alt.GroupId, trimmedAlternatives) {
+			continue
+		}
+		if alt.Type == "SUBTITLES" {
+			auri, err := h.normalizeTrimmedVariant(filters, alt.URI)
+			if err != nil {
+				return trimmedAlternatives, err
+			}
+			alt.URI = auri
+			trimmedAlternatives = append(trimmedAlternatives, alt.GroupId)
+		}
+	}
+	return trimmedAlternatives, nil
 }

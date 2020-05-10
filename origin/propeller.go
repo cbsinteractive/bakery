@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/cbsinteractive/bakery/config"
 	propeller "github.com/cbsinteractive/propeller-go/client"
 )
@@ -32,11 +30,10 @@ type Propeller struct {
 func configurePropeller(c config.Config, path string) (Origin, error) {
 	urlValues, err := parsePropellerPath(path)
 	if err != nil {
-		log := c.GetLogger()
-		log.WithFields(logrus.Fields{
-			"origin":  "propeller",
-			"request": path,
-		}).Error(err)
+		c.Logger.Err(err).
+			Str("origin", "propeller").
+			Str("request", path).
+			Msg("can't configure propeller")
 		return &Propeller{}, err
 	}
 
@@ -44,6 +41,13 @@ func configurePropeller(c config.Config, path string) (Origin, error) {
 	channelID := urlValues["channelID"]
 	outputID := urlValues["outputID"]
 	clipID := urlValues["clipID"]
+
+	c.Logger.Info().
+		Str("org-id", orgID).
+		Str("channel-id", channelID).
+		Str("clip-id", clipID).
+		Str("output-id", outputID).
+		Msg("fetching propeller channel")
 
 	var getter urlGetter
 	if clipID != "" {
@@ -63,15 +67,15 @@ func NewPropeller(c config.Config, orgID string, endpointID string, getter urlGe
 	propellerURL, err := getter.GetURL(&c.Propeller.Client)
 	if err != nil {
 		err := fmt.Errorf("propeller origin: %w", err)
-		log := c.GetLogger()
-		log.WithFields(logrus.Fields{
-			"origin":      "propeller",
-			"org-id":      orgID,
-			"manifest-id": endpointID,
-		}).Error(err)
+		c.Logger.Err(err).
+			Str("origin", "propeller").
+			Str("org-id", orgID).
+			Str("endpoint-id", endpointID).
+			Msg("fetching propeller channel")
 		return &Propeller{}, err
 	}
 
+	c.Logger.Info().Str("playbackURL", propellerURL).Msg("configured propeller channel")
 	return &Propeller{
 		URL: propellerURL,
 	}, nil

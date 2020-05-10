@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/cbsinteractive/pkg/tracing"
 	"github.com/cbsinteractive/pkg/xrayutil"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
 )
 
 //Tracer holds configuration for initating the tracing of requests
@@ -13,13 +13,13 @@ type Tracer struct {
 }
 
 // init will set up the tracer to track clients requests
-func (t *Tracer) init(logger *logrus.Logger) tracing.Tracer {
+func (t *Tracer) init(logger zerolog.Logger) tracing.Tracer {
 	var tracer tracing.Tracer
 
 	if t.EnableXRay {
 		tracer = xrayutil.XrayTracer{
 			EnableAWSPlugins: t.EnableXRayPlugins,
-			InfoLogFn:        logger.Infof,
+			InfoLogFn:        logger.Info().Msgf,
 		}
 	} else {
 		tracer = tracing.NoopTracer{}
@@ -27,7 +27,7 @@ func (t *Tracer) init(logger *logrus.Logger) tracing.Tracer {
 
 	err := tracer.Init()
 	if err != nil {
-		logger.Fatalf("initializing tracer: %v", err)
+		logger.Fatal().Msgf("initializing tracer: %v", err)
 	}
 
 	return tracer

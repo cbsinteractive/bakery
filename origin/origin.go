@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/cbsinteractive/bakery/config"
-	"github.com/sirupsen/logrus"
 )
 
 //Origin interface is implemented by DefaultOrigin and Propeller struct
@@ -38,11 +37,9 @@ func Configure(c config.Config, path string) (Origin, error) {
 		variantURL, err := decodeVariantURL(parts[1])
 		if err != nil {
 			err := fmt.Errorf("decoding variant manifest url: %w", err)
-			log := c.GetLogger()
-			log.WithFields(logrus.Fields{
-				"origin":  "variant manifest",
-				"request": path,
-			}).Error(err)
+			c.Logger.Err(err).
+				Str("origin", "propeller").
+				Msgf("can't decode url %v", path)
 			return &DefaultOrigin{}, err
 		}
 		path = variantURL

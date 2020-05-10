@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/rs/zerolog"
 
-	"github.com/sirupsen/logrus"
+	"github.com/google/go-cmp/cmp/cmpopts"
 
 	"github.com/cbsinteractive/pkg/tracing"
 	propeller "github.com/cbsinteractive/propeller-go/client"
@@ -147,7 +147,7 @@ func TestConfig_LoadConfig(t *testing.T) {
 
 			// Safe to ignore asthe unexported field is `err` field does not get triggered
 			// during manual creation of the propeller Client config.
-			ignore := cmpopts.IgnoreUnexported(propeller.Client{})
+			ignore := cmpopts.IgnoreUnexported(propeller.Client{}, zerolog.Logger{})
 			if !cmp.Equal(got, tc.expectConfig, ignore) {
 				t.Errorf("Wrong Tracer config loaded\ngot %v\nexpected %v\ndiff: %v",
 					got, tc.expectConfig, cmp.Diff(got, tc.expectConfig, ignore))
@@ -160,28 +160,28 @@ func TestConfig_GetLogger(t *testing.T) {
 	tests := []struct {
 		name   string
 		c      Config
-		expect logrus.Level
+		expect zerolog.Level
 	}{
 		{
 			name: "if log level not set by env, GetLogger() will return default value",
 			c: Config{
 				LogLevel: "",
 			},
-			expect: logrus.DebugLevel,
+			expect: zerolog.DebugLevel,
 		},
 		{
 			name: "if log level not set by env, GetLogger() will return default value",
 			c: Config{
 				LogLevel: "panic",
 			},
-			expect: logrus.PanicLevel,
+			expect: zerolog.PanicLevel,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			if got := tc.c.GetLogger(); got.Level != tc.expect {
-				t.Errorf("Wrong authenitcation response\ngot %v\nexpected: %v", got, tc.expect)
+			if got := tc.c.getLogger().GetLevel(); got != tc.expect {
+				t.Errorf("Wrong log level \ngot %v\nexpected: %v", got, tc.expect)
 			}
 		})
 	}

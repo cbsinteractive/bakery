@@ -12,13 +12,13 @@ import (
 )
 
 func TestHandler_ErrorResponse(t *testing.T) {
-
 	tests := []struct {
 		name         string
 		url          string
 		auth         string
 		mockResp     func(req *http.Request) (*http.Response, error)
 		expectErr    ErrorResponse
+		expBody      string
 		expectStatus int
 	}{
 		{
@@ -110,19 +110,18 @@ func TestHandler_ErrorResponse(t *testing.T) {
 			auth:         "bad-token",
 			mockResp:     default200Response(),
 			expectStatus: 403,
-			expectErr: ErrorResponse{
-				Message: "failed authenticating request",
-				Errors: map[string][]string{
-					"authentication": []string{},
-				},
-			},
+			expectErr:    ErrorResponse{},
+			expBody:      "you must pass a valid api token as \"x-bakery-origin-token\"\n",
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			c := testConfig(test.MockClient(tc.mockResp))
-			handler := LoadHandler(c)
+			//handler := LoadHandler(c)
+			middleware := c.SetupMiddleware()
+			authMiddleware := c.AuthMiddlewareFrom(middleware)
+			handler := authMiddleware.Then(LoadHandler(c))
 			// set req + response recorder and serve it
 			req := getRequest(tc.url, t)
 			req.Header.Set("x-bakery-origin-token", tc.auth)
@@ -146,6 +145,14 @@ func TestHandler_ErrorResponse(t *testing.T) {
 			if !cmp.Equal(got, tc.expectErr) {
 				t.Errorf("Wrong error returned\ngot %v\nexpected: %v\ndiff: %v",
 					got, tc.expectErr, cmp.Diff(got, tc.expectErr))
+			}
+
+			//authentication executes in a seperate handler
+			if tc.expBody != "" {
+				if !cmp.Equal(string(body), tc.expBody) {
+					t.Errorf("Wrong body returned\ngot %v\nexpected: %v\ndiff: %v",
+						string(body), tc.expBody, cmp.Diff(string(body), tc.expBody))
+				}
 			}
 		})
 	}

@@ -1,11 +1,18 @@
 package config
 
 import (
+	"fmt"
+	"net/http"
 	"os"
+	"time"
 
+	"github.com/justinas/alice"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/hlog"
 )
+
+const originTokenHeaderKey = "x-bakery-origin-token"
 
 // Config holds all the configuration for this service
 type Config struct {
@@ -14,6 +21,7 @@ type Config struct {
 	OriginHost  string `envconfig:"ORIGIN_HOST"`
 	Hostname    string `envconfig:"HOSTNAME"  default:"localhost"`
 	OriginToken string `envconfig:"ORIGIN_TOKEN"`
+	Logger      zerolog.Logger
 	Tracer
 	Client
 	Propeller
@@ -27,7 +35,9 @@ func LoadConfig() (Config, error) {
 		return c, err
 	}
 
-	tracer := c.Tracer.init(c.GetLogger())
+	c.Logger = c.getLogger()
+
+	tracer := c.Tracer.init(c.Logger)
 	c.Client.init(tracer)
 
 	return c, c.Propeller.init(tracer, c.Client.Timeout)
@@ -56,15 +66,60 @@ func (c Config) IsLocalHost() bool {
 }
 
 // GetLogger generates a logger
-func (c Config) GetLogger() *logrus.Logger {
-	level, err := logrus.ParseLevel(c.LogLevel)
-	if err != nil {
-		level = logrus.DebugLevel
+func (c Config) getLogger() zerolog.Logger {
+	level, err := zerolog.ParseLevel(c.LogLevel)
+	if err != nil || level == zerolog.NoLevel {
+		level = zerolog.DebugLevel
 	}
 
-	logger := logrus.New()
-	logger.Out = os.Stdout
-	logger.Level = level
+	return zerolog.New(os.Stderr).
+		With().
+		Timestamp().
+		Logger().
+		Level(level)
+}
 
-	return logger
+//SetupMiddleware appends request logging context to use in your handler
+func (c Config) SetupMiddleware() alice.Chain {
+	chain := alice.New()
+	chain = chain.Append(hlog.NewHandler(c.Logger))
+
+	chain = chain.Append(hlog.AccessHandler(func(r *http.Request, status, size int, duration time.Duration) {
+		hlog.FromRequest(r).Info().
+			Str("method", r.Method).
+			Str("url", r.URL.String()).
+			Int("status", status).
+			Int("size", size).
+			Dur("duration", duration).
+			Msg("served request")
+	}))
+	chain = chain.Append(hlog.RemoteAddrHandler("ip"))
+	chain = chain.Append(hlog.RequestIDHandler("req_id", "Request-Id"))
+
+	return chain
+}
+
+//AuthMiddlewareFrom appends an authenticaion middlewear to your handler
+func (c Config) AuthMiddlewareFrom(chain alice.Chain) alice.Chain {
+	chain = chain.Append(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Header.Get(originTokenHeaderKey) != c.OriginToken {
+				c.Logger.Info().
+					Str("method", r.Method).
+					Str("uri", r.RequestURI).
+					Str("raddr", r.RemoteAddr).
+					Str("ref", r.Referer()).
+					Str("ua", r.UserAgent()).
+					Interface("headers", r.Header).
+					Msgf("failed authenticating request")
+
+				http.Error(w, fmt.Sprintf("you must pass a valid api token as %q", originTokenHeaderKey),
+					http.StatusForbidden)
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	})
+
+	return chain
 }

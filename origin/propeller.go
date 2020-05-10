@@ -13,7 +13,7 @@ import (
 var propellerPaths = []*regexp.Regexp{
 	regexp.MustCompile(`/propeller/(?P<orgID>.+)/clip/(?P<clipID>.+).m3u8`),
 	regexp.MustCompile(`/propeller/(?P<orgID>.+)/(?P<channelID>.+)/(?P<outputID>.+).m3u8`),
-	regexp.MustCompile(`/propeller/(?P<orgID>.+)/(?P<channelID>.+).m3u8`),
+	regexp.MustCompile(`/propeller/(?P<orgID>.+)/(?P<channelID>.+).(m3u8|mpd)`),
 }
 
 // Propeller Origin holds the URL of a propeller entity (Channel, Clip)

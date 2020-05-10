@@ -68,7 +68,7 @@ func TestPropeller_NewPropeller(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			c := testConfig(test.FakeClient{})
-			got, err := NewPropeller(c, "orgID", "endpointID", tc.getter)
+			got, err := NewPropeller(c, "orgID", tc.getter)
 			if err != nil && !tc.expectErr {
 				t.Errorf("NewPropeller() didnt expect an error to be returned, got: %v", err)
 				return
@@ -130,7 +130,7 @@ func TestPropeller_channelURLGetter(t *testing.T) {
 			channels: []propeller.Channel{
 				{},
 			},
-			expectErrStr: "parsing channel url: Channel not ready",
+			expectErrStr: "parsing channel url: channel not ready",
 		},
 	}
 
@@ -182,9 +182,8 @@ func TestPropeller_channelURLGetter_getArchive(t *testing.T) {
 			getter: &channelURLGetter{orgID: "org", channelID: "ch123"},
 			client: &mockPropellerClient{
 				getChannelError: propeller.StatusError{Code: 404},
-				getClipError:    errors.New("fail to get archive"),
 			},
-			expectErrStr: "fetching clip: fail to get archive",
+			expectErrStr: "Channel ch123 Not Found",
 		},
 		// outputURLGetter
 		{
@@ -201,9 +200,8 @@ func TestPropeller_channelURLGetter_getArchive(t *testing.T) {
 			getter: &outputURLGetter{orgID: "org", channelID: "ch123"},
 			client: &mockPropellerClient{
 				getChannelError: propeller.StatusError{Code: 404},
-				getClipError:    errors.New("fail to get archive"),
 			},
-			expectErrStr: "fetching clip: fail to get archive",
+			expectErrStr: "Channel ch123 Not Found",
 		},
 	}
 

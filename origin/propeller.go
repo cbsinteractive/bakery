@@ -33,7 +33,7 @@ func configurePropeller(c config.Config, path string) (Origin, error) {
 		c.Logger.Err(err).
 			Str("origin", "propeller").
 			Str("request", path).
-			Msg("can't configure propeller")
+			Msgf("can't configure propeller from requested path %v", path)
 		return &Propeller{}, err
 	}
 
@@ -42,26 +42,23 @@ func configurePropeller(c config.Config, path string) (Origin, error) {
 	outputID := urlValues["outputID"]
 	clipID := urlValues["clipID"]
 
-	c.Logger.Info().
-		Str("org-id", orgID).
-		Str("channel-id", channelID).
-		Str("clip-id", clipID).
-		Str("output-id", outputID).
-		Msg("fetching propeller channel")
-
+	ctxLog := c.Logger.With().Str("org-id", orgID).Str("channel-id", channelID).Logger()
 	var getter urlGetter
 	if clipID != "" {
+		ctxLog.Info().Str("clip-id", clipID).Msg("configuring clip")
 		getter = &clipURLGetter{orgID: orgID, clipID: clipID}
 	} else if outputID != "" {
+		ctxLog.Info().Str("output-id", outputID).Msg("configuring output")
 		getter = &outputURLGetter{orgID: orgID, channelID: channelID, outputID: outputID}
 	} else {
+		ctxLog.Info().Msg("configuring channel")
 		getter = &channelURLGetter{orgID: orgID, channelID: channelID}
 	}
-	return NewPropeller(c, orgID, channelID, getter)
+	return NewPropeller(c, orgID, getter)
 }
 
 // NewPropeller returns a Propeller origin struct
-func NewPropeller(c config.Config, orgID string, endpointID string, getter urlGetter) (*Propeller, error) {
+func NewPropeller(c config.Config, orgID string, getter urlGetter) (*Propeller, error) {
 	c.Propeller.UpdateContext(c.Client.Context)
 
 	propellerURL, err := getter.GetURL(&c.Propeller.Client)
@@ -70,12 +67,10 @@ func NewPropeller(c config.Config, orgID string, endpointID string, getter urlGe
 		c.Logger.Err(err).
 			Str("origin", "propeller").
 			Str("org-id", orgID).
-			Str("endpoint-id", endpointID).
 			Msg("fetching propeller channel")
 		return &Propeller{}, err
 	}
 
-	c.Logger.Info().Str("playbackURL", propellerURL).Msg("configured propeller channel")
 	return &Propeller{
 		URL: propellerURL,
 	}, nil
@@ -150,11 +145,14 @@ func (g *channelURLGetter) getURL(channel propeller.Channel) (string, error) {
 	if channel.Captions {
 		return channel.CaptionsURL, nil
 	}
-	playbackURL, err := channel.URL()
-	if err != nil {
-		return "", fmt.Errorf("parsing channel url: %w", err)
+	if channel.PlaybackURL == "" {
+		if channel.Outputs != nil {
+			return "", fmt.Errorf("channel has multiple outputs. Expect request format /propeller/org-id/channel-id/output-id.m3u8")
+		}
+
+		return "", fmt.Errorf("parsing channel url: channel not ready")
 	}
-	return playbackURL.String(), nil
+	return channel.PlaybackURL, nil
 }
 
 // outputURLGetter is a urlGetter for a Propeller channel output
@@ -189,7 +187,7 @@ func (g *outputURLGetter) getURL(channel *propeller.Channel, output *propeller.C
 	if output.PlaybackURL != "" {
 		return output.PlaybackURL, nil
 	}
-	return "", errors.New("Channel output not ready")
+	return "", fmt.Errorf("Channel output not ready")
 }
 
 // handleGetUrlChannelNotFound is an error handler used when trying to GET a channel
@@ -203,7 +201,11 @@ func handleGetUrlChannelNotFound(err error, orgID string, channelID string, clie
 			orgID:  orgID,
 			clipID: fmt.Sprintf("%v-archive", channelID),
 		}
-		return clipGetter.GetURL(client)
+		archive, clipErr := clipGetter.GetURL(client)
+		if clipErr != nil {
+			return "", fmt.Errorf("Channel %v Not Found", channelID)
+		}
+		return archive, nil
 	}
 	return "", err
 }

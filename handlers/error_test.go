@@ -118,7 +118,6 @@ func TestHandler_ErrorResponse(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			c := testConfig(test.MockClient(tc.mockResp))
-			//handler := LoadHandler(c)
 			middleware := c.SetupMiddleware()
 			authMiddleware := c.AuthMiddlewareFrom(middleware)
 			handler := authMiddleware.Then(LoadHandler(c))

@@ -12,14 +12,13 @@ import (
 	"github.com/rs/zerolog/hlog"
 )
 
-const originTokenHeaderKey = "x-bakery-origin-token"
-
 // Config holds all the configuration for this service
 type Config struct {
 	Listen      string `envconfig:"HTTP_PORT" default:":8080"`
 	LogLevel    string `envconfig:"LOG_LEVEL" default:"debug"`
 	OriginHost  string `envconfig:"ORIGIN_HOST"`
 	Hostname    string `envconfig:"HOSTNAME"  default:"localhost"`
+	OriginKey   string `encovnfig:"ORIGIN_KEY" default:"x-bakery-origin-token"`
 	OriginToken string `envconfig:"ORIGIN_TOKEN"`
 	Logger      zerolog.Logger
 	Tracer
@@ -43,19 +42,6 @@ func LoadConfig() (Config, error) {
 	return c, c.Propeller.init(tracer, c.Client.Timeout)
 }
 
-// Authenticate will check the token passed in request
-func (c Config) Authenticate(token string) bool {
-	if c.OriginToken == token {
-		return true
-	}
-
-	if c.IsLocalHost() {
-		return true
-	}
-
-	return false
-}
-
 // IsLocalHost returns true if env is localhost
 func (c Config) IsLocalHost() bool {
 	if c.Hostname == "localhost" {
@@ -77,6 +63,15 @@ func (c Config) getLogger() zerolog.Logger {
 		Timestamp().
 		Logger().
 		Level(level)
+}
+
+//ValidateAuthHeader returns key,value or error if not set
+func (c Config) ValidateAuthHeader() error {
+	if c.OriginKey == "" || c.OriginToken == "" {
+		return fmt.Errorf("Authentication not set.\nKey: %v,Value: %v", c.OriginKey, c.OriginToken)
+	}
+
+	return nil
 }
 
 //SetupMiddleware appends request logging context to use in your handler
@@ -103,7 +98,7 @@ func (c Config) SetupMiddleware() alice.Chain {
 func (c Config) AuthMiddlewareFrom(chain alice.Chain) alice.Chain {
 	chain = chain.Append(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.Header.Get(originTokenHeaderKey) != c.OriginToken {
+			if r.Header.Get(c.OriginKey) != c.OriginToken {
 				c.Logger.Info().
 					Str("method", r.Method).
 					Str("uri", r.RequestURI).
@@ -113,7 +108,7 @@ func (c Config) AuthMiddlewareFrom(chain alice.Chain) alice.Chain {
 					Interface("headers", r.Header).
 					Msgf("failed authenticating request")
 
-				http.Error(w, fmt.Sprintf("you must pass a valid api token as %q", originTokenHeaderKey),
+				http.Error(w, fmt.Sprintf("you must pass a valid api token as %q", c.OriginKey),
 					http.StatusForbidden)
 				return
 			}

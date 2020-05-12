@@ -12,7 +12,7 @@ import (
 // propellerPaths defines the multiple path formats allowed for propeller entities in Bakery
 var propellerPaths = []*regexp.Regexp{
 	regexp.MustCompile(`/propeller/(?P<orgID>.+)/clip/(?P<clipID>.+).m3u8`),
-	regexp.MustCompile(`/propeller/(?P<orgID>.+)/(?P<channelID>.+)/(?P<outputID>.+).m3u8`),
+	regexp.MustCompile(`/propeller/(?P<orgID>.+)/(?P<channelID>.+)/(?P<outputID>.+).(m3u8|mpd)`),
 	regexp.MustCompile(`/propeller/(?P<orgID>.+)/(?P<channelID>.+).(m3u8|mpd)`),
 }
 

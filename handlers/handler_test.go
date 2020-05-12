@@ -20,6 +20,7 @@ func testConfig(fc test.FakeClient) config.Config {
 		LogLevel:    "panic",
 		OriginHost:  "http://localhost:8080",
 		Hostname:    "hostname",
+		OriginKey:   "x-bakery-origin-token",
 		OriginToken: "authenticate-me",
 		Client: config.Client{
 			Timeout:    5 * time.Second,

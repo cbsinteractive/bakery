@@ -27,6 +27,7 @@ func getConfig(listen, log, host, token string, c Client, t Tracer, p Propeller)
 		Listen:      ":8080",
 		LogLevel:    "debug",
 		Hostname:    "localhost",
+		OriginKey:   "x-bakery-origin-token",
 		OriginToken: "",
 		Client:      c,
 		Tracer:      t,
@@ -102,6 +103,7 @@ func TestConfig_LoadConfig(t *testing.T) {
 				Listen:      ":8080",
 				LogLevel:    "debug",
 				Hostname:    "localhost",
+				OriginKey:   "x-bakery-origin-token",
 				OriginToken: "",
 				Client:      defaultClientConfig,
 				Tracer:      disabledTraceConfig,
@@ -119,6 +121,7 @@ func TestConfig_LoadConfig(t *testing.T) {
 				Listen:      ":8080",
 				LogLevel:    "debug",
 				Hostname:    "localhost",
+				OriginKey:   "x-bakery-origin-token",
 				OriginToken: "",
 				Client:      defaultClientConfig,
 				Tracer:      disabledTraceConfig,
@@ -187,43 +190,41 @@ func TestConfig_GetLogger(t *testing.T) {
 	}
 }
 
-func TestConfig_Authentication(t *testing.T) {
+func TestConfig_ValidateAuthHeader(t *testing.T) {
 	tests := []struct {
-		name   string
-		token  string
-		expect bool
-		c      Config
+		name      string
+		c         Config
+		expectErr bool
 	}{
 		{
-			name:   "When localhost, return authentication true",
-			token:  "",
-			expect: true,
-			c:      Config{Hostname: "localhost", OriginToken: ""},
+			name: "Don't throw error when authentication properly set",
+			c:    Config{OriginToken: "sometoken", OriginKey: "somekey"},
 		},
 		{
-			name:   "When localhost, return authentication true even if token is set",
-			token:  "",
-			expect: true,
-			c:      Config{Hostname: "localhost", OriginToken: "sometoken"},
+			name:      "Throw error when authenticaion token not set",
+			c:         Config{OriginKey: "somekey"},
+			expectErr: true,
 		},
 		{
-			name:   "When token is properly set and not localhost, return authentication true",
-			token:  "authenticateMeImValid",
-			expect: true,
-			c:      Config{Hostname: "bakery.com", OriginToken: "authenticateMeImValid"},
+			name:      "Throw error when authenticaion key not set",
+			c:         Config{OriginToken: "sometoken"},
+			expectErr: true,
 		},
 		{
-			name:   "When token is not properly set and not localhost, return authentication false",
-			token:  "",
-			expect: false,
-			c:      Config{Hostname: "bakery.com", OriginToken: "authenticateMeImValid"},
+			name:      "Throw error when authenticaion not set",
+			c:         Config{},
+			expectErr: true,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			if got := tc.c.Authenticate(tc.token); got != tc.expect {
-				t.Errorf("Wrong authenitcation response\ngot %v\nexpected: %v", got, tc.expect)
+			err := tc.c.ValidateAuthHeader()
+
+			if err != nil && !tc.expectErr {
+				t.Errorf("GetAuthHeader() got error did not expect error thrown")
+			} else if err == nil && tc.expectErr {
+				t.Errorf("GetAuthHeader() got no error expected error thrown")
 			}
 		})
 	}

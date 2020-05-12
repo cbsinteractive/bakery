@@ -67,6 +67,10 @@ func (c Config) getLogger() zerolog.Logger {
 
 //ValidateAuthHeader returns key,value or error if not set
 func (c Config) ValidateAuthHeader() error {
+	if c.IsLocalHost() {
+		return nil
+	}
+
 	if c.OriginKey == "" || c.OriginToken == "" {
 		return fmt.Errorf("Authentication not set.\nKey: %v,Value: %v", c.OriginKey, c.OriginToken)
 	}

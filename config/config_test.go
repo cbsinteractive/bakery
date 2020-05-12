@@ -201,6 +201,10 @@ func TestConfig_ValidateAuthHeader(t *testing.T) {
 			c:    Config{OriginToken: "sometoken", OriginKey: "somekey"},
 		},
 		{
+			name: "Don't throw error when localhost",
+			c:    Config{Hostname: "localhost"},
+		},
+		{
 			name:      "Throw error when authenticaion token not set",
 			c:         Config{OriginKey: "somekey"},
 			expectErr: true,

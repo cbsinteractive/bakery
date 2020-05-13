@@ -3,7 +3,9 @@ package config
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"os"
 	"testing"
@@ -22,13 +24,14 @@ import (
 type env map[string]string
 
 // getConfig will return a config to use in tests based on provided values
-func getConfig(listen, log, host, token string, c Client, t Tracer, p Propeller) Config {
+func getDefaultConfig(c Client, t Tracer, p Propeller) Config {
 	return Config{
-		Listen:      ":8080",
-		LogLevel:    "debug",
-		Hostname:    "localhost",
+		Listen:      "8080",
+		LogLevel:    "panic",
+		OriginHost:  "http://localhost:8080",
+		Hostname:    "hostname",
 		OriginKey:   "x-bakery-origin-token",
-		OriginToken: "",
+		OriginToken: "authenticate-me",
 		Client:      c,
 		Tracer:      t,
 		Propeller:   p,
@@ -229,6 +232,70 @@ func TestConfig_ValidateAuthHeader(t *testing.T) {
 				t.Errorf("GetAuthHeader() got error did not expect error thrown")
 			} else if err == nil && tc.expectErr {
 				t.Errorf("GetAuthHeader() got no error expected error thrown")
+			}
+		})
+	}
+}
+
+func TestConfig_Middleware(t *testing.T) {
+	noopTracer := tracing.NoopTracer{}
+	disabledTraceConfig := getTracerConfig(false, false)
+
+	defaultTime := time.Duration(5 * time.Second)
+	defaultClientConfig := getClientConfig(nil, defaultTime, noopTracer)
+
+	c := getDefaultConfig(defaultClientConfig, disabledTraceConfig, Propeller{})
+
+	middleware := c.SetupMiddleware()
+	authMiddleware := c.AuthMiddlewareFrom(middleware)
+	handler := authMiddleware.Then(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+
+	tests := []struct {
+		name         string
+		authtoken    string
+		expectErr    string
+		expectStatus int
+	}{
+		{
+			name:         "when request is made with the correct auth token",
+			authtoken:    "authenticate-me",
+			expectStatus: 200,
+		},
+		{
+			name:         "when request is made with bad auth token, expect a 403 and error message",
+			authtoken:    "bad-auth-token",
+			expectStatus: 403,
+			expectErr:    "you must pass a valid api token as \"x-bakery-origin-token\"\n",
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			req, err := http.NewRequest("GET", "/", nil)
+			if err != nil {
+				t.Fatalf("could not create request got error: %v", err)
+			}
+
+			req.Header.Set("x-bakery-origin-token", tc.authtoken)
+			rec := httptest.NewRecorder()
+			handler.ServeHTTP(rec, req)
+
+			res := rec.Result()
+			defer res.Body.Close()
+
+			if res.StatusCode != tc.expectStatus {
+				t.Errorf("Wrong status expected status %v; got %v", tc.expectStatus, res.StatusCode)
+			}
+
+			body, err := ioutil.ReadAll(res.Body)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if !cmp.Equal(string(body), tc.expectErr) {
+				t.Errorf("Wrong body returned\ngot %v\nexpected: %v\ndiff: %v",
+					string(body), tc.expectErr, cmp.Diff(string(body), tc.expectErr))
 			}
 		})
 	}

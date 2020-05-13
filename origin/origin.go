@@ -52,7 +52,7 @@ func Configure(c config.Config, path string) (Origin, error) {
 func NewDefaultOrigin(origin string, p string) (*DefaultOrigin, error) {
 	u, err := url.Parse(p)
 	if err != nil {
-		return &DefaultOrigin{}, nil
+		return &DefaultOrigin{}, err
 	}
 
 	return &DefaultOrigin{

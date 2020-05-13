@@ -1671,6 +1671,31 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00025.ts
 #EXT-X-ENDLIST
 `
 
+	variantManifestTrimmedUnalignedTrimFilters := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-MEDIA-SEQUENCE:0
+#EXT-X-TARGETDURATION:6
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:51:54Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202748_1_00020.ts
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:52:00Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202754_1_00021.ts
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:52:06Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202801_1_00022.ts
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:52:12Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202806_1_00023.ts
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:52:18Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202813_1_00024.ts
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:52:24Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202818_1_00025.ts
+#EXT-X-ENDLIST
+`
+
 	emptyVariantManifest := `#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-MEDIA-SEQUENCE:0
@@ -1680,6 +1705,11 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00025.ts
 
 	trim := &parsers.Trim{
 		Start: 1583887920, //2020-03-11T00:52:00
+		End:   1583887944, //2020-03-11T00:52:24
+	}
+
+	unalignedTrim := &parsers.Trim{
+		Start: 1583887919, //2020-03-11T00:51:59
 		End:   1583887944, //2020-03-11T00:52:24
 	}
 
@@ -1697,6 +1727,13 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00025.ts
 			filters:               &parsers.MediaFilters{Trim: trim},
 			manifestContent:       variantManifestWithRelativeURLs,
 			expectManifestContent: variantManifestTrimmed,
+			expectAge:             "3",
+		},
+		{
+			name:                  "when trim filter start range is not aligned to a PDT, all segments with any content in the range are included",
+			filters:               &parsers.MediaFilters{Trim: unalignedTrim},
+			manifestContent:       variantManifestWithAbsoluteURLs,
+			expectManifestContent: variantManifestTrimmedUnalignedTrimFilters,
 			expectAge:             "3",
 		},
 		{
@@ -1869,7 +1906,7 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00029.ts
 `
 
 	trim := &parsers.Trim{
-		Start: 1583887920, //2020-03-11T00:51:54
+		Start: 1583887920, //2020-03-11T00:52:00
 		End:   1583887968, //2020-03-11T00:52:48
 	}
 

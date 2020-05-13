@@ -11,13 +11,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rs/zerolog"
-
-	"github.com/google/go-cmp/cmp/cmpopts"
-
 	"github.com/cbsinteractive/pkg/tracing"
 	propeller "github.com/cbsinteractive/propeller-go/client"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/rs/zerolog"
 )
 
 // env map is used for setting env vars for tests

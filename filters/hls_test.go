@@ -1905,6 +1905,65 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00029.ts
 #EXT-X-ENDLIST
 `
 
+	variantManifestTrimWithNoAdsWithUnalignedPDTsBeforeAdStart := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-MEDIA-SEQUENCE:0
+#EXT-X-TARGETDURATION:6
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:52:00Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202801_1_00021.ts
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202806_1_00022.ts
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:52:12Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202806_1_00023.ts
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:52:18Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202813_1_00024.ts
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:52:24Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202818_1_00025.ts
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:52:30Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202824_1_00026.ts
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:52:36Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202818_1_00027.ts
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202824_1_00028.ts
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:52:48Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202818_1_00029.ts
+#EXT-X-ENDLIST
+`
+
+	variantManifestTrimWithNoAdsWithUnalignedPDTsAfterAdStart := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-MEDIA-SEQUENCE:0
+#EXT-X-TARGETDURATION:6
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:52:12Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202806_1_00023.ts
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:52:18Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202813_1_00024.ts
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:52:24Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202818_1_00025.ts
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:52:30Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202824_1_00026.ts
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:52:36Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202818_1_00027.ts
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202824_1_00028.ts
+#EXT-X-PROGRAM-DATE-TIME:2020-03-11T00:52:48Z
+#EXTINF:6.000,
+https://existing.base/path/chan_1/chan_1_20200311T202818_1_00029.ts
+#EXT-X-ENDLIST
+`
+
 	trim := &parsers.Trim{
 		Start: 1583887920, //2020-03-11T00:52:00
 		End:   1583887968, //2020-03-11T00:52:48
@@ -1940,6 +1999,36 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00029.ts
 			},
 			manifestContent:       variantManifestWithAds,
 			expectManifestContent: variantManifestTrimWithNoAds,
+			expectAge:             "3",
+		},
+		{
+			name: "when trim filter is given, ads tag is enabled and PDTs are unaligned before Ad start, all content that is in range is included",
+			filters: &parsers.MediaFilters{
+				Trim: &parsers.Trim{
+					Start: 1583887921, //2020-03-11T00:52:01
+					End:   1583887968, //2020-03-11T00:52:48
+				},
+				Tags: &parsers.Tags{
+					Ads: true,
+				},
+			},
+			manifestContent:       variantManifestWithAds,
+			expectManifestContent: variantManifestTrimWithNoAdsWithUnalignedPDTsBeforeAdStart,
+			expectAge:             "3",
+		},
+		{
+			name: "when trim filter is given, ads tag is enabled and PDTs are unaligned after Ad start, all content that is in range is included",
+			filters: &parsers.MediaFilters{
+				Trim: &parsers.Trim{
+					Start: 1583887927, //2020-03-11T00:52:07
+					End:   1583887968, //2020-03-11T00:52:48
+				},
+				Tags: &parsers.Tags{
+					Ads: true,
+				},
+			},
+			manifestContent:       variantManifestWithAds,
+			expectManifestContent: variantManifestTrimWithNoAdsWithUnalignedPDTsAfterAdStart,
 			expectAge:             "3",
 		},
 	}

@@ -62,8 +62,10 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 	filteredManifest := m3u8.NewMasterPlaylist()
 	filteredManifest.Twitch = manifest.Twitch
 
+	//When parsed, Media Alternatives are held at the root of the object
+	//with each variant refrencing it. We hold a slice of trimmed
+	//alternatives to avoid processing a media alternative twice
 	var trimmedAlternatives []string
-
 	for _, v := range manifest.Variants {
 		if filters.SuppressIFrame() && v.Iframe {
 			continue
@@ -94,7 +96,7 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 			if err != nil {
 				return "", err
 			}
-			trimmedAlternatives, err = h.normalizeTrimmedVariantAlternatives(filters, v, trimmedAlternatives);
+			trimmedAlternatives, err = h.normalizeTrimmedVariantAlternatives(filters, v, trimmedAlternatives)
 			if err != nil {
 				return "", err
 			}
@@ -382,7 +384,7 @@ func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3
 		if append = inRange(filters.Trim.Start, filters.Trim.End, segmentTimestamp); !append {
 			// check for a segment whos start isnt in the range, but the end is in the range
 			currentSegmentEnd := segmentTimestamp + int(segment.Duration)
-			append = inRange(filters.Trim.Start, filters.Trim.End, currentSegmentEnd) && currentSegmentEnd != filters.Trim.Start;
+			append = inRange(filters.Trim.Start, filters.Trim.End, currentSegmentEnd) && currentSegmentEnd != filters.Trim.Start
 		}
 
 		if append {

@@ -363,7 +363,7 @@ func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3
 	// EX: #EXT-X-ASSET, #EXT-OATCLS-SCTE35, or any other custom tags advertised in playlist
 	var append bool
 	var maxSize float64
-	for i, segment := range m.Segments {
+	for _, segment := range m.Segments {
 		if segment == nil {
 			continue
 		}

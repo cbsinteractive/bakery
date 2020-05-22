@@ -11,11 +11,11 @@ require (
 	github.com/cbsinteractive/pkg/tracing v0.0.0-20200409233703-f2037b1185c6
 	github.com/cbsinteractive/pkg/xrayutil v0.0.0-20200409233703-f2037b1185c6
 	github.com/cbsinteractive/propeller-go v0.0.0-20200503222720-e53e98ec6b80
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/go-cmp v0.4.0
 	github.com/grafov/m3u8 v0.11.1
+	github.com/justinas/alice v1.2.0
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
-	github.com/sirupsen/logrus v1.4.2
+	github.com/rs/zerolog v1.18.0
 	github.com/zencoder/go-dash v0.0.0-20200221191004-4c1e141085cb
-	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
 )

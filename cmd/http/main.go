@@ -15,10 +15,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	logger := c.GetLogger()
-	handler := handlers.LoadHandler(c)
+	if err = c.ValidateAuthHeader(); err != nil {
+		log.Fatal(err)
+	}
 
-	logger.Infof("Starting Bakery on %s", c.Listen)
+	middleware := c.SetupMiddleware()
+	authMiddleware := c.AuthMiddlewareFrom(middleware)
+	handler := authMiddleware.Then(handlers.LoadHandler(c))
+
+	c.Logger.Info().Str("port", c.Listen).Msg("Starting Bakery")
 	http.Handle("/", c.Client.Tracer.Handle(tracing.FixedNamer("bakery"), handler))
 	if err := http.ListenAndServe(c.Listen, nil); err != nil {
 		log.Fatal(err)

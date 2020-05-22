@@ -343,6 +343,13 @@ func isRelative(urlStr string) (bool, error) {
 	return !u.IsAbs(), nil
 }
 
+func shouldIncludePreviousSegmentInTrimmedRenditionManifest(append, isInRange bool, segmentIndex, segmentTimestamp, rangeStart int) bool {
+	// append is false and isInRange is true only when we find the first full segment in the range.
+	// We make sure that the current segment is not the first one in the list and that its timestamp is greater than the range start.
+	// This guarantees that the segment before has SOME content that is in the range.
+	return !append && isInRange && segmentIndex > 0 && segmentTimestamp > rangeStart
+}
+
 // FilterRenditionManifest will be responsible for filtering the manifest
 // according  to the MediaFilters
 func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3u8.MediaPlaylist) (string, error) {
@@ -356,7 +363,7 @@ func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3
 	// EX: #EXT-X-ASSET, #EXT-OATCLS-SCTE35, or any other custom tags advertised in playlist
 	var append bool
 	var maxSize float64
-	for _, segment := range m.Segments {
+	for i, segment := range m.Segments {
 		if segment == nil {
 			continue
 		}

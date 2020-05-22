@@ -3,31 +3,33 @@ package config
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"os"
 	"testing"
 	"time"
 
-	"github.com/google/go-cmp/cmp/cmpopts"
-
-	"github.com/sirupsen/logrus"
-
 	"github.com/cbsinteractive/pkg/tracing"
 	propeller "github.com/cbsinteractive/propeller-go/client"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/rs/zerolog"
 )
 
 // env map is used for setting env vars for tests
 type env map[string]string
 
 // getConfig will return a config to use in tests based on provided values
-func getConfig(listen, log, host, token string, c Client, t Tracer, p Propeller) Config {
+func getDefaultConfig(c Client, t Tracer, p Propeller) Config {
 	return Config{
-		Listen:      ":8080",
-		LogLevel:    "debug",
-		Hostname:    "localhost",
-		OriginToken: "",
+		Listen:      "8080",
+		LogLevel:    "panic",
+		OriginHost:  "http://localhost:8080",
+		Hostname:    "hostname",
+		OriginKey:   "x-bakery-origin-token",
+		OriginToken: "authenticate-me",
 		Client:      c,
 		Tracer:      t,
 		Propeller:   p,
@@ -102,6 +104,7 @@ func TestConfig_LoadConfig(t *testing.T) {
 				Listen:      ":8080",
 				LogLevel:    "debug",
 				Hostname:    "localhost",
+				OriginKey:   "x-bakery-origin-token",
 				OriginToken: "",
 				Client:      defaultClientConfig,
 				Tracer:      disabledTraceConfig,
@@ -119,6 +122,7 @@ func TestConfig_LoadConfig(t *testing.T) {
 				Listen:      ":8080",
 				LogLevel:    "debug",
 				Hostname:    "localhost",
+				OriginKey:   "x-bakery-origin-token",
 				OriginToken: "",
 				Client:      defaultClientConfig,
 				Tracer:      disabledTraceConfig,
@@ -147,7 +151,7 @@ func TestConfig_LoadConfig(t *testing.T) {
 
 			// Safe to ignore asthe unexported field is `err` field does not get triggered
 			// during manual creation of the propeller Client config.
-			ignore := cmpopts.IgnoreUnexported(propeller.Client{})
+			ignore := cmpopts.IgnoreUnexported(propeller.Client{}, zerolog.Logger{})
 			if !cmp.Equal(got, tc.expectConfig, ignore) {
 				t.Errorf("Wrong Tracer config loaded\ngot %v\nexpected %v\ndiff: %v",
 					got, tc.expectConfig, cmp.Diff(got, tc.expectConfig, ignore))
@@ -160,70 +164,136 @@ func TestConfig_GetLogger(t *testing.T) {
 	tests := []struct {
 		name   string
 		c      Config
-		expect logrus.Level
+		expect zerolog.Level
 	}{
 		{
 			name: "if log level not set by env, GetLogger() will return default value",
 			c: Config{
 				LogLevel: "",
 			},
-			expect: logrus.DebugLevel,
+			expect: zerolog.DebugLevel,
 		},
 		{
 			name: "if log level not set by env, GetLogger() will return default value",
 			c: Config{
 				LogLevel: "panic",
 			},
-			expect: logrus.PanicLevel,
+			expect: zerolog.PanicLevel,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			if got := tc.c.GetLogger(); got.Level != tc.expect {
-				t.Errorf("Wrong authenitcation response\ngot %v\nexpected: %v", got, tc.expect)
+			if got := tc.c.getLogger().GetLevel(); got != tc.expect {
+				t.Errorf("Wrong log level \ngot %v\nexpected: %v", got, tc.expect)
 			}
 		})
 	}
 }
 
-func TestConfig_Authentication(t *testing.T) {
+func TestConfig_ValidateAuthHeader(t *testing.T) {
 	tests := []struct {
-		name   string
-		token  string
-		expect bool
-		c      Config
+		name      string
+		c         Config
+		expectErr bool
 	}{
 		{
-			name:   "When localhost, return authentication true",
-			token:  "",
-			expect: true,
-			c:      Config{Hostname: "localhost", OriginToken: ""},
+			name: "Don't throw error when authentication properly set",
+			c:    Config{OriginToken: "sometoken", OriginKey: "somekey"},
 		},
 		{
-			name:   "When localhost, return authentication true even if token is set",
-			token:  "",
-			expect: true,
-			c:      Config{Hostname: "localhost", OriginToken: "sometoken"},
+			name: "Don't throw error when localhost",
+			c:    Config{Hostname: "localhost"},
 		},
 		{
-			name:   "When token is properly set and not localhost, return authentication true",
-			token:  "authenticateMeImValid",
-			expect: true,
-			c:      Config{Hostname: "bakery.com", OriginToken: "authenticateMeImValid"},
+			name:      "Throw error when authenticaion token not set",
+			c:         Config{OriginKey: "somekey"},
+			expectErr: true,
 		},
 		{
-			name:   "When token is not properly set and not localhost, return authentication false",
-			token:  "",
-			expect: false,
-			c:      Config{Hostname: "bakery.com", OriginToken: "authenticateMeImValid"},
+			name:      "Throw error when authenticaion key not set",
+			c:         Config{OriginToken: "sometoken"},
+			expectErr: true,
+		},
+		{
+			name:      "Throw error when authenticaion not set",
+			c:         Config{},
+			expectErr: true,
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			if got := tc.c.Authenticate(tc.token); got != tc.expect {
-				t.Errorf("Wrong authenitcation response\ngot %v\nexpected: %v", got, tc.expect)
+			err := tc.c.ValidateAuthHeader()
+
+			if err != nil && !tc.expectErr {
+				t.Errorf("GetAuthHeader() got error did not expect error thrown")
+			} else if err == nil && tc.expectErr {
+				t.Errorf("GetAuthHeader() got no error expected error thrown")
+			}
+		})
+	}
+}
+
+func TestConfig_Middleware(t *testing.T) {
+	noopTracer := tracing.NoopTracer{}
+	disabledTraceConfig := getTracerConfig(false, false)
+
+	defaultTime := time.Duration(5 * time.Second)
+	defaultClientConfig := getClientConfig(nil, defaultTime, noopTracer)
+
+	c := getDefaultConfig(defaultClientConfig, disabledTraceConfig, Propeller{})
+
+	middleware := c.SetupMiddleware()
+	authMiddleware := c.AuthMiddlewareFrom(middleware)
+	handler := authMiddleware.Then(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}))
+
+	tests := []struct {
+		name         string
+		authtoken    string
+		expectErr    string
+		expectStatus int
+	}{
+		{
+			name:         "when request is made with the correct auth token",
+			authtoken:    "authenticate-me",
+			expectStatus: 200,
+		},
+		{
+			name:         "when request is made with bad auth token, expect a 403 and error message",
+			authtoken:    "bad-auth-token",
+			expectStatus: 403,
+			expectErr:    "you must pass a valid api token as \"x-bakery-origin-token\"\n",
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			req, err := http.NewRequest("GET", "/", nil)
+			if err != nil {
+				t.Fatalf("could not create request got error: %v", err)
+			}
+
+			req.Header.Set("x-bakery-origin-token", tc.authtoken)
+			rec := httptest.NewRecorder()
+			handler.ServeHTTP(rec, req)
+
+			res := rec.Result()
+			defer res.Body.Close()
+
+			if res.StatusCode != tc.expectStatus {
+				t.Errorf("Wrong status expected status %v; got %v", tc.expectStatus, res.StatusCode)
+			}
+
+			body, err := ioutil.ReadAll(res.Body)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if !cmp.Equal(string(body), tc.expectErr) {
+				t.Errorf("Wrong body returned\ngot %v\nexpected: %v\ndiff: %v",
+					string(body), tc.expectErr, cmp.Diff(string(body), tc.expectErr))
 			}
 		})
 	}

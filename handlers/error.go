@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
 )
 
 //ErrorResponse holds the errore response message
@@ -33,13 +33,13 @@ func NewErrorResponse(message string, err error) ErrorResponse {
 }
 
 // HandleError will both log and handle the http error for a given error response
-func (e *ErrorResponse) HandleError(log *logrus.Entry, w http.ResponseWriter, code int) {
+func (e *ErrorResponse) HandleError(log zerolog.Logger, w http.ResponseWriter, code int) {
 	logError(log, e.Message, e.Err)
 	httpError(w, code, *e)
 }
 
-func logError(log *logrus.Entry, message string, err error) {
-	log.WithError(err).Infof(message)
+func logError(log zerolog.Logger, message string, err error) {
+	log.Err(err).Str("pkg", "test").Msgf(message)
 }
 
 func httpError(w http.ResponseWriter, code int, e ErrorResponse) {

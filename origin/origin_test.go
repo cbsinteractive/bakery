@@ -172,8 +172,14 @@ func TestOrigin_Configure(t *testing.T) {
 		expectErr bool
 	}{
 		{
-			name:     "when origin path is of type propeller for channel manifest",
+			name:     "when origin path is of type propeller for channel hls manifest",
 			path:     "/propeller/org123/channel-123.m3u8",
+			c:        cfg,
+			expected: &Propeller{URL: "http://cdn.com/ch.m3u8"},
+		},
+		{
+			name:     "when origin path is of type propeller for channel mpd manifest",
+			path:     "/propeller/org123/channel-123.mpd",
 			c:        cfg,
 			expected: &Propeller{URL: "http://cdn.com/ch.m3u8"},
 		},
@@ -184,10 +190,23 @@ func TestOrigin_Configure(t *testing.T) {
 			expected: &Propeller{URL: "http://cdn.com/output-123.m3u8"},
 		},
 		{
+			name:     "when origin path is of type propeller for channel output mpd manifest",
+			path:     "/propeller/org123/channel-with-output/output-123.mpd",
+			c:        cfg,
+			expected: &Propeller{URL: "http://cdn.com/output-123.m3u8"},
+		},
+		{
 			name:     "when origin path is of type propeller for clip manifest",
 			path:     "/propeller/org123/clip/clip-123.m3u8",
 			c:        cfg,
 			expected: &Propeller{URL: "http://cdn.com/clip-123.m3u8"},
+		},
+		{
+			name:      "when origin path is of type propeller for clip mpd manifest, expect err thrown",
+			path:      "/propeller/org123/clip/clip-123.mpd",
+			c:         cfg,
+			expected:  &Propeller{},
+			expectErr: true,
 		},
 		{
 			name:      "when origin is of type propeller in wrong format, return error",

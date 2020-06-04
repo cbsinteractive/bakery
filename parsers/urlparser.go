@@ -21,6 +21,7 @@ type MediaFilters struct {
 	Trim         *Trim         `json:",omitempty"`
 	Bitrate      *Bitrate      `json:",omitempty"`
 	FrameRate    []string      `json:",omitempty"`
+	SP           bool          `json:",omitempty"`
 	Protocol     Protocol      `json:"protocol"`
 }
 
@@ -185,6 +186,8 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 				fr := strings.ReplaceAll(framerate, ":", "/")
 				mf.FrameRate = append(mf.FrameRate, fr)
 			}
+		case "sp":
+			mf.SP = true
 		}
 	}
 

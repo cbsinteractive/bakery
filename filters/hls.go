@@ -1,9 +1,12 @@
 package filters
 
 import (
+	"context"
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"net/url"
 	"path/filepath"
 	"strings"
@@ -30,6 +33,11 @@ var matchFunctions = map[ContentType]func(string) bool{
 	videoContentType:   isVideoCodec,
 	captionContentType: isCaptionCodec,
 }
+
+const (
+	primaryPipeline = "primary"
+	backupPipeline  = "backup"
+)
 
 // NewHLSFilter is the HLS filter constructor
 func NewHLSFilter(manifestURL, manifestContent string, c config.Config) *HLSFilter {
@@ -66,8 +74,15 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 	//with each variant refrencing it. We hold a slice of trimmed
 	//alternatives to avoid processing a media alternative twice
 	var trimmedAlternatives []string
-	for _, v := range manifest.Variants {
+	var singlePipeline string
+	for i, v := range manifest.Variants {
 		if filters.SuppressIFrame() && v.Iframe {
+			continue
+		}
+
+		fmt.Printf("v.URI,\n%v\n", v.URI)
+		fmt.Printf("singlePipeline,\n%v\n", singlePipeline)
+		if singlePipeline == primaryPipeline && !isPrimaryPipeline(i) {
 			continue
 		}
 
@@ -81,12 +96,26 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 			return "", err
 		}
 
-		filteredVariants, err := h.filterVariants(filters, normalizedVariant)
+		if filters.SP && singlePipeline == "" {
+			healthy, err := healthCheckVariant(normalizedVariant.URI, h.config.Client)
+			if err != nil {
+				return "", err
+			}
+
+			if healthy && isPrimaryPipeline(i) {
+				singlePipeline = primaryPipeline
+				continue
+			}
+
+			singlePipeline = backupPipeline
+		}
+
+		filteredVariant, err := h.filterVariant(filters, normalizedVariant)
 		if err != nil {
 			return "", err
 		}
 
-		if filteredVariants {
+		if filteredVariant {
 			continue
 		}
 
@@ -109,7 +138,7 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 }
 
 // Returns true if specified variant should be removed from filter
-func (h *HLSFilter) filterVariants(filters *parsers.MediaFilters, v *m3u8.Variant) (bool, error) {
+func (h *HLSFilter) filterVariant(filters *parsers.MediaFilters, v *m3u8.Variant) (bool, error) {
 	variantCodecs := strings.Split(v.Codecs, ",")
 
 	if filters.Videos.Bitrate != nil || filters.Audios.Bitrate != nil {
@@ -474,4 +503,56 @@ func (h *HLSFilter) normalizeTrimmedVariantAlternatives(filters *parsers.MediaFi
 		}
 	}
 	return trimmedAlternatives, nil
+}
+
+func isPrimaryPipeline(index int) bool {
+	return index%2 == 0
+}
+
+//Health check variant of redundant manifest
+//move this to the origin package?
+func healthCheckVariant(variantURL string, client config.Client) (bool, error) {
+
+	req, err := http.NewRequest(http.MethodGet, variantURL, nil)
+	if err != nil {
+		return false, fmt.Errorf("generating request to fetch variant: %w", err)
+	}
+
+	ctx, cancel := context.WithTimeout(client.Context, client.Timeout)
+	defer cancel()
+
+	resp, err := client.Do(req.WithContext(ctx))
+	if err != nil {
+		return false, fmt.Errorf("checking variant manifest %v: %w", variantURL, err)
+	}
+	defer resp.Body.Close()
+
+	variant, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return false, fmt.Errorf("reading variant response body: %w", err)
+	}
+
+	if sc := resp.StatusCode; sc/100 > 3 {
+		return false, fmt.Errorf("checkign variant: returning http status of %v", sc)
+	}
+
+	v, manifestType, err := m3u8.DecodeFrom(strings.NewReader(string(variant)), true)
+	if err != nil {
+		return false, err
+	}
+
+	if manifestType != m3u8.MEDIA {
+		return false, fmt.Errorf("checking variant: not media playlist")
+	}
+
+	playlist := v.(*m3u8.MediaPlaylist)
+
+	//this is broken
+	//need to parse the time properly and format.
+	//may need to parse the segments before finding the right time to compare
+	if fmt.Sprintf("%f", playlist.TargetDuration*2) < resp.Header.Get("Last-Modified-Time") {
+		return false, nil
+	}
+
+	return true, nil
 }

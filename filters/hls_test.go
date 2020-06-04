@@ -1,11 +1,18 @@
 package filters
 
 import (
+	"bytes"
+	"context"
+	"io/ioutil"
 	"math"
+	"net/http"
 	"testing"
+	"time"
 
 	"github.com/cbsinteractive/bakery/config"
 	"github.com/cbsinteractive/bakery/parsers"
+	test "github.com/cbsinteractive/bakery/tests"
+	"github.com/cbsinteractive/pkg/tracing"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -1451,7 +1458,6 @@ https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9jYnNzNjRlYi1jYnNzNjRlYi1tcy
 https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9jYnNzNjRlYi1jYnNzNjRlYi1tcy1kZXYuZ2xvYmFsLnNzbC5mYXN0bHkubmV0L2Nic3NjMGE3L21hc3Rlci9jYnNzYzBhN183Lm0zdTg.m3u8
 `
 
-
 	trim := &parsers.Trim{
 		Start: 10000,
 		End:   100000,
@@ -1564,7 +1570,7 @@ https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9jYnNzNjRlYi1jYnNzNjRlYi1tcy
 			config:                config.Config{Hostname: "bakery.cbsi.video"},
 		},
 		{
-			name:                  "when media tag is present, filter and replace media url with base64 encoded string",
+			name: "when media tag is present, filter and replace media url with base64 encoded string",
 			filters: &parsers.MediaFilters{
 				Trim: trim,
 			},
@@ -2489,5 +2495,104 @@ https://existing.base/path/link_5.m3u8
 			}
 
 		})
+	}
+}
+
+func TestHandler_RedundantManifests(t *testing.T) {
+	redundant := `#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",INSTREAM-ID="CC1"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=356400,AVERAGE-BANDWIDTH=345400,CODECS="avc1.64000c,mp4a.40.2",RESOLUTION=400x224,CLOSED-CAPTIONS="CC",FRAME-RATE=15.000
+https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/testa5fe_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=356400,AVERAGE-BANDWIDTH=345400,CODECS="avc1.64000c,mp4a.40.2",RESOLUTION=400x224,CLOSED-CAPTIONS="CC",FRAME-RATE=15.000
+https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_testa5fe_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=528000,AVERAGE-BANDWIDTH=510400,CODECS="avc1.640015,mp4a.40.2",RESOLUTION=512x288,CLOSED-CAPTIONS="CC",FRAME-RATE=15.000
+https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/testa5fe_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=528000,AVERAGE-BANDWIDTH=510400,CODECS="avc1.640015,mp4a.40.2",RESOLUTION=512x288,CLOSED-CAPTIONS="CC",FRAME-RATE=15.000
+https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_testa5fe_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100000,AVERAGE-BANDWIDTH=1060400,CODECS="avc1.64001e,mp4a.40.2",RESOLUTION=640x360,CLOSED-CAPTIONS="CC",FRAME-RATE=30.000
+https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/testa5fe_3.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100000,AVERAGE-BANDWIDTH=1060400,CODECS="avc1.64001e,mp4a.40.2",RESOLUTION=640x360,CLOSED-CAPTIONS="CC",FRAME-RATE=30.000
+https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_testa5fe_3.m3u8
+`
+	primary := `#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",INSTREAM-ID="CC1"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=356400,AVERAGE-BANDWIDTH=345400,CODECS="avc1.64000c,mp4a.40.2",RESOLUTION=400x224,CLOSED-CAPTIONS="CC",FRAME-RATE=15.000
+https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/testa5fe_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=528000,AVERAGE-BANDWIDTH=510400,CODECS="avc1.640015,mp4a.40.2",RESOLUTION=512x288,CLOSED-CAPTIONS="CC",FRAME-RATE=15.000
+https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/testa5fe_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100000,AVERAGE-BANDWIDTH=1060400,CODECS="avc1.64001e,mp4a.40.2",RESOLUTION=640x360,CLOSED-CAPTIONS="CC",FRAME-RATE=30.000
+https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/testa5fe_3.m3u8
+`
+	backup := `#EXTM3U
+#EXT-X-VERSION:4
+#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",INSTREAM-ID="CC1"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=356400,AVERAGE-BANDWIDTH=345400,CODECS="avc1.64000c,mp4a.40.2",RESOLUTION=400x224,CLOSED-CAPTIONS="CC",FRAME-RATE=15.000
+https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_testa5fe_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=528000,AVERAGE-BANDWIDTH=510400,CODECS="avc1.640015,mp4a.40.2",RESOLUTION=512x288,CLOSED-CAPTIONS="CC",FRAME-RATE=15.000
+https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_testa5fe_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100000,AVERAGE-BANDWIDTH=1060400,CODECS="avc1.64001e,mp4a.40.2",RESOLUTION=640x360,CLOSED-CAPTIONS="CC",FRAME-RATE=30.000
+https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_testa5fe_3.m3u8
+`
+	tests := []struct {
+		name           string
+		filters        *parsers.MediaFilters
+		mockResp       func(req *http.Request) (*http.Response, error)
+		expectManifest string
+		expectErr      bool
+	}{
+		{
+			name: "when redundant manifest returns 4xx for primary manifest, return backup manifest only",
+			filters: &parsers.MediaFilters{
+				SP: true,
+			},
+			mockResp: func(*http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: 404,
+					Body:       ioutil.NopCloser(bytes.NewBufferString("NotFound")),
+				}, nil
+			},
+			expectManifest: backup,
+		},
+		{
+			name: "when redundant manifest returns 2xx for primary manifest, return primary manifest only",
+			filters: &parsers.MediaFilters{
+				SP: true,
+			},
+			mockResp: func(*http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: 200,
+					Body:       ioutil.NopCloser(bytes.NewBufferString("TODO sub out for mediaplaylist")),
+				}, nil
+			},
+			expectManifest: primary,
+		},
+	}
+	for _, tt := range tests {
+		cfg := config.Config{
+			Hostname: "bakery.cbsi.video",
+			Client: config.Client{
+				Context:    context.Background(),
+				Timeout:    5 * time.Second,
+				Tracer:     tracing.NoopTracer{},
+				HTTPClient: test.MockClient(tt.mockResp),
+			},
+		}
+		filter := NewHLSFilter("https://existing.base/path/master.m3u8", redundant, cfg)
+		manifest, err := filter.FilterManifest(tt.filters)
+
+		if err != nil && !tt.expectErr {
+			t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+			return
+		} else if err == nil && tt.expectErr {
+			t.Error("FilterManifest() expected an error, got nil")
+			return
+		}
+
+		if g, e := manifest, tt.expectManifest; g != e {
+			t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				cmp.Diff(g, e))
+		}
 	}
 }

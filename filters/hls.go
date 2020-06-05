@@ -70,19 +70,27 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 	filteredManifest := m3u8.NewMasterPlaylist()
 	filteredManifest.Twitch = manifest.Twitch
 
+	//evaluate pipeline if single pipeline filter is set
+	var singlePipeline string
+	if filters.SP && singlePipeline == "" {
+		pipeline, err := h.filterPipeline(manifest.Variants[0].URI)
+		if err != nil {
+			return "", fmt.Errorf("filtering pipeline: %w", err)
+		}
+
+		singlePipeline = pipeline
+	}
+
 	//When parsed, Media Alternatives are held at the root of the object
 	//with each variant refrencing it. We hold a slice of trimmed
 	//alternatives to avoid processing a media alternative twice
-	var trimmedAlternatives []string
-	var singlePipeline string
+	trimmedAlternatives := make(map[string]struct{})
 	for i, v := range manifest.Variants {
-		if filters.SuppressIFrame() && v.Iframe {
+		if !isValidPipeline(singlePipeline, i) {
 			continue
 		}
 
-		fmt.Printf("v.URI,\n%v\n", v.URI)
-		fmt.Printf("singlePipeline,\n%v\n", singlePipeline)
-		if singlePipeline == primaryPipeline && !isPrimaryPipeline(i) {
+		if filters.SuppressIFrame() && v.Iframe {
 			continue
 		}
 
@@ -94,20 +102,6 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 		normalizedVariant, err := h.normalizeVariant(v, *absolute)
 		if err != nil {
 			return "", err
-		}
-
-		if filters.SP && singlePipeline == "" {
-			healthy, err := healthCheckVariant(normalizedVariant.URI, h.config.Client)
-			if err != nil {
-				return "", err
-			}
-
-			if healthy && isPrimaryPipeline(i) {
-				singlePipeline = primaryPipeline
-				continue
-			}
-
-			singlePipeline = backupPipeline
 		}
 
 		filteredVariant, err := h.filterVariant(filters, normalizedVariant)
@@ -135,6 +129,41 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 	}
 
 	return filteredManifest.String(), nil
+}
+
+func (h *HLSFilter) filterPipeline(uri string) (string, error) {
+	absolute, err := getAbsoluteURL(h.manifestURL)
+	if err != nil {
+		return "", fmt.Errorf("formatting segment URLs: %w", err)
+	}
+
+	uri, err = combinedIfRelative(uri, *absolute)
+	if err != nil {
+		return "", fmt.Errorf("formatting segment URLs: %w", err)
+	}
+
+	healthy, err := healthCheckVariant(uri, h.config.Client)
+	if err != nil {
+		return "", err
+	}
+
+	if healthy {
+		return primaryPipeline, nil
+	}
+
+	return backupPipeline, nil
+}
+
+func isValidPipeline(pipeline string, index int) bool {
+	if pipeline == primaryPipeline && !isPrimaryPipeline(index) {
+		return false
+	}
+
+	if pipeline == backupPipeline && isPrimaryPipeline(index) {
+		return false
+	}
+
+	return true
 }
 
 // Returns true if specified variant should be removed from filter
@@ -477,20 +506,11 @@ func getAbsoluteURL(path string) (*url.URL, error) {
 	return url.Parse(absoluteURL)
 }
 
-func alreadyProcessedAlternative(groupId string, processedGroupIds []string) bool {
-	for _, processedGroupId := range processedGroupIds {
-		if processedGroupId == groupId {
-			return true
-		}
-	}
-	return false
-}
-
 // Replaces the variant's subtitle alternative uris if they have not been trimmed already.
 // Returns a list of group ids that have already been trimmed (so they only get trimmed once)
-func (h *HLSFilter) normalizeTrimmedVariantAlternatives(filters *parsers.MediaFilters, v *m3u8.Variant, trimmedAlternatives []string) ([]string, error) {
+func (h *HLSFilter) normalizeTrimmedVariantAlternatives(filters *parsers.MediaFilters, v *m3u8.Variant, trimmedAlternatives map[string]struct{}) (map[string]struct{}, error) {
 	for _, alt := range v.Alternatives {
-		if alreadyProcessedAlternative(alt.GroupId, trimmedAlternatives) {
+		if _, found := trimmedAlternatives[alt.GroupId]; found {
 			continue
 		}
 		if alt.Type == "SUBTITLES" {
@@ -499,7 +519,7 @@ func (h *HLSFilter) normalizeTrimmedVariantAlternatives(filters *parsers.MediaFi
 				return trimmedAlternatives, err
 			}
 			alt.URI = auri
-			trimmedAlternatives = append(trimmedAlternatives, alt.GroupId)
+			trimmedAlternatives[alt.GroupId] = struct{}{}
 		}
 	}
 	return trimmedAlternatives, nil
@@ -510,9 +530,9 @@ func isPrimaryPipeline(index int) bool {
 }
 
 //Health check variant of redundant manifest
-//move this to the origin package?
+//move this to the origin package? will refactor FetchManifest to return status code. Only used by handler,
+//handler should be returning manifest status code if not 200 anyway.
 func healthCheckVariant(variantURL string, client config.Client) (bool, error) {
-
 	req, err := http.NewRequest(http.MethodGet, variantURL, nil)
 	if err != nil {
 		return false, fmt.Errorf("generating request to fetch variant: %w", err)
@@ -533,9 +553,17 @@ func healthCheckVariant(variantURL string, client config.Client) (bool, error) {
 	}
 
 	if sc := resp.StatusCode; sc/100 > 3 {
-		return false, fmt.Errorf("checkign variant: returning http status of %v", sc)
+		if sc == 404 {
+			return false, nil
+		}
+
+		return false, fmt.Errorf("checking variant: returning http status of %v", sc)
 	}
 
+	return evaluateStaleness(variant, resp.Header.Get("Last-Modified"))
+}
+
+func evaluateStaleness(variant []byte, lastModifiedHeader string) (bool, error) {
 	v, manifestType, err := m3u8.DecodeFrom(strings.NewReader(string(variant)), true)
 	if err != nil {
 		return false, err
@@ -550,9 +578,16 @@ func healthCheckVariant(variantURL string, client config.Client) (bool, error) {
 	//this is broken
 	//need to parse the time properly and format.
 	//may need to parse the segments before finding the right time to compare
-	if fmt.Sprintf("%f", playlist.TargetDuration*2) < resp.Header.Get("Last-Modified-Time") {
-		return false, nil
-	}
+	fmt.Printf("lastModified\n%v\n", lastModifiedHeader)
+	lastModified, _ := http.ParseTime(lastModifiedHeader)
+	fmt.Printf("lastModified\n%v\n", lastModified)
+	fmt.Printf("now,\n%v\n", time.Now().UTC())
+	fmt.Printf("diff,\n%v\n", time.Now().UTC().Sub(lastModified))
+	segDurationX2 := time.Now().UTC().Add(time.Second * time.Duration(playlist.TargetDuration*2))
+	fmt.Printf("segDurationx2,\n%v\n", segDurationX2)
+	eval := segDurationX2.Unix() < lastModified.Unix()
 
-	return true, nil
+	fmt.Printf("final,\n%v\n", eval)
+
+	return segDurationX2.Unix() < lastModified.Unix(), nil
 }

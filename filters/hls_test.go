@@ -2498,7 +2498,7 @@ https://existing.base/path/link_5.m3u8
 	}
 }
 
-func TestHandler_RedundantManifests(t *testing.T) {
+func TestHLSFilter_FilterManifest_RedundantManifests(t *testing.T) {
 	redundant := `#EXTM3U
 #EXT-X-VERSION:4
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",INSTREAM-ID="CC1"

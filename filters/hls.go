@@ -578,16 +578,18 @@ func evaluateStaleness(variant []byte, lastModifiedHeader string) (bool, error) 
 	//this is broken
 	//need to parse the time properly and format.
 	//may need to parse the segments before finding the right time to compare
-	fmt.Printf("lastModified\n%v\n", lastModifiedHeader)
-	lastModified, _ := http.ParseTime(lastModifiedHeader)
+	lastModified, err := http.ParseTime(lastModifiedHeader)
+	if err != nil {
+		return false, err
+	}
+
+	segDurationX2 := time.Second * time.Duration(playlist.TargetDuration*2)
+	diff := time.Now().UTC().Sub(lastModified)
+
 	fmt.Printf("lastModified\n%v\n", lastModified)
-	fmt.Printf("now,\n%v\n", time.Now().UTC())
-	fmt.Printf("diff,\n%v\n", time.Now().UTC().Sub(lastModified))
-	segDurationX2 := time.Now().UTC().Add(time.Second * time.Duration(playlist.TargetDuration*2))
+	fmt.Printf("diff,\n%v\n", diff)
 	fmt.Printf("segDurationx2,\n%v\n", segDurationX2)
-	eval := segDurationX2.Unix() < lastModified.Unix()
+	fmt.Printf("final,\n%v\n", segDurationX2 > diff)
 
-	fmt.Printf("final,\n%v\n", eval)
-
-	return segDurationX2.Unix() < lastModified.Unix(), nil
+	return segDurationX2 > diff, nil
 }

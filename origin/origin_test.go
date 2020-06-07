@@ -59,35 +59,40 @@ func TestOrigin_FetchManifest(t *testing.T) {
 	}
 
 	tests := []struct {
-		name      string
-		origin    Origin
-		mockResp  func(*http.Request) (*http.Response, error)
-		expectStr string
-		expectErr bool
+		name         string
+		origin       Origin
+		mockResp     func(*http.Request) (*http.Response, error)
+		expectStr    string
+		expectStatus int
+		expectErr    bool
 	}{
 		{
-			name:      "when fetching propeller channel, return response message if code < 300",
-			origin:    &Propeller{URL: "https://propeller-playback-url.m3u8"},
-			mockResp:  getMockResp(200, "OK"),
-			expectStr: "OK",
+			name:         "when fetching propeller channel, return response message if code < 300",
+			origin:       &Propeller{URL: "https://propeller-playback-url.m3u8"},
+			mockResp:     getMockResp(200, "OK"),
+			expectStatus: 200,
+			expectStr:    "OK",
 		},
 		{
-			name:      "when fetching origin manifest, return response message if code < 300",
-			origin:    &DefaultOrigin{Origin: "https://origin.com", URL: *relativeURL},
-			mockResp:  getMockResp(200, "OK"),
-			expectStr: "OK",
+			name:         "when fetching origin manifest, return response message if code < 300",
+			origin:       &DefaultOrigin{Host: "https://origin.com", URL: *relativeURL},
+			mockResp:     getMockResp(200, "OK"),
+			expectStatus: 200,
+			expectStr:    "OK",
 		},
 		{
-			name:      "when fetching origin manifest, expect if code > 300",
-			origin:    &DefaultOrigin{Origin: "https://origin.com", URL: *absoluteURL},
-			mockResp:  getMockResp(404, "NotFound"),
-			expectErr: true,
+			name:         "when fetching origin manifest, expect if code > 300",
+			origin:       &DefaultOrigin{Host: "https://origin.com", URL: *absoluteURL},
+			mockResp:     getMockResp(404, "NotFound"),
+			expectStatus: 404,
+			expectStr:    "NotFound",
 		},
 		{
-			name:      "when fetching propeller channel, expect if code > 300",
-			origin:    &Propeller{URL: "https://propeller-playback-url.m3u8"},
-			mockResp:  getMockResp(404, "NotFound"),
-			expectErr: true,
+			name:         "when fetching propeller channel, expect if code > 300",
+			origin:       &Propeller{URL: "https://propeller-playback-url.m3u8"},
+			mockResp:     getMockResp(404, "NotFound"),
+			expectStatus: 404,
+			expectStr:    "NotFound",
 		},
 	}
 
@@ -105,8 +110,12 @@ func TestOrigin_FetchManifest(t *testing.T) {
 				return
 			}
 
-			if got != tc.expectStr {
-				t.Errorf("Wrong response: expect: %q, got %q", tc.expectStr, got)
+			if got.Manifest != tc.expectStr {
+				t.Errorf("Wrong Manifest response: expect: %q, got %q", tc.expectStr, got.Manifest)
+			}
+
+			if got.Status != tc.expectStatus {
+				t.Errorf("Wrong status response: expect: %q, got %q", tc.expectStatus, got.Status)
 			}
 		})
 
@@ -132,12 +141,12 @@ func TestOrigin_GetPlaybackURL(t *testing.T) {
 		},
 		{
 			name:        "when origin is of type default with relative url, return full playback URL",
-			origin:      &DefaultOrigin{Origin: "https://origin.com", URL: *relativeURL},
+			origin:      &DefaultOrigin{Host: "https://origin.com", URL: *relativeURL},
 			expectedURL: "https://origin.com/path/to/manifest/master.m3u8",
 		},
 		{
 			name:        "when origin is of type default with absolute url, return full playback URL",
-			origin:      &DefaultOrigin{Origin: "https://origin.com", URL: *absoluteURL},
+			origin:      &DefaultOrigin{Host: "https://origin.com", URL: *absoluteURL},
 			expectedURL: "https://origin.com/path/to/manifest/master.m3u8",
 		},
 	}
@@ -219,13 +228,13 @@ func TestOrigin_Configure(t *testing.T) {
 			name:     "when origin path is at root but not base64 encoded, return default origin type",
 			path:     fmt.Sprintf("/%v.m3u8", base64.RawURLEncoding.EncodeToString([]byte(absTestURL.String()))),
 			c:        config.Config{LogLevel: "panic", OriginHost: "host"},
-			expected: &DefaultOrigin{Origin: "host", URL: *absTestURL},
+			expected: &DefaultOrigin{Host: "", URL: *absTestURL},
 		},
 		{
 			name:     "when origin path is at root but not base64 encoded, return default origin type",
 			path:     relTestURL.String(),
 			c:        config.Config{LogLevel: "panic", OriginHost: "host"},
-			expected: &DefaultOrigin{Origin: "host", URL: *relTestURL},
+			expected: &DefaultOrigin{Host: "", URL: *relTestURL},
 		},
 	}
 

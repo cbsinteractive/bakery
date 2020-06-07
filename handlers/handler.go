@@ -43,11 +43,20 @@ func LoadHandler(c config.Config) http.Handler {
 		}
 
 		// fetch manifest from origin
-		manifestContent, err := manifestOrigin.FetchManifest(c.Client)
+		manifestInfo, err := manifestOrigin.FetchManifest(c.Client)
 		if err != nil {
 			ctxl := ctxLogger.With().Str("playbackURL", manifestOrigin.GetPlaybackURL()).Logger()
 			e := NewErrorResponse("failed fetching manifest", err)
 			e.HandleError(ctxl, w, http.StatusInternalServerError)
+			return
+		}
+
+		//throw status error if not 2xx
+		if manifestInfo.Status/100 > 3 {
+			ctxl := ctxLogger.With().Str("Status", manifestOrigin.GetPlaybackURL()).Logger()
+			err := fmt.Errorf("fetching manifest: returning http status of %v", manifestInfo.Status)
+			e := NewErrorResponse("manifest origin error", err)
+			e.HandleError(ctxl, w, manifestInfo.Status)
 			return
 		}
 
@@ -56,10 +65,10 @@ func LoadHandler(c config.Config) http.Handler {
 		var f filters.Filter
 		switch mediaFilters.Protocol {
 		case parsers.ProtocolHLS:
-			f = filters.NewHLSFilter(manifestOrigin.GetPlaybackURL(), manifestContent, c)
+			f = filters.NewHLSFilter(manifestOrigin.GetPlaybackURL(), manifestInfo.Manifest, c)
 			w.Header().Set("Content-Type", "application/x-mpegURL")
 		case parsers.ProtocolDASH:
-			f = filters.NewDASHFilter(manifestOrigin.GetPlaybackURL(), manifestContent, c)
+			f = filters.NewDASHFilter(manifestOrigin.GetPlaybackURL(), manifestInfo.Manifest, c)
 			w.Header().Set("Content-Type", "application/dash+xml")
 		}
 

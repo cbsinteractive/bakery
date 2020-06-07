@@ -1,11 +1,9 @@
 package filters
 
 import (
-	"context"
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -13,6 +11,7 @@ import (
 	"time"
 
 	"github.com/cbsinteractive/bakery/config"
+	"github.com/cbsinteractive/bakery/origin"
 	"github.com/cbsinteractive/bakery/parsers"
 	"github.com/grafov/m3u8"
 )
@@ -530,29 +529,18 @@ func isPrimaryPipeline(index int) bool {
 }
 
 //Health check variant of redundant manifest
-//move this to the origin package? will refactor FetchManifest to return status code. Only used by handler,
-//handler should be returning manifest status code if not 200 anyway.
 func healthCheckVariant(variantURL string, client config.Client) (bool, error) {
-	req, err := http.NewRequest(http.MethodGet, variantURL, nil)
+	manifestOrigin, err := origin.NewDefaultOrigin("", variantURL)
 	if err != nil {
-		return false, fmt.Errorf("generating request to fetch variant: %w", err)
+		return false, fmt.Errorf("health checking variant: %w", err)
 	}
 
-	ctx, cancel := context.WithTimeout(client.Context, client.Timeout)
-	defer cancel()
-
-	resp, err := client.Do(req.WithContext(ctx))
+	manifestInfo, err := manifestOrigin.FetchManifest(client)
 	if err != nil {
-		return false, fmt.Errorf("checking variant manifest %v: %w", variantURL, err)
-	}
-	defer resp.Body.Close()
-
-	variant, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return false, fmt.Errorf("reading variant response body: %w", err)
+		return false, fmt.Errorf("health checking variant: %w", err)
 	}
 
-	if sc := resp.StatusCode; sc/100 > 3 {
+	if sc := manifestInfo.Status; sc/100 > 3 {
 		if sc == 404 {
 			return false, nil
 		}
@@ -560,11 +548,11 @@ func healthCheckVariant(variantURL string, client config.Client) (bool, error) {
 		return false, fmt.Errorf("checking variant: returning http status of %v", sc)
 	}
 
-	return evaluateStaleness(variant, resp.Header.Get("Last-Modified"))
+	return evaluateStaleness(manifestInfo.Manifest, manifestInfo.LastModified)
 }
 
-func evaluateStaleness(variant []byte, lastModifiedHeader string) (bool, error) {
-	v, manifestType, err := m3u8.DecodeFrom(strings.NewReader(string(variant)), true)
+func evaluateStaleness(variant string, lastModifiedHeader string) (bool, error) {
+	v, manifestType, err := m3u8.DecodeFrom(strings.NewReader(variant), true)
 	if err != nil {
 		return false, err
 	}
@@ -575,21 +563,18 @@ func evaluateStaleness(variant []byte, lastModifiedHeader string) (bool, error) 
 
 	playlist := v.(*m3u8.MediaPlaylist)
 
-	//this is broken
-	//need to parse the time properly and format.
-	//may need to parse the segments before finding the right time to compare
 	lastModified, err := http.ParseTime(lastModifiedHeader)
 	if err != nil {
 		return false, err
 	}
 
 	segDurationX2 := time.Second * time.Duration(playlist.TargetDuration*2)
-	diff := time.Now().UTC().Sub(lastModified)
+	diff := time.Now().Sub(lastModified)
 
-	fmt.Printf("lastModified\n%v\n", lastModified)
-	fmt.Printf("diff,\n%v\n", diff)
-	fmt.Printf("segDurationx2,\n%v\n", segDurationX2)
-	fmt.Printf("final,\n%v\n", segDurationX2 > diff)
+	fmt.Printf("lastModified\t%v\n", lastModified)
+	fmt.Printf("diff,\t%v\n", diff)
+	fmt.Printf("segDurationx2,\t%v\n", segDurationX2)
+	fmt.Printf("final,\t%v\n", segDurationX2 > diff)
 
 	return segDurationX2 > diff, nil
 }

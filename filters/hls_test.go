@@ -2535,6 +2535,11 @@ https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_te
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1100000,AVERAGE-BANDWIDTH=1060400,CODECS="avc1.64001e,mp4a.40.2",RESOLUTION=640x360,CLOSED-CAPTIONS="CC",FRAME-RATE=30.000
 https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_testa5fe_3.m3u8
 `
+
+	variant := `#EXTM3U
+	#EXT-X-VERSION:3
+	#EXT-X-TARGETDURATION:8
+`
 	tests := []struct {
 		name           string
 		filters        *parsers.MediaFilters
@@ -2556,15 +2561,41 @@ https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_te
 			expectManifest: backup,
 		},
 		{
-			name: "when redundant manifest returns 2xx for primary manifest, return primary manifest only",
+			name: "when redundant manifest returns 2xx but LastModified time is 2x segment length, return backup manifest only",
 			filters: &parsers.MediaFilters{
 				SP: true,
 			},
 			mockResp: func(*http.Request) (*http.Response, error) {
-				return &http.Response{
+				resp := &http.Response{
 					StatusCode: 200,
-					Body:       ioutil.NopCloser(bytes.NewBufferString("TODO sub out for mediaplaylist")),
-				}, nil
+					Body:       ioutil.NopCloser(bytes.NewBufferString(variant)),
+					Header:     http.Header{},
+				}
+
+				lastModified := time.Now().UTC().Add(-16 * time.Second).Format(http.TimeFormat)
+				resp.Header.Add("Last-Modified", lastModified)
+
+				return resp, nil
+			},
+			expectManifest: backup,
+		},
+
+		{
+			name: "when redundant manifest returns 2xx for primary manifest and is not stale, return primary manifest only",
+			filters: &parsers.MediaFilters{
+				SP: true,
+			},
+			mockResp: func(*http.Request) (*http.Response, error) {
+				resp := &http.Response{
+					StatusCode: 200,
+					Body:       ioutil.NopCloser(bytes.NewBufferString(variant)),
+					Header:     http.Header{},
+				}
+
+				lastModified := time.Now().UTC().Format(http.TimeFormat)
+				resp.Header.Add("Last-Modified", lastModified)
+
+				return resp, nil
 			},
 			expectManifest: primary,
 		},

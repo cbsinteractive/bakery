@@ -27,15 +27,15 @@ func TestHandler_ErrorResponse(t *testing.T) {
 			auth: "authenticate-me",
 			mockResp: func(*http.Request) (*http.Response, error) {
 				return &http.Response{
-					StatusCode: 403,
+					StatusCode: 400,
 					Body:       ioutil.NopCloser(bytes.NewBufferString("")),
 				}, nil
 			},
-			expectStatus: 500,
+			expectStatus: 400,
 			expectErr: ErrorResponse{
-				Message: "failed fetching manifest",
+				Message: "manifest origin error",
 				Errors: map[string][]string{
-					"fetching manifest": []string{"returning http status of 403"},
+					"fetching manifest": []string{"returning http status of 400"},
 				},
 			},
 		},

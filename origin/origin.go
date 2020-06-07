@@ -15,14 +15,21 @@ import (
 //Origin interface is implemented by DefaultOrigin and Propeller struct
 type Origin interface {
 	GetPlaybackURL() string
-	FetchManifest(c config.Client) (string, error)
+	FetchManifest(c config.Client) (ManifestInfo, error)
 }
 
 //DefaultOrigin struct holds Origin and Path of DefaultOrigin
-//Variant level DefaultOrigins will be base64 encoded absolute path
+//Variant level DefaultOrigins will be base64 encoded absolute Urls
 type DefaultOrigin struct {
-	Origin string
-	URL    url.URL
+	Host string
+	URL  url.URL
+}
+
+//ManifestInfo holds http response info from manifest request
+type ManifestInfo struct {
+	Manifest     string
+	LastModified string
+	Status       int
 }
 
 //Configure will return proper Origin interface
@@ -38,26 +45,27 @@ func Configure(c config.Config, path string) (Origin, error) {
 		if err != nil {
 			err := fmt.Errorf("decoding variant manifest url: %w", err)
 			c.Logger.Err(err).
-				Str("origin", "propeller").
+				Str("origin", "variant").
 				Msgf("can't decode url %v", path)
 			return &DefaultOrigin{}, err
 		}
 		path = variantURL
 	}
 
-	return NewDefaultOrigin(c.OriginHost, path)
+	return NewDefaultOrigin("", path)
 }
 
 //NewDefaultOrigin returns a new Origin struct
-func NewDefaultOrigin(origin string, p string) (*DefaultOrigin, error) {
+//host is not required if path is absolute
+func NewDefaultOrigin(host string, p string) (*DefaultOrigin, error) {
 	u, err := url.Parse(p)
 	if err != nil {
 		return &DefaultOrigin{}, err
 	}
 
 	return &DefaultOrigin{
-		Origin: origin,
-		URL:    *u,
+		Host: host,
+		URL:  *u,
 	}, nil
 }
 
@@ -67,18 +75,18 @@ func (d *DefaultOrigin) GetPlaybackURL() string {
 		return d.URL.String()
 	}
 
-	return d.Origin + d.URL.String()
+	return d.Host + d.URL.String()
 }
 
 //FetchManifest will grab DefaultOrigin contents of configured origin
-func (d *DefaultOrigin) FetchManifest(c config.Client) (string, error) {
+func (d *DefaultOrigin) FetchManifest(c config.Client) (ManifestInfo, error) {
 	return fetch(c, d.GetPlaybackURL())
 }
 
-func fetch(client config.Client, manifestURL string) (string, error) {
+func fetch(client config.Client, manifestURL string) (ManifestInfo, error) {
 	req, err := http.NewRequest(http.MethodGet, manifestURL, nil)
 	if err != nil {
-		return "", fmt.Errorf("generating request to fetch manifest: %w", err)
+		return ManifestInfo{}, fmt.Errorf("generating request to fetch manifest: %w", err)
 	}
 
 	ctx, cancel := context.WithTimeout(client.Context, client.Timeout)
@@ -86,20 +94,20 @@ func fetch(client config.Client, manifestURL string) (string, error) {
 
 	resp, err := client.Do(req.WithContext(ctx))
 	if err != nil {
-		return "", fmt.Errorf("fetching manifest: %w", err)
+		return ManifestInfo{}, fmt.Errorf("fetching manifest: %w", err)
 	}
 	defer resp.Body.Close()
 
-	contents, err := ioutil.ReadAll(resp.Body)
+	manifest, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("reading manifest response body: %w", err)
+		return ManifestInfo{}, fmt.Errorf("reading manifest response body: %w", err)
 	}
 
-	if sc := resp.StatusCode; sc/100 > 3 {
-		return "", fmt.Errorf("fetching manifest: returning http status of %v", sc)
-	}
-
-	return string(contents), nil
+	return ManifestInfo{
+		Manifest:     string(manifest),
+		LastModified: resp.Header.Get("Last-Modified"),
+		Status:       resp.StatusCode,
+	}, nil
 }
 
 func decodeVariantURL(variant string) (string, error) {

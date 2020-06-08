@@ -587,6 +587,40 @@ func TestURLParseUrl(t *testing.T) {
 			"/propeller/orgID/master.m3u8",
 			false,
 		},
+		{
+			"ensure DeInterleaved filter is set to true",
+			"di(true)/some/path/to/manifest.m3u8",
+			MediaFilters{
+				Protocol:     ProtocolHLS,
+				DeInterleave: true,
+			},
+			"/some/path/to/manifest.m3u8",
+			false,
+		},
+		{
+			"ensure DeInterleaved filter is set to false",
+			"di(false)/some/path/to/manifest.m3u8",
+			MediaFilters{
+				Protocol:     ProtocolHLS,
+				DeInterleave: false,
+			},
+			"/some/path/to/manifest.m3u8",
+			false,
+		},
+		{
+			"ensure DeInterleaved filter throws error if mutliple values are requested",
+			"di(true,false)/some/path/to/manifest.m3u8",
+			MediaFilters{},
+			"",
+			true,
+		},
+		{
+			"ensure DeInterleaved filter throws error if value is not true or false",
+			"di(flase)/some/path/to/manifest.m3u8",
+			MediaFilters{},
+			"",
+			true,
+		},
 	}
 	for _, test := range tests {
 		test := test

@@ -21,7 +21,7 @@ type MediaFilters struct {
 	Trim         *Trim         `json:",omitempty"`
 	Bitrate      *Bitrate      `json:",omitempty"`
 	FrameRate    []string      `json:",omitempty"`
-	SP           bool          `json:",omitempty"`
+	DeInterleave bool          `json:",omitempty"`
 	Protocol     Protocol      `json:"protocol"`
 }
 
@@ -186,8 +186,17 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 				fr := strings.ReplaceAll(framerate, ":", "/")
 				mf.FrameRate = append(mf.FrameRate, fr)
 			}
-		case "sp":
-			mf.SP = true
+		case "di":
+			if len(filters) > 1 {
+				return keyError("DeInterleave", fmt.Errorf("Only accepts one boolean value"))
+			}
+
+			w, err := parseAndValidateBooleanString(filters[0])
+			if err != nil {
+				return keyError("DeInterleave", err)
+			}
+
+			mf.DeInterleave = w
 		}
 	}
 
@@ -363,4 +372,15 @@ func (mf *MediaFilters) SuppressIFrame() bool {
 	}
 
 	return mf.Tags.IFrame
+}
+
+func parseAndValidateBooleanString(v string) (bool, error) {
+	switch v {
+	case "false":
+		return false, nil
+	case "true":
+		return true, nil
+	default:
+		return false, fmt.Errorf("Can't recognize value of %v", v)
+	}
 }

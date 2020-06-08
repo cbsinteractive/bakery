@@ -2550,7 +2550,7 @@ https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_te
 		{
 			name: "when redundant manifest returns 4xx for primary manifest, return backup manifest only",
 			filters: &parsers.MediaFilters{
-				SP: true,
+				DeInterleave: true,
 			},
 			mockResp: func(*http.Request) (*http.Response, error) {
 				return &http.Response{
@@ -2563,7 +2563,7 @@ https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_te
 		{
 			name: "when redundant manifest returns 2xx but LastModified time is 2x segment length, return backup manifest only",
 			filters: &parsers.MediaFilters{
-				SP: true,
+				DeInterleave: true,
 			},
 			mockResp: func(*http.Request) (*http.Response, error) {
 				resp := &http.Response{
@@ -2579,11 +2579,10 @@ https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_te
 			},
 			expectManifest: backup,
 		},
-
 		{
 			name: "when redundant manifest returns 2xx for primary manifest and is not stale, return primary manifest only",
 			filters: &parsers.MediaFilters{
-				SP: true,
+				DeInterleave: true,
 			},
 			mockResp: func(*http.Request) (*http.Response, error) {
 				resp := &http.Response{
@@ -2598,6 +2597,53 @@ https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_te
 				return resp, nil
 			},
 			expectManifest: primary,
+		},
+		{
+			name: "when manifest request is not Media playlist, expect error",
+			filters: &parsers.MediaFilters{
+				DeInterleave: true,
+			},
+			mockResp: func(*http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: 200,
+					Body:       ioutil.NopCloser(bytes.NewBufferString(primary)),
+				}, nil
+			},
+			expectManifest: "",
+			expectErr:      true,
+		},
+		{
+			name: "when manifest request throws http status error, expect error",
+			filters: &parsers.MediaFilters{
+				DeInterleave: true,
+			},
+			mockResp: func(*http.Request) (*http.Response, error) {
+				return &http.Response{
+					StatusCode: 500,
+					Body:       ioutil.NopCloser(bytes.NewBufferString("")),
+				}, nil
+			},
+			expectManifest: "",
+			expectErr:      true,
+		},
+		{
+			name: "when Last-Modified header is not in proper format, expect error",
+			filters: &parsers.MediaFilters{
+				DeInterleave: true,
+			},
+			mockResp: func(*http.Request) (*http.Response, error) {
+				resp := &http.Response{
+					StatusCode: 200,
+					Body:       ioutil.NopCloser(bytes.NewBufferString(variant)),
+					Header:     http.Header{},
+				}
+
+				resp.Header.Add("Last-Modified", "hello")
+
+				return resp, nil
+			},
+			expectManifest: "",
+			expectErr:      true,
 		},
 	}
 	for _, tt := range tests {

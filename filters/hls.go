@@ -69,15 +69,15 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 	filteredManifest := m3u8.NewMasterPlaylist()
 	filteredManifest.Twitch = manifest.Twitch
 
-	//evaluate pipeline if single pipeline filter is set
-	var singlePipeline string
-	if filters.SP && singlePipeline == "" {
-		pipeline, err := h.filterPipeline(manifest.Variants[0].URI)
+	//evaluate pipeline if deInterleaved filter is set
+	var pipeline string
+	if filters.DeInterleave && pipeline == "" {
+		p, err := h.filterPipeline(manifest.Variants[0].URI)
 		if err != nil {
 			return "", fmt.Errorf("filtering pipeline: %w", err)
 		}
 
-		singlePipeline = pipeline
+		pipeline = p
 	}
 
 	//When parsed, Media Alternatives are held at the root of the object
@@ -85,7 +85,7 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 	//alternatives to avoid processing a media alternative twice
 	trimmedAlternatives := make(map[string]struct{})
 	for i, v := range manifest.Variants {
-		if !isValidPipeline(singlePipeline, i) {
+		if !isValidPipeline(pipeline, i) {
 			continue
 		}
 
@@ -151,18 +151,6 @@ func (h *HLSFilter) filterPipeline(uri string) (string, error) {
 	}
 
 	return backupPipeline, nil
-}
-
-func isValidPipeline(pipeline string, index int) bool {
-	if pipeline == primaryPipeline && !isPrimaryPipeline(index) {
-		return false
-	}
-
-	if pipeline == backupPipeline && isPrimaryPipeline(index) {
-		return false
-	}
-
-	return true
 }
 
 // Returns true if specified variant should be removed from filter
@@ -528,6 +516,18 @@ func isPrimaryPipeline(index int) bool {
 	return index%2 == 0
 }
 
+func isValidPipeline(pipeline string, index int) bool {
+	if pipeline == primaryPipeline && !isPrimaryPipeline(index) {
+		return false
+	}
+
+	if pipeline == backupPipeline && isPrimaryPipeline(index) {
+		return false
+	}
+
+	return true
+}
+
 //Health check variant of redundant manifest
 func healthCheckVariant(variantURL string, client config.Client) (bool, error) {
 	manifestOrigin, err := origin.NewDefaultOrigin("", variantURL)
@@ -570,11 +570,6 @@ func evaluateStaleness(variant string, lastModifiedHeader string) (bool, error) 
 
 	segDurationX2 := time.Second * time.Duration(playlist.TargetDuration*2)
 	diff := time.Now().Sub(lastModified)
-
-	fmt.Printf("lastModified\t%v\n", lastModified)
-	fmt.Printf("diff,\t%v\n", diff)
-	fmt.Printf("segDurationx2,\t%v\n", segDurationX2)
-	fmt.Printf("final,\t%v\n", segDurationX2 > diff)
 
 	return segDurationX2 > diff, nil
 }

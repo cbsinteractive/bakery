@@ -69,9 +69,9 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 	filteredManifest := m3u8.NewMasterPlaylist()
 	filteredManifest.Twitch = manifest.Twitch
 
-	//evaluate pipeline if deInterleaved filter is set
+	//evaluate pipeline if DeWeaved filter is set
 	var pipeline string
-	if filters.DeInterleave && pipeline == "" {
+	if filters.DeWeave && pipeline == "" {
 		p, err := h.filterPipeline(manifest.Variants[0].URI)
 		if err != nil {
 			return "", fmt.Errorf("filtering pipeline: %w", err)

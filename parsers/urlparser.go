@@ -21,7 +21,7 @@ type MediaFilters struct {
 	Trim         *Trim         `json:",omitempty"`
 	Bitrate      *Bitrate      `json:",omitempty"`
 	FrameRate    []string      `json:",omitempty"`
-	DeInterleave bool          `json:",omitempty"`
+	DeWeave      bool          `json:",omitempty"`
 	Protocol     Protocol      `json:"protocol"`
 }
 
@@ -186,17 +186,17 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 				fr := strings.ReplaceAll(framerate, ":", "/")
 				mf.FrameRate = append(mf.FrameRate, fr)
 			}
-		case "di":
+		case "dw":
 			if len(filters) > 1 {
-				return keyError("DeInterleave", fmt.Errorf("Only accepts one boolean value"))
+				return keyError("DeWeave", fmt.Errorf("Only accepts one boolean value"))
 			}
 
 			w, err := parseAndValidateBooleanString(filters[0])
 			if err != nil {
-				return keyError("DeInterleave", err)
+				return keyError("DeWeave", err)
 			}
 
-			mf.DeInterleave = w
+			mf.DeWeave = w
 		}
 	}
 

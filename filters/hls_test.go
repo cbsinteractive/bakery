@@ -2550,7 +2550,7 @@ https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_te
 		{
 			name: "when redundant manifest returns 4xx for primary manifest, return backup manifest only",
 			filters: &parsers.MediaFilters{
-				DeInterleave: true,
+				DeWeave: true,
 			},
 			mockResp: func(*http.Request) (*http.Response, error) {
 				return &http.Response{
@@ -2563,7 +2563,7 @@ https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_te
 		{
 			name: "when redundant manifest returns 2xx but LastModified time is 2x segment length, return backup manifest only",
 			filters: &parsers.MediaFilters{
-				DeInterleave: true,
+				DeWeave: true,
 			},
 			mockResp: func(*http.Request) (*http.Response, error) {
 				resp := &http.Response{
@@ -2582,7 +2582,7 @@ https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_te
 		{
 			name: "when redundant manifest returns 2xx for primary manifest and is not stale, return primary manifest only",
 			filters: &parsers.MediaFilters{
-				DeInterleave: true,
+				DeWeave: true,
 			},
 			mockResp: func(*http.Request) (*http.Response, error) {
 				resp := &http.Response{
@@ -2601,7 +2601,7 @@ https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_te
 		{
 			name: "when manifest request is not Media playlist, expect error",
 			filters: &parsers.MediaFilters{
-				DeInterleave: true,
+				DeWeave: true,
 			},
 			mockResp: func(*http.Request) (*http.Response, error) {
 				return &http.Response{
@@ -2615,7 +2615,7 @@ https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_te
 		{
 			name: "when manifest request throws http status error, expect error",
 			filters: &parsers.MediaFilters{
-				DeInterleave: true,
+				DeWeave: true,
 			},
 			mockResp: func(*http.Request) (*http.Response, error) {
 				return &http.Response{
@@ -2629,7 +2629,7 @@ https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_te
 		{
 			name: "when Last-Modified header is not in proper format, expect error",
 			filters: &parsers.MediaFilters{
-				DeInterleave: true,
+				DeWeave: true,
 			},
 			mockResp: func(*http.Request) (*http.Response, error) {
 				resp := &http.Response{

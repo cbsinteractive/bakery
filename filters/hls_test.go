@@ -2476,7 +2476,6 @@ https://existing.base/path/link_5.m3u8
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("https://existing.base/path/master.m3u8", tt.manifestContent, config.Config{Hostname: "bakery.cbsi.video"})
 			manifest, err := filter.FilterManifest(tt.filters)
@@ -2553,10 +2552,16 @@ https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_te
 				DeWeave: true,
 			},
 			mockResp: func(*http.Request) (*http.Response, error) {
-				return &http.Response{
+				resp := &http.Response{
 					StatusCode: 404,
 					Body:       ioutil.NopCloser(bytes.NewBufferString("NotFound")),
-				}, nil
+					Header:     http.Header{},
+				}
+
+				lastModified := time.Now().UTC().Add(-16 * time.Second).Format(http.TimeFormat)
+				resp.Header.Add("Last-Modified", lastModified)
+
+				return resp, nil
 			},
 			expectManifest: backup,
 		},
@@ -2647,29 +2652,31 @@ https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_te
 		},
 	}
 	for _, tt := range tests {
-		cfg := config.Config{
-			Hostname: "bakery.cbsi.video",
-			Client: config.Client{
-				Context:    context.Background(),
-				Timeout:    5 * time.Second,
-				Tracer:     tracing.NoopTracer{},
-				HTTPClient: test.MockClient(tt.mockResp),
-			},
-		}
-		filter := NewHLSFilter("https://existing.base/path/master.m3u8", redundant, cfg)
-		manifest, err := filter.FilterManifest(tt.filters)
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := config.Config{
+				Hostname: "bakery.cbsi.video",
+				Client: config.Client{
+					Context:    context.Background(),
+					Timeout:    5 * time.Second,
+					Tracer:     tracing.NoopTracer{},
+					HTTPClient: test.MockClient(tt.mockResp),
+				},
+			}
+			filter := NewHLSFilter("https://existing.base/path/master.m3u8", redundant, cfg)
+			manifest, err := filter.FilterManifest(tt.filters)
 
-		if err != nil && !tt.expectErr {
-			t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
-			return
-		} else if err == nil && tt.expectErr {
-			t.Error("FilterManifest() expected an error, got nil")
-			return
-		}
+			if err != nil && !tt.expectErr {
+				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				return
+			} else if err == nil && tt.expectErr {
+				t.Error("FilterManifest() expected an error, got nil")
+				return
+			}
 
-		if g, e := manifest, tt.expectManifest; g != e {
-			t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
-				cmp.Diff(g, e))
-		}
+			if g, e := manifest, tt.expectManifest; g != e {
+				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+					cmp.Diff(g, e))
+			}
+		})
 	}
 }

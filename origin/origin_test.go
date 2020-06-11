@@ -44,10 +44,16 @@ func testConfig(fc test.FakeClient) config.Config {
 
 func getMockResp(code int, msg string) func(*http.Request) (*http.Response, error) {
 	return func(*http.Request) (*http.Response, error) {
-		return &http.Response{
+		resp := &http.Response{
 			StatusCode: code,
 			Body:       ioutil.NopCloser(bytes.NewBufferString(msg)),
-		}, nil
+			Header:     http.Header{},
+		}
+
+		lastModified := time.Now().UTC().Format(http.TimeFormat)
+		resp.Header.Add("Last-Modified", lastModified)
+
+		return resp, nil
 	}
 }
 

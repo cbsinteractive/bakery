@@ -43,12 +43,18 @@ func getResponseRecorder() *httptest.ResponseRecorder {
 	return httptest.NewRecorder()
 }
 
-func default200Response() func(req *http.Request) (*http.Response, error) {
+func default200Response(msg string) func(req *http.Request) (*http.Response, error) {
 	return func(*http.Request) (*http.Response, error) {
-		return &http.Response{
+		resp := &http.Response{
 			StatusCode: 200,
-			Body:       ioutil.NopCloser(bytes.NewBufferString("OK")),
-		}, nil
+			Body:       ioutil.NopCloser(bytes.NewBufferString(msg)),
+			Header:     http.Header{},
+		}
+
+		lastModified := time.Now().UTC().Format(http.TimeFormat)
+		resp.Header.Add("Last-Modified", lastModified)
+
+		return resp, nil
 	}
 }
 
@@ -79,15 +85,10 @@ func TestHandler(t *testing.T) {
 		expectManifest string
 	}{
 		{
-			name: "when manifest returns 4xx, expect 500  w/ err msg reflecting origin status code",
-			url:  "origin/some/path/to/master.m3u8",
-			auth: "authenticate-me",
-			mockResp: func(*http.Request) (*http.Response, error) {
-				return &http.Response{
-					StatusCode: 200,
-					Body:       ioutil.NopCloser(bytes.NewBufferString(getManifest())),
-				}, nil
-			},
+			name:           "when manifest returns 4xx, expect 500  w/ err msg reflecting origin status code",
+			url:            "origin/some/path/to/master.m3u8",
+			auth:           "authenticate-me",
+			mockResp:       default200Response(getManifest()),
 			expectStatus:   200,
 			expectManifest: getManifest(),
 		},

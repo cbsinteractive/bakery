@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/cbsinteractive/bakery/config"
 )
@@ -28,7 +29,7 @@ type DefaultOrigin struct {
 //ManifestInfo holds http response info from manifest request
 type ManifestInfo struct {
 	Manifest     string
-	LastModified string
+	LastModified time.Time
 	Status       int
 }
 
@@ -103,9 +104,14 @@ func fetch(client config.Client, manifestURL string) (ManifestInfo, error) {
 		return ManifestInfo{}, fmt.Errorf("reading manifest response body: %w", err)
 	}
 
+	lastModified, err := http.ParseTime(resp.Header.Get("Last-Modified"))
+	if err != nil {
+		return ManifestInfo{}, err
+	}
+
 	return ManifestInfo{
 		Manifest:     string(manifest),
-		LastModified: resp.Header.Get("Last-Modified"),
+		LastModified: lastModified,
 		Status:       resp.StatusCode,
 	}, nil
 }

@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"testing"
+	"time"
 
 	test "github.com/cbsinteractive/bakery/tests"
 	"github.com/google/go-cmp/cmp"
@@ -26,10 +27,16 @@ func TestHandler_ErrorResponse(t *testing.T) {
 			url:  "origin/some/path/to/master.m3u8",
 			auth: "authenticate-me",
 			mockResp: func(*http.Request) (*http.Response, error) {
-				return &http.Response{
+				resp := &http.Response{
 					StatusCode: 400,
 					Body:       ioutil.NopCloser(bytes.NewBufferString("")),
-				}, nil
+					Header:     http.Header{},
+				}
+
+				lastModified := time.Now().UTC().Format(http.TimeFormat)
+				resp.Header.Add("Last-Modified", lastModified)
+
+				return resp, nil
 			},
 			expectStatus: 400,
 			expectErr: ErrorResponse{
@@ -43,7 +50,7 @@ func TestHandler_ErrorResponse(t *testing.T) {
 			name:         "when request is made with bad filters, expect error from parser",
 			url:          "/b(10000,10)/origin/some/path/to/master.mpd",
 			auth:         "authenticate-me",
-			mockResp:     default200Response(),
+			mockResp:     default200Response("OK"),
 			expectStatus: 400,
 			expectErr: ErrorResponse{
 				Message: "failed parsing filters",
@@ -56,7 +63,7 @@ func TestHandler_ErrorResponse(t *testing.T) {
 			name:         "when propeller channel is passed with bad path, expect 500 status code w/ err msg reflecting origin configuration",
 			url:          "propeller/master.m3u8",
 			auth:         "authenticate-me",
-			mockResp:     default200Response(),
+			mockResp:     default200Response("OK"),
 			expectStatus: 500,
 			expectErr: ErrorResponse{
 				Message: "failed configuring origin",
@@ -69,7 +76,7 @@ func TestHandler_ErrorResponse(t *testing.T) {
 			name:         "when request is made without protocol, proper error response is thrown",
 			url:          "/some/random/request",
 			auth:         "authenticate-me",
-			mockResp:     default200Response(),
+			mockResp:     default200Response("OK"),
 			expectStatus: 400,
 			expectErr: ErrorResponse{
 				Message: "failed parsing filters",
@@ -82,7 +89,7 @@ func TestHandler_ErrorResponse(t *testing.T) {
 			name:         "when request is made and bad HLS manifest is returned, expect error",
 			url:          "origin/some/path/to/master.m3u8",
 			auth:         "authenticate-me",
-			mockResp:     default200Response(),
+			mockResp:     default200Response("OK"),
 			expectStatus: 500,
 			expectErr: ErrorResponse{
 				Message: "failed to filter manifest",
@@ -95,7 +102,7 @@ func TestHandler_ErrorResponse(t *testing.T) {
 			name:         "when request is made and bad MPD manifest is returned, expect error",
 			url:          "origin/some/path/to/master.mpd",
 			auth:         "authenticate-me",
-			mockResp:     default200Response(),
+			mockResp:     default200Response("OK"),
 			expectStatus: 500,
 			expectErr: ErrorResponse{
 				Message: "failed to filter manifest",
@@ -108,7 +115,7 @@ func TestHandler_ErrorResponse(t *testing.T) {
 			name:         "when request is made with bad auth headers, expect authentication error",
 			url:          "origin/some/path/to/master.mpd",
 			auth:         "bad-token",
-			mockResp:     default200Response(),
+			mockResp:     default200Response("OK"),
 			expectStatus: 403,
 			expectErr:    ErrorResponse{},
 			expBody:      "you must pass a valid api token as \"x-bakery-origin-token\"\n",

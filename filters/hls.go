@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 	"path/filepath"
 	"strings"
@@ -33,9 +32,11 @@ var matchFunctions = map[ContentType]func(string) bool{
 	captionContentType: isCaptionCodec,
 }
 
+type pipelineType string
+
 const (
-	primaryPipeline = "primary"
-	backupPipeline  = "backup"
+	primaryPipeline pipelineType = "primary"
+	backupPipeline               = "backup"
 )
 
 // NewHLSFilter is the HLS filter constructor
@@ -70,7 +71,7 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 	filteredManifest.Twitch = manifest.Twitch
 
 	//evaluate pipeline if DeWeaved filter is set
-	var pipeline string
+	var pipeline pipelineType
 	if filters.DeWeave && pipeline == "" {
 		p, err := h.filterPipeline(manifest.Variants[0].URI)
 		if err != nil {
@@ -130,7 +131,7 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 	return filteredManifest.String(), nil
 }
 
-func (h *HLSFilter) filterPipeline(uri string) (string, error) {
+func (h *HLSFilter) filterPipeline(uri string) (pipelineType, error) {
 	absolute, err := getAbsoluteURL(h.manifestURL)
 	if err != nil {
 		return "", fmt.Errorf("formatting segment URLs: %w", err)
@@ -516,7 +517,7 @@ func isPrimaryPipeline(index int) bool {
 	return index%2 == 0
 }
 
-func isValidPipeline(pipeline string, index int) bool {
+func isValidPipeline(pipeline pipelineType, index int) bool {
 	if pipeline == primaryPipeline && !isPrimaryPipeline(index) {
 		return false
 	}
@@ -551,7 +552,7 @@ func healthCheckVariant(variantURL string, client config.Client) (bool, error) {
 	return evaluateStaleness(manifestInfo.Manifest, manifestInfo.LastModified)
 }
 
-func evaluateStaleness(variant string, lastModifiedHeader string) (bool, error) {
+func evaluateStaleness(variant string, lastModified time.Time) (bool, error) {
 	v, manifestType, err := m3u8.DecodeFrom(strings.NewReader(variant), true)
 	if err != nil {
 		return false, err
@@ -562,11 +563,6 @@ func evaluateStaleness(variant string, lastModifiedHeader string) (bool, error) 
 	}
 
 	playlist := v.(*m3u8.MediaPlaylist)
-
-	lastModified, err := http.ParseTime(lastModifiedHeader)
-	if err != nil {
-		return false, err
-	}
 
 	segDurationX2 := time.Second * time.Duration(playlist.TargetDuration*2)
 	diff := time.Now().Sub(lastModified)

@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/cbsinteractive/bakery/logging"
 	"github.com/justinas/alice"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/rs/zerolog"
@@ -108,9 +109,7 @@ func (c Config) authMiddleware() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.Header.Get(c.OriginKey) != c.OriginToken {
-				hlog.FromRequest(r).UpdateContext(func(zctx zerolog.Context) zerolog.Context {
-					return zctx.Interface("headers", r.Header).Str("error", "failed authenticating request")
-				})
+				logging.UpdateCtx(r.Context(), logging.Params{"headers": r.Header, "error": "failed authenticating request"})
 
 				http.Error(w, fmt.Sprintf("you must pass a valid api token as %q", c.OriginKey),
 					http.StatusForbidden)

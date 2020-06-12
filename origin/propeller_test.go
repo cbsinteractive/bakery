@@ -1,6 +1,7 @@
 package origin
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -68,7 +69,7 @@ func TestPropeller_NewPropeller(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			c := testConfig(test.FakeClient{})
-			got, err := NewPropeller(c, "orgID", tc.getter)
+			got, err := NewPropeller(context.Background(), c, tc.getter)
 			if err != nil && !tc.expectErr {
 				t.Errorf("NewPropeller() didnt expect an error to be returned, got: %v", err)
 				return

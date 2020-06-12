@@ -19,9 +19,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	middleware := c.SetupMiddleware()
-	authMiddleware := c.AuthMiddlewareFrom(middleware)
-	handler := authMiddleware.Then(handlers.LoadHandler(c))
+	handler := c.SetupMiddleware().Then(handlers.LoadHandler(c))
 
 	c.Logger.Info().Str("port", c.Listen).Msg("Starting Bakery")
 	http.Handle("/", c.Client.Tracer.Handle(tracing.FixedNamer("bakery"), handler))

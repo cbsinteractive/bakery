@@ -1,19 +1,28 @@
 package origin
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"regexp"
 
 	"github.com/cbsinteractive/bakery/config"
+	"github.com/cbsinteractive/bakery/logging"
 	propeller "github.com/cbsinteractive/propeller-go/client"
+)
+
+const (
+	orgIDKey     = "orgID"
+	clipIDKey    = "clipID"
+	channelIDKey = "channelID"
+	outputIDKey  = "outputID"
 )
 
 // propellerPaths defines the multiple path formats allowed for propeller entities in Bakery
 var propellerPaths = []*regexp.Regexp{
-	regexp.MustCompile(`/propeller/(?P<orgID>.+)/clip/(?P<clipID>.+).m3u8`),
-	regexp.MustCompile(`/propeller/(?P<orgID>.+)/(?P<channelID>.+)/(?P<outputID>.+).(m3u8|mpd)`),
-	regexp.MustCompile(`/propeller/(?P<orgID>.+)/(?P<channelID>.+).(m3u8|mpd)`),
+	regexp.MustCompile(`/propeller/(?P<` + orgIDKey + `>.+)/clip/(?P<` + clipIDKey + `>.+).m3u8`),
+	regexp.MustCompile(`/propeller/(?P<` + orgIDKey + `>.+)/(?P<` + channelIDKey + `>.+)/(?P<` + outputIDKey + `>.+).(m3u8|mpd)`),
+	regexp.MustCompile(`/propeller/(?P<` + orgIDKey + `>.+)/(?P<` + channelIDKey + `>.+).(m3u8|mpd)`),
 }
 
 // Propeller Origin holds the URL of a propeller entity (Channel, Clip)
@@ -23,52 +32,43 @@ type Propeller struct {
 
 // configurePropeller builds a new Propeller Origin given the Bakery config and the current url path
 //
-// The path will be matched agains one of propellerPaths patterns to find out the specific entity
+// The path will be matched against one of propellerPaths patterns to find out the specific entity
 // being requested (channel, clip) and a new Propeller Origin object is returned
 //
 // Return error if 'path' doesn't match with any of propellerPaths
-func configurePropeller(c config.Config, path string) (Origin, error) {
+func configurePropeller(ctx context.Context, c config.Config, path string) (Origin, error) {
+	logging.UpdateCtx(ctx, logging.Params{"origin": "propeller"})
+
 	urlValues, err := parsePropellerPath(path)
 	if err != nil {
-		c.Logger.Err(err).
-			Str("origin", "propeller").
-			Str("request", path).
-			Msgf("can't configure propeller from requested path %v", path)
 		return &Propeller{}, err
 	}
 
-	orgID := urlValues["orgID"]
-	channelID := urlValues["channelID"]
-	outputID := urlValues["outputID"]
-	clipID := urlValues["clipID"]
+	orgID := urlValues[orgIDKey]
+	channelID := urlValues[channelIDKey]
+	outputID := urlValues[outputIDKey]
+	clipID := urlValues[clipIDKey]
 
-	ctxLog := c.Logger.With().Str("org-id", orgID).Str("channel-id", channelID).Logger()
+	logging.UpdateCtx(ctx, logging.Params{orgIDKey: orgID, channelIDKey: channelID, outputIDKey: outputID, clipIDKey: clipID})
+
 	var getter urlGetter
 	if clipID != "" {
-		ctxLog.Info().Str("clip-id", clipID).Msg("configuring clip")
 		getter = &clipURLGetter{orgID: orgID, clipID: clipID}
 	} else if outputID != "" {
-		ctxLog.Info().Str("output-id", outputID).Msg("configuring output")
 		getter = &outputURLGetter{orgID: orgID, channelID: channelID, outputID: outputID}
 	} else {
-		ctxLog.Info().Msg("configuring channel")
 		getter = &channelURLGetter{orgID: orgID, channelID: channelID}
 	}
-	return NewPropeller(c, orgID, getter)
+	return NewPropeller(ctx, c, getter)
 }
 
 // NewPropeller returns a Propeller origin struct
-func NewPropeller(c config.Config, orgID string, getter urlGetter) (*Propeller, error) {
+func NewPropeller(ctx context.Context, c config.Config, getter urlGetter) (*Propeller, error) {
 	c.Propeller.UpdateContext(c.Client.Context)
 
 	propellerURL, err := getter.GetURL(&c.Propeller.Client)
 	if err != nil {
-		err := fmt.Errorf("propeller origin: %w", err)
-		c.Logger.Err(err).
-			Str("origin", "propeller").
-			Str("org-id", orgID).
-			Msg("fetching propeller channel")
-		return &Propeller{}, err
+		return &Propeller{}, fmt.Errorf("fetching propeller channel: %w", err)
 	}
 
 	return &Propeller{

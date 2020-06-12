@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/rs/zerolog"
+	"github.com/cbsinteractive/bakery/logging"
 )
 
 //ErrorResponse holds the errore response message
@@ -33,13 +35,9 @@ func NewErrorResponse(message string, err error) ErrorResponse {
 }
 
 // HandleError will both log and handle the http error for a given error response
-func (e *ErrorResponse) HandleError(log zerolog.Logger, w http.ResponseWriter, code int) {
-	logError(log, e.Message, e.Err)
+func (e *ErrorResponse) HandleError(ctx context.Context, w http.ResponseWriter, code int) {
+	logging.UpdateCtx(ctx, logging.Params{"error": fmt.Sprintf("%s: %v", e.Message, e.Err)})
 	httpError(w, code, *e)
-}
-
-func logError(log zerolog.Logger, message string, err error) {
-	log.Err(err).Str("pkg", "test").Msgf(message)
 }
 
 func httpError(w http.ResponseWriter, code int, e ErrorResponse) {

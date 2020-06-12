@@ -118,9 +118,7 @@ func TestHandler_ErrorResponse(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			c := testConfig(test.MockClient(tc.mockResp))
-			middleware := c.SetupMiddleware()
-			authMiddleware := c.AuthMiddlewareFrom(middleware)
-			handler := authMiddleware.Then(LoadHandler(c))
+			handler := c.SetupMiddleware().Then(LoadHandler(c))
 			// set req + response recorder and serve it
 			req := getRequest(tc.url, t)
 			req.Header.Set("x-bakery-origin-token", tc.auth)

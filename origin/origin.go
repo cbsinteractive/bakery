@@ -26,9 +26,9 @@ type DefaultOrigin struct {
 }
 
 //Configure will return proper Origin interface
-func Configure(c config.Config, path string) (Origin, error) {
+func Configure(ctx context.Context, c config.Config, path string) (Origin, error) {
 	if strings.Contains(path, "propeller") {
-		return configurePropeller(c, path)
+		return configurePropeller(ctx, c, path)
 	}
 
 	//check if rendition URL
@@ -36,11 +36,7 @@ func Configure(c config.Config, path string) (Origin, error) {
 	if len(parts) == 2 { //["", "base64.m3u8"]
 		variantURL, err := decodeVariantURL(parts[1])
 		if err != nil {
-			err := fmt.Errorf("decoding variant manifest url: %w", err)
-			c.Logger.Err(err).
-				Str("origin", "propeller").
-				Msgf("can't decode url %v", path)
-			return &DefaultOrigin{}, err
+			return &DefaultOrigin{}, fmt.Errorf("decoding variant manifest url %q: %w", path, err)
 		}
 		path = variantURL
 	}

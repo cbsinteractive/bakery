@@ -231,7 +231,7 @@ func TestOrigin_Configure(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := Configure(tc.c, tc.path)
+			got, err := Configure(context.Background(), tc.c, tc.path)
 
 			if err != nil && !tc.expectErr {
 				t.Errorf("Configure() didnt expect an error to be returned, got: %q", err)

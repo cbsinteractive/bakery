@@ -6,6 +6,7 @@ import (
 
 	"github.com/cbsinteractive/bakery/config"
 	"github.com/cbsinteractive/bakery/filters"
+	"github.com/cbsinteractive/bakery/logging"
 	"github.com/cbsinteractive/bakery/origin"
 	"github.com/cbsinteractive/bakery/parsers"
 )
@@ -18,36 +19,30 @@ func LoadHandler(c config.Config) http.Handler {
 		c.Client.SetContext(r)
 
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		ctxLogger := c.Logger.With().Str("uri", r.RequestURI).Logger()
-		ctxLogger.Info().
-			Str("method", r.Method).
-			Str("raddr", r.RemoteAddr).
-			Str("ref", r.Referer()).
-			Str("ua", r.UserAgent()).
-			Msg("received request")
 
 		// parse all the filters from the URL
 		masterManifestPath, mediaFilters, err := parsers.URLParse(r.URL.Path)
 		if err != nil {
 			e := NewErrorResponse("failed parsing filters", err)
-			e.HandleError(ctxLogger, w, http.StatusBadRequest)
+			e.HandleError(r.Context(), w, http.StatusBadRequest)
 			return
 		}
 
 		//configure origin from path
-		manifestOrigin, err := origin.Configure(c, masterManifestPath)
+		manifestOrigin, err := origin.Configure(r.Context(), c, masterManifestPath)
 		if err != nil {
 			e := NewErrorResponse("failed configuring origin", err)
-			e.HandleError(ctxLogger, w, http.StatusInternalServerError)
+			e.HandleError(r.Context(), w, http.StatusInternalServerError)
 			return
 		}
+
+		logging.UpdateCtx(r.Context(), logging.Params{"playbackURL": manifestOrigin.GetPlaybackURL()})
 
 		// fetch manifest from origin
 		manifestContent, err := manifestOrigin.FetchManifest(c.Client)
 		if err != nil {
-			ctxl := ctxLogger.With().Str("playbackURL", manifestOrigin.GetPlaybackURL()).Logger()
 			e := NewErrorResponse("failed fetching manifest", err)
-			e.HandleError(ctxl, w, http.StatusInternalServerError)
+			e.HandleError(r.Context(), w, http.StatusInternalServerError)
 			return
 		}
 
@@ -67,7 +62,7 @@ func LoadHandler(c config.Config) http.Handler {
 		filteredManifest, err := f.FilterManifest(mediaFilters)
 		if err != nil {
 			e := NewErrorResponse("failed to filter manifest", err)
-			e.HandleError(ctxLogger, w, http.StatusInternalServerError)
+			e.HandleError(r.Context(), w, http.StatusInternalServerError)
 			return
 		}
 

@@ -244,9 +244,7 @@ func TestConfig_Middleware(t *testing.T) {
 
 	c := getDefaultConfig(defaultClientConfig, disabledTraceConfig, Propeller{})
 
-	middleware := c.SetupMiddleware()
-	authMiddleware := c.AuthMiddlewareFrom(middleware)
-	handler := authMiddleware.Then(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := c.SetupMiddleware().Then(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
 

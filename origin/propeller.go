@@ -49,14 +49,15 @@ func configurePropeller(ctx context.Context, c config.Config, path string) (Orig
 	outputID := urlValues[outputIDKey]
 	clipID := urlValues[clipIDKey]
 
-	logging.UpdateCtx(ctx, logging.Params{orgIDKey: orgID, channelIDKey: channelID, outputIDKey: outputID, clipIDKey: clipID})
-
 	var getter urlGetter
 	if clipID != "" {
+		logging.UpdateCtx(ctx, logging.Params{orgIDKey: orgID, clipIDKey: clipID})
 		getter = &clipURLGetter{orgID: orgID, clipID: clipID}
 	} else if outputID != "" {
+		logging.UpdateCtx(ctx, logging.Params{orgIDKey: orgID, channelIDKey: channelID, outputIDKey: outputID})
 		getter = &outputURLGetter{orgID: orgID, channelID: channelID, outputID: outputID}
 	} else {
+		logging.UpdateCtx(ctx, logging.Params{orgIDKey: orgID, channelIDKey: channelID})
 		getter = &channelURLGetter{orgID: orgID, channelID: channelID}
 	}
 	return NewPropeller(ctx, c, getter)

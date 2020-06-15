@@ -2604,7 +2604,7 @@ https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_te
 			expectManifest: primary,
 		},
 		{
-			name: "when manifest request is not Media playlist, expect error",
+			name: "when last modified not set, default to backup",
 			filters: &parsers.MediaFilters{
 				DeWeave: true,
 			},
@@ -2614,8 +2614,7 @@ https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_te
 					Body:       ioutil.NopCloser(bytes.NewBufferString(primary)),
 				}, nil
 			},
-			expectManifest: "",
-			expectErr:      true,
+			expectManifest: backup,
 		},
 		{
 			name: "when manifest request throws http status error, expect error",

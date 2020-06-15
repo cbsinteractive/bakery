@@ -550,20 +550,16 @@ func healthCheckVariant(variantURL string, client config.Client) (bool, error) {
 	}
 
 	if manifestInfo.LastModified.IsZero() {
-		return false, fmt.Errorf("checking variant: last modified time not set")
+		return false, nil
 	}
 
 	return evaluateStaleness(manifestInfo.Manifest, manifestInfo.LastModified)
 }
 
 func evaluateStaleness(variant string, lastModified time.Time) (bool, error) {
-	v, manifestType, err := m3u8.DecodeFrom(strings.NewReader(variant), true)
+	v, _, err := m3u8.DecodeFrom(strings.NewReader(variant), true)
 	if err != nil {
 		return false, err
-	}
-
-	if manifestType != m3u8.MEDIA {
-		return false, fmt.Errorf("checking variant: not media playlist")
 	}
 
 	playlist := v.(*m3u8.MediaPlaylist)

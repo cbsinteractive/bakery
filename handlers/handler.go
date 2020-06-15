@@ -48,10 +48,9 @@ func LoadHandler(c config.Config) http.Handler {
 
 		//throw status error if not 2xx
 		if manifestInfo.Status/100 > 3 {
-			ctxl := ctxLogger.With().Str("Status", manifestOrigin.GetPlaybackURL()).Logger()
 			err := fmt.Errorf("fetching manifest: returning http status of %v", manifestInfo.Status)
 			e := NewErrorResponse("manifest origin error", err)
-			e.HandleError(ctxl, w, manifestInfo.Status)
+			e.HandleError(r.Context(), w, manifestInfo.Status)
 			return
 		}
 

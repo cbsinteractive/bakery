@@ -10,6 +10,8 @@ github.com/cbsinteractive/go-dash v0.0.0-20200330181831-e1a70e66546e h1:EyS4oo12
 github.com/cbsinteractive/go-dash v0.0.0-20200330181831-e1a70e66546e/go.mod h1:c8Gxxfmh0jmZ6G+ISlpa315WBVkzd8mEhu6gN9mn5Qg=
 github.com/cbsinteractive/go-dash v0.0.0-20200616030727-3c3364141744 h1:aCtymNegsSaXb9wWSaQ+lU9GxTM2/kZlbu+09k6ma4c=
 github.com/cbsinteractive/go-dash v0.0.0-20200616030727-3c3364141744/go.mod h1:c8Gxxfmh0jmZ6G+ISlpa315WBVkzd8mEhu6gN9mn5Qg=
+github.com/cbsinteractive/go-dash v0.0.0-20200616033905-7c810a9e85a7 h1:hiOC76KLDfU6a9xJ7+bFW9Iam4PmJsQ2l8ougkH+rpM=
+github.com/cbsinteractive/go-dash v0.0.0-20200616033905-7c810a9e85a7/go.mod h1:c8Gxxfmh0jmZ6G+ISlpa315WBVkzd8mEhu6gN9mn5Qg=
 github.com/cbsinteractive/m3u8 v0.11.2-0.20200411022055-4abfe1f82646 h1:5FPuHdYTN/fea6rZUuizVZ1A/zJsDGHWdBbw+egpKQE=
 github.com/cbsinteractive/m3u8 v0.11.2-0.20200411022055-4abfe1f82646/go.mod h1:nqzOkfBiZJENr52zTVd/Dcl03yzphIMbJqkXGu+u080=
 github.com/cbsinteractive/pkg/tracing v0.0.0-20200409233703-f2037b1185c6 h1:Ihm3IQDu+hq68YEPkudbij7537amAX0ptYjP5Rd226c=

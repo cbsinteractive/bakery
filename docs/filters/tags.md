@@ -36,11 +36,11 @@ Suppressing the ad tags will only be done when trimming your media playlists.
 ### Single value filter:
 
     // Removes Ad Tags while trimming your media playlist
-    $ http http://bakery.dev.cbsivideo.com/t(1585335477,1585335677)/tags(ads)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/t(1585335477,1585335677)/tags(ads)/star_trek_discovery/S01/E01.m3u8
 
 ### Multiple filters:
 Mutliple filters are supplied by using the `/` with no space in between
 
     // Removes I-Frame from master playlist, suppresses Ad tags when trimming the media playlist
-    $ http http://bakery.dev.cbsivideo.com/tags(i-frame,ads)/t(1585335477,1585335677)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/tags(i-frame,ads)/t(1585335477,1585335677)/star_trek_discovery/S01/E01.m3u8
 

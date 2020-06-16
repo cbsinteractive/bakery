@@ -33,12 +33,12 @@ yes | no   |
 ### Single value filter:
 
     // Removes I-Frame
-    $ http http://bakery.dev.cbsivideo.com/tags(i-frame)/star_trek_discovery/S01/E01.m3u8
-    $ http http://bakery.dev.cbsivideo.com/tags(iframe)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/tags(i-frame)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/tags(iframe)/star_trek_discovery/S01/E01.m3u8
 
 ### Multiple filters:
 Mutliple filters are supplied by using the `/` with no space in between
 
     // Removes the I-Frame, HDR10 and Dolby Vision video from the manifest
-    $ http http://bakery.dev.cbsivideo.com/v(hdr10,dvh)/tags(i-frame)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/v(hdr10,dvh)/tags(i-frame)/star_trek_discovery/S01/E01.m3u8
 

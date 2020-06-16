@@ -35,16 +35,16 @@ The values above should match what is advertised in your playlist. HLS does not 
 ### Single value filter:
 
     // Removes 59.94 variant
-    $ http http://bakery.dev.cbsivideo.com/fps(59.94)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/fps(59.94)/star_trek_discovery/S01/E01.m3u8
 
 ### Multi value filter:
 Mutli value filters are `,` with no space in between
 
     // Removes video representations with frame rate 29.97 (expressed as fraction) and 24 frames
-    $ http http://bakery.dev.cbsivideo.com/v(i-frame)/fps(30000:1001,24)/star_trek_discovery/S01/E01.mpd
+    $ http http://bakery.dev.cbsi.video/v(i-frame)/fps(30000:1001,24)/star_trek_discovery/S01/E01.mpd
 
 ### Multiple filters:
 Mutliple filters are supplied by using the `/` with no space in between
 
     // Removes the I-Frame and any variants with 60 fps
-    $ http http://bakery.dev.cbsivideo.com/v(i-frame)/fps(60)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/v(i-frame)/fps(60)/star_trek_discovery/S01/E01.m3u8

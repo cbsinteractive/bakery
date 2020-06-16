@@ -35,14 +35,14 @@ Different encoding engines will follow different language codes. Please use the 
 ### Single value filter:
 
     //Remove Portuguese (Brazil)
-    $ http http://bakery.dev.cbsivideo.com/l(pt-BR)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/l(pt-BR)/star_trek_discovery/S01/E01.m3u8
 
     //Remove Portuguese (Portugal)
-    $ http http://bakery.dev.cbsivideo.com/l(pt)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/l(pt)/star_trek_discovery/S01/E01.m3u8
 
 
 ### Multi value filter:
 Mutli value filters are `,` with no space in between
 
-    $ http http://bakery.dev.cbsivideo.com/l(pt,pt-BR)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/l(pt,pt-BR)/star_trek_discovery/S01/E01.m3u8
 

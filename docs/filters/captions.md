@@ -32,13 +32,13 @@ yes | yes  |
 ## Usage Example 
 ### Single value filter:
 
-    $ http http://bakery.dev.cbsivideo.com/c(stpp)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/c(stpp)/star_trek_discovery/S01/E01.m3u8
 
-    $ http http://bakery.dev.cbsivideo.com/c(wvtt)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/c(wvtt)/star_trek_discovery/S01/E01.m3u8
 
 
 ### Multi value filter:
 Mutli value filters are `,` with no space in between
 
-    $ http http://bakery.dev.cbsivideo.com/c(stpp,wvtt)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/c(stpp,wvtt)/star_trek_discovery/S01/E01.m3u8
 

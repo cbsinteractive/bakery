@@ -41,26 +41,26 @@ yes | yes  |
 ### Single value filter:
 
     // Removes MPEG-4 audio
-    $ http http://bakery.dev.cbsivideo.com/a(mp4a)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/a(mp4a)/star_trek_discovery/S01/E01.m3u8
 
     // Removes AVC video
-    $ http http://bakery.dev.cbsivideo.com/v(avc)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/v(avc)/star_trek_discovery/S01/E01.m3u8
 
     // Removes I-Frame
-    $ http http://bakery.dev.cbsivideo.com/v(i-frame)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/v(i-frame)/star_trek_discovery/S01/E01.m3u8
 
 ### Multi value filter:
 Mutli value filters are `,` with no space in between
 
     // Removes AC-3 and Enhanced EC-3 audio from the manifest
-    $ http http://bakery.dev.cbsivideo.com/a(ac-3,ec-3)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/a(ac-3,ec-3)/star_trek_discovery/S01/E01.m3u8
 
     // Removes HDR10 and Dolby Vision video from the manifest
-    $ http http://bakery.dev.cbsivideo.com/v(hdr10,dvh)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/v(hdr10,dvh)/star_trek_discovery/S01/E01.m3u8
 
 ### Multiple filters:
 Mutliple filters are supplied by using the `/` with no space in between
 
     // Removes AVC video and MPEG-4 audio
-    $ http http://bakery.dev.cbsivideo.com/v(avc)/a(mp4a)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/v(avc)/a(mp4a)/star_trek_discovery/S01/E01.m3u8
 

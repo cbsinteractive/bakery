@@ -35,17 +35,17 @@ no  | yes  |
 ### Single value filter:
 
     // Removes any file stream of type audio
-    $ http http://bakery.dev.cbsivideo.com/ct(audio)/star_trek_discovery/S01/E01.mpd
+    $ http http://bakery.dev.cbsi.video/ct(audio)/star_trek_discovery/S01/E01.mpd
 
     // Removes any file stream of type video
-    $ http http://bakery.dev.cbsivideo.com/ct(video)/star_trek_discovery/S01/E01.mpd
+    $ http http://bakery.dev.cbsi.video/ct(video)/star_trek_discovery/S01/E01.mpd
 
 ### Multi value filter:
 Mutli value filters are `,` with no space in between
 
     // Removes any content of type audio and video
-    $ http http://bakery.dev.cbsivideo.com/ct(audio,video)/star_trek_discovery/S01/E01.mpd
+    $ http http://bakery.dev.cbsi.video/ct(audio,video)/star_trek_discovery/S01/E01.mpd
 
     // Removes any content of type text and image
-    $ http http://bakery.dev.cbsivideo.com/ct(text,image)/star_trek_discovery/S01/E01.mpd
+    $ http http://bakery.dev.cbsi.video/ct(text,image)/star_trek_discovery/S01/E01.mpd
 

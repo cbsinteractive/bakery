@@ -33,20 +33,20 @@ yes | yes   |
 ### Single value filter:
 
     // Removes HDR10
-    $ http http://bakery.dev.cbsivideo.com/v(hdr10)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/v(hdr10)/star_trek_discovery/S01/E01.m3u8
 
     // Removes Dolby Vision
-    $ http http://bakery.dev.cbsivideo.com/v(dvh)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/v(dvh)/star_trek_discovery/S01/E01.m3u8
 
 ### Multi value filter:
 Mutli value filters are `,` with no space in between
 
     // Removes I-Frame, HDR10 and Dolby Vision video from the manifest
-    $ http http://bakery.dev.cbsivideo.com/v(i-frame,hdr10,dvh)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/v(i-frame,hdr10,dvh)/star_trek_discovery/S01/E01.m3u8
 
 ### Multiple filters:
 Mutliple filters are supplied by using the `/` with no space in between
 
     // Removes HDR10 and include Audio with bitrate range of 500Kbps and 1MB
-    $ http http://bakery.dev.cbsivideo.com/v(hdr10)/a(b(500000,1000000))/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/v(hdr10)/a(b(500000,1000000))/star_trek_discovery/S01/E01.m3u8
 

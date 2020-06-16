@@ -45,4 +45,4 @@ The Program Date Time is used to set the boundaries of the media playlist. It is
 Range is supplied with `,` and no space in between the epoch timestamps
 
     // Define range of variant playlists
-    $ http http://bakery.dev.cbsivideo.com/t(1585335477,1585335677)/star_trek_discovery/S01/E01.m3u8
+    $ http http://bakery.dev.cbsi.video/t(1585335477,1585335677)/star_trek_discovery/S01/E01.m3u8

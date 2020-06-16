@@ -17,7 +17,7 @@ In the meantime, check out the <a href="https://github.com/cbsinteractive/bakery
 
 Once we have configured Bakery to point to your origin, if you have the following playback URL `http://streaming.cbsi.video/star_trek_discovery/S01/E01.m3u8`
 
-Then your `BAKERY_ORIGIN_HOST` was set to `http://streaming.cbsi.video` and your playback URL on the proxy will be `http://bakery.dev.cbsivideo.com/star_trek_discovery/S01/E01.m3u8`. 
+Then your `BAKERY_ORIGIN_HOST` was set to `http://streaming.cbsi.video` and your playback URL on the proxy will be `http://bakery.dev.cbsi.video/star_trek_discovery/S01/E01.m3u8`. 
 
 
 ## Working with Propeller as your Origin
@@ -30,11 +30,11 @@ You can find more information <a href="/bakery/propeller">here</a> for managing 
 
 If you want to apply filters, they should be placed right after the Bakery hostname and before the path. Your requests should match the following schema:
 
-    http://bakery.dev.cbsivideo.com/[filters]/path/to/master/manifest.m3u8
+    http://bakery.dev.cbsi.video/[filters]/path/to/master/manifest.m3u8
 
 If working with a Propeller origin:
 
-    http://bakery.dev.cbsivideo.com/[filters]/propeller/<org-id>/<channel-id>.m3u8
+    http://bakery.dev.cbsi.video/[filters]/propeller/<org-id>/<channel-id>.m3u8
 
 
 Following the examples above you can start applying filters like so:
@@ -43,11 +43,11 @@ Following the examples above you can start applying filters like so:
     <br>To apply a single filter such as an audio codec filter where AC-3 audio is removed from the manifest, you can make a request to Bakery as so:
 
     ```
-    http://bakery.dev.cbsivideo.com/a(ac-3)/star_trek_discovery/S01/E01.m3u8
+    http://bakery.dev.cbsi.video/a(ac-3)/star_trek_discovery/S01/E01.m3u8
     ```
     for a Propeller channel:
     ```
-    http://bakery.dev.cbsivideo.com/a(ac-3)/propeller/<org-id>/<channel-id>.m3u8
+    http://bakery.dev.cbsi.video/a(ac-3)/propeller/<org-id>/<channel-id>.m3u8
     ```
 
 2. **Multiple Values**
@@ -56,33 +56,33 @@ Following the examples above you can start applying filters like so:
     The following example will filter out AC-3 audio and Enhanced AC-3 audio from the manifest:
 
     ```
-    http://bakery.dev.cbsivideo.com/a(ac-3,ec-3)/star_trek_discovery/S01/E01.m3u8
+    http://bakery.dev.cbsi.video/a(ac-3,ec-3)/star_trek_discovery/S01/E01.m3u8
     ```
     for a Propeller channel:
     ```
-    http://bakery.dev.cbsivideo.com/a(ac-3,ec-3)/propeller/<org-id>/<channel-id>.m3u8
+    http://bakery.dev.cbsi.video/a(ac-3,ec-3)/propeller/<org-id>/<channel-id>.m3u8
     ```
 
 3. **Multiple Filters**
     <br>Mutliple Filters can be passed in. All that is needed is the `/` delimiter in between each filter. For example, if you wanted to remove AVC (H.264) video and AAC (MPEG-4) audio, you could make the following request to Bakery:
 
     ```
-    http://bakery.dev.cbsivideo.com/a(mp4a)/v(avc)/star_trek_discovery/S01/E01.m3u8
+    http://bakery.dev.cbsi.video/a(mp4a)/v(avc)/star_trek_discovery/S01/E01.m3u8
     ```
     for a Propeller channel:
     ```
-    http://bakery.dev.cbsivideo.com/a(mp4a)/v(avc)/propeller/<org-id>/<channel-id>.m3u8
+    http://bakery.dev.cbsi.video/a(mp4a)/v(avc)/propeller/<org-id>/<channel-id>.m3u8
     ```
 
 4. **Nested Filters**
     <br>Some filters can be nested as a way to target assets of a specific content type. For example, if you wanted to remove AAC (MPEG-4) audio and filter the results within 500 Kbps and 1MB, you could make the following request to Bakery:
 
     ```
-    http://bakery.dev.cbsivideo.com/a(co(mp4a),b(500000,1000000))/star_trek_discovery/S01/E01.m3u8
+    http://bakery.dev.cbsi.video/a(co(mp4a),b(500000,1000000))/star_trek_discovery/S01/E01.m3u8
     ```
     for a Propeller channel:
     ```
-    http://bakery.dev.cbsivideo.com/a(co(mp4a),b(500000,1000000))/propeller/<org-id>/<channel-id>.m3u8
+    http://bakery.dev.cbsi.video/a(co(mp4a),b(500000,1000000))/propeller/<org-id>/<channel-id>.m3u8
     ```
 
     For more information on working with nested filters and targeting content types, check out the <a href="/bakery/filters/nested-filters.html">documentation</a>!

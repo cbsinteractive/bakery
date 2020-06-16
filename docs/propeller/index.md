@@ -18,7 +18,7 @@ Bakery can be used to manage your Propeller playback URLs.
 
 To request a Propeller channel via Bakery:
 
-    https://bakery.dev.cbsivideo.com/propeller/<org-id>/<channel-id>.m3u8
+    https://bakery.dev.cbsi.video/propeller/<org-id>/<channel-id>.m3u8
 
 Bakery will then set the Playback URL with the following priority, depending on your channel settings:
 
@@ -35,7 +35,7 @@ As long as you're channel was set to archive, Bakery will automatically proxy th
 
 To request a Propeller clip via Bakery:
 
-    https://bakery.dev.cbsivideo.com/propeller/<org-id>/clip/<clip-id>.m3u8
+    https://bakery.dev.cbsi.video/propeller/<org-id>/clip/<clip-id>.m3u8
 
 
 

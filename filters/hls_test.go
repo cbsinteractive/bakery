@@ -1758,13 +1758,13 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00025.ts
 `
 
 	trim := &parsers.Trim{
-		Start: 1583887920, //2020-03-11T00:52:00
-		End:   1583887944, //2020-03-11T00:52:24
+		Start: 1583887920000, //2020-03-11T00:52:00
+		End:   1583887944000, //2020-03-11T00:52:24
 	}
 
 	unalignedTrim := &parsers.Trim{
-		Start: 1583887919, //2020-03-11T00:51:59
-		End:   1583887944, //2020-03-11T00:52:24
+		Start: 1583887919000, //2020-03-11T00:51:59
+		End:   1583887944000, //2020-03-11T00:52:24
 	}
 
 	tests := []struct {
@@ -2019,8 +2019,8 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00029.ts
 `
 
 	trim := &parsers.Trim{
-		Start: 1583887920, //2020-03-11T00:52:00
-		End:   1583887968, //2020-03-11T00:52:48
+		Start: 1583887920000, //2020-03-11T00:52:00
+		End:   1583887968000, //2020-03-11T00:52:48
 	}
 
 	tests := []struct {
@@ -2059,8 +2059,8 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00029.ts
 			name: "when trim filter is given, ads tag is enabled and PDTs are unaligned before Ad start, all content that is in range is included",
 			filters: &parsers.MediaFilters{
 				Trim: &parsers.Trim{
-					Start: 1583887921, //2020-03-11T00:52:01
-					End:   1583887968, //2020-03-11T00:52:48
+					Start: 1583887921000, //2020-03-11T00:52:01
+					End:   1583887968000, //2020-03-11T00:52:48
 				},
 				Tags: &parsers.Tags{
 					Ads: true,
@@ -2074,8 +2074,8 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00029.ts
 			name: "when trim filter is given, ads tag is enabled and PDTs are unaligned after Ad start, all content that is in range is included",
 			filters: &parsers.MediaFilters{
 				Trim: &parsers.Trim{
-					Start: 1583887927, //2020-03-11T00:52:07
-					End:   1583887968, //2020-03-11T00:52:48
+					Start: 1583887927000, //2020-03-11T00:52:07
+					End:   1583887968000, //2020-03-11T00:52:48
 				},
 				Tags: &parsers.Tags{
 					Ads: true,

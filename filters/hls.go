@@ -426,10 +426,11 @@ func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3
 			continue
 		}
 
-		segmentTimestamp := int(segment.ProgramDateTime.Unix())
+		// timestamp in milliseconds
+		segmentTimestamp := int(segment.ProgramDateTime.UnixNano() / 1000000)
 		if append = inRange(filters.Trim.Start, filters.Trim.End, segmentTimestamp); !append {
 			// check for a segment whos start isnt in the range, but the end is in the range
-			currentSegmentEnd := segmentTimestamp + int(segment.Duration)
+			currentSegmentEnd := segmentTimestamp + (int(segment.Duration)  * 1000) //milliseconds
 			append = inRange(filters.Trim.Start, filters.Trim.End, currentSegmentEnd) && currentSegmentEnd != filters.Trim.Start
 		}
 

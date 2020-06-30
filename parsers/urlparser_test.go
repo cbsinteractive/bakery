@@ -251,13 +251,13 @@ func TestURLParseUrl(t *testing.T) {
 			true,
 		},
 		{
-			"trim filter",
+			"trim filter converts to milliseconds",
 			"/t(100,1000)/path/to/test.m3u8",
 			MediaFilters{
 				Protocol: ProtocolHLS,
 				Trim: &Trim{
-					Start: 100,
-					End:   1000,
+					Start: 100000,
+					End:   1000000,
 				},
 			},
 			"/path/to/test.m3u8",

@@ -256,8 +256,8 @@ func TestURLParseUrl(t *testing.T) {
 			MediaFilters{
 				Protocol: ProtocolHLS,
 				Trim: &Trim{
-					Start: 100000,
-					End:   1000000,
+					Start: 100,
+					End:   1000,
 				},
 			},
 			"/path/to/test.m3u8",

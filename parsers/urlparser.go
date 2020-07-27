@@ -174,10 +174,9 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 				return keyError("Trim", err)
 			}
 
-			milli := 1000
 			mf.Trim = &Trim{
-				Start: x*milli,
-				End:   y*milli,
+				Start: x,
+				End:   y,
 			}
 		case "tags": //only applied when trimming/serving hls media playlists
 			mf.Tags = &Tags{}

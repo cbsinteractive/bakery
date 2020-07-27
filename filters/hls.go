@@ -405,6 +405,10 @@ func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3
 		return "", fmt.Errorf("filtering Rendition Manifest: %w", err)
 	}
 
+	// timestamps in milliseconds
+	startFilter := filters.Trim.Start * 1000
+	endFilter := filters.Trim.End * 1000
+
 	// Append mode will be set to true when first segment is encountered in range.
 	// Once true, we can append segments with tags that don't normally carry PDT
 	// EX: #EXT-X-ASSET, #EXT-OATCLS-SCTE35, or any other custom tags advertised in playlist
@@ -428,10 +432,10 @@ func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3
 
 		// timestamp in milliseconds
 		segmentTimestamp := int(segment.ProgramDateTime.UnixNano() / 1000000)
-		if append = inRange(filters.Trim.Start, filters.Trim.End, segmentTimestamp); !append {
+		if append = inRange(startFilter, endFilter, segmentTimestamp); !append {
 			// check for a segment whos start isnt in the range, but the end is in the range
-			currentSegmentEnd := segmentTimestamp + (int(segment.Duration)  * 1000) //milliseconds
-			append = inRange(filters.Trim.Start, filters.Trim.End, currentSegmentEnd) && currentSegmentEnd != filters.Trim.Start
+			currentSegmentEnd := segmentTimestamp + (int(segment.Duration) * 1000) //milliseconds
+			append = inRange(startFilter, endFilter, currentSegmentEnd) && currentSegmentEnd != startFilter
 		}
 
 		if append {

@@ -80,13 +80,13 @@ func (d *DefaultOrigin) FetchManifest(ctx context.Context, c config.Client) (Man
 	return fetch(ctx, c, d.GetPlaybackURL())
 }
 
-func fetch(parentCtx context.Context, client config.Client, manifestURL string) (ManifestInfo, error) {
+func fetch(ctx context.Context, client config.Client, manifestURL string) (ManifestInfo, error) {
 	req, err := http.NewRequest(http.MethodGet, manifestURL, nil)
 	if err != nil {
 		return ManifestInfo{}, fmt.Errorf("generating request to fetch manifest: %w", err)
 	}
 
-	ctx, cancel := context.WithTimeout(parentCtx, client.Timeout)
+	ctx, cancel := context.WithTimeout(ctx, client.Timeout)
 	defer cancel()
 
 	resp, err := client.Do(req.WithContext(ctx))

@@ -15,15 +15,13 @@ WORKDIR /bakery
 COPY go.mod .
 COPY go.sum .
 
-RUN go mod download
-
 RUN rm ~/.ssh/id_rsa
 RUN rm ~/.ssh/known_hosts
 
 FROM build_base AS builder
 
 COPY . .
-RUN go build -o bakery cmd/http/main.go
+RUN go build -mod=vendor -o bakery cmd/http/main.go
 
 FROM alpine:latest
 

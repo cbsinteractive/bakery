@@ -31,7 +31,7 @@ func (c *Client) delete(ctx context.Context, path string, result interface{}) er
 
 // request retrieves the resource at url using the provided http method. the response
 // body is read to completion, closed, and returned from this function as a byte slice.
-func (c *Client) request(parentCtx context.Context, method, path string, result, reqBody interface{}) error {
+func (c *Client) request(ctx context.Context, method, path string, result, reqBody interface{}) error {
 	var req *http.Request
 	var err error
 
@@ -58,7 +58,7 @@ func (c *Client) request(parentCtx context.Context, method, path string, result,
 
 	c.Auth.Apply(req)
 
-	ctx, cancel := context.WithTimeout(parentCtx, c.Timeout)
+	ctx, cancel := context.WithTimeout(ctx, c.Timeout)
 	defer cancel()
 
 	resp, err := c.Do(req.WithContext(ctx))

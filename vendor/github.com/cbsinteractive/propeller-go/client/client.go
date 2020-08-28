@@ -41,14 +41,14 @@ func NewClient(credentials string, hostURL *url.URL) (*Client, error) {
 }
 
 // CreateChannel creates a propeller Channel
-func (c *Client) CreateChannel(ctx context.Context, orgID string, channel *Channel) error {
+func (c Client) CreateChannel(ctx context.Context, orgID string, channel *Channel) error {
 	path := fmt.Sprintf("/v1/organization/%v/channel", orgID)
 
 	return c.post(ctx, path, channel, channel)
 }
 
 // GetChannel returns a propeller Channel
-func (c *Client) GetChannel(ctx context.Context, orgID string, channelID string) (Channel, error) {
+func (c Client) GetChannel(ctx context.Context, orgID string, channelID string) (Channel, error) {
 	resp := Channel{}
 	path := fmt.Sprintf("/v1/organization/%v/channel/%v", orgID, channelID)
 
@@ -61,7 +61,7 @@ func (c *Client) GetChannel(ctx context.Context, orgID string, channelID string)
 }
 
 // DeleteChannel deletes a propeller Channel
-func (c *Client) DeleteChannel(ctx context.Context, orgID string, channelID string) (MessageResponse, error) {
+func (c Client) DeleteChannel(ctx context.Context, orgID string, channelID string) (MessageResponse, error) {
 	resp := MessageResponse{}
 	path := fmt.Sprintf("/v1/organization/%v/channel/%v", orgID, channelID)
 
@@ -74,7 +74,7 @@ func (c *Client) DeleteChannel(ctx context.Context, orgID string, channelID stri
 }
 
 // CreateClip will create a propeller clip
-func (c *Client) CreateClip(ctx context.Context, orgID string, clip *Clip) error {
+func (c Client) CreateClip(ctx context.Context, orgID string, clip *Clip) error {
 	path := fmt.Sprintf("/v1/organization/%v/clip/%v", orgID, clip.ID)
 
 	return c.put(ctx, path, clip, clip)
@@ -83,7 +83,7 @@ func (c *Client) CreateClip(ctx context.Context, orgID string, clip *Clip) error
 // GetClip returns a propeller clip based on channel-id if its channel archive was set to true
 // If you do not have a clip ID, you can grab the current archive by setting your
 // clipID = channelID-archive
-func (c *Client) GetClip(ctx context.Context, orgID string, clipID string) (Clip, error) {
+func (c Client) GetClip(ctx context.Context, orgID string, clipID string) (Clip, error) {
 	resp := Clip{}
 	path := fmt.Sprintf("/v1/organization/%v/clip/%v", orgID, clipID)
 
@@ -96,7 +96,7 @@ func (c *Client) GetClip(ctx context.Context, orgID string, clipID string) (Clip
 }
 
 // DeleteClip will delete a propeller clip
-func (c *Client) DeleteClip(ctx context.Context, orgID string, clipID string) (MessageResponse, error) {
+func (c Client) DeleteClip(ctx context.Context, orgID string, clipID string) (MessageResponse, error) {
 	resp := MessageResponse{}
 	path := fmt.Sprintf("/v1/organization/%v/clip/%v", orgID, clipID)
 

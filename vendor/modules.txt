@@ -56,7 +56,7 @@ github.com/aws/aws-xray-sdk-go/xraylog
 github.com/cbsinteractive/pkg/tracing
 # github.com/cbsinteractive/pkg/xrayutil v0.0.0-20200409233703-f2037b1185c6
 github.com/cbsinteractive/pkg/xrayutil
-# github.com/cbsinteractive/propeller-go v0.0.0-20200503222720-e53e98ec6b80 => github.com/cbsinteractive/propeller-go v0.0.0-20200828160349-e31e5d2b12de
+# github.com/cbsinteractive/propeller-go v0.0.0-20200828205819-d02e4f54c5bc
 github.com/cbsinteractive/propeller-go/client
 # github.com/google/go-cmp v0.4.0
 github.com/google/go-cmp/cmp

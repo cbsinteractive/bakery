@@ -28,7 +28,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v1
       - name: Test
-        run: go test --race -v -coverprofile=coverage.out ./...
+        run: go test -mod=vendor --race -v -coverprofile=coverage.out ./...
       - name: Upload coverage to Codecov
         run: bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }}
       - name: Deploy Dev

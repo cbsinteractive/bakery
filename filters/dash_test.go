@@ -1,6 +1,7 @@
 package filters
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"testing"
@@ -64,17 +65,17 @@ func TestDASHFilter_FilterManifest_baseURL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewDASHFilter(tt.manifestURL, tt.manifestContent, config.Config{})
 
-			manifest, err := filter.FilterManifest(&parsers.MediaFilters{})
+			manifest, err := filter.FilterManifest(context.Background(), &parsers.MediaFilters{})
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})
@@ -335,17 +336,17 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
 
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})
@@ -457,17 +458,17 @@ func TestDASHFilter_FilterManifest_audioCodecs(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
 
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})
@@ -569,17 +570,17 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
 
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})
@@ -697,14 +698,14 @@ func TestDASHFilter_FilterManifest_filterStreams(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
 
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 			if err != nil {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})
@@ -941,17 +942,17 @@ func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
 
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didn't expect error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didn't expect error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Fatalf("FilterManifest() returned wrong manifest\ngot %v\nexpected %v\ndiff: %v", g, e, cmp.Diff(g, e))
+				t.Fatalf("FilterManifest(context.Background(), ) returned wrong manifest\ngot %v\nexpected %v\ndiff: %v", g, e, cmp.Diff(g, e))
 			}
 		})
 	}
@@ -1107,17 +1108,17 @@ func TestDASHFilter_FilterManifest_LanguageFilter(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
 
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})
@@ -1224,17 +1225,17 @@ func TestDASHFilter_FilterFrameRate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
 
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})
@@ -1318,17 +1319,17 @@ func TestDASHFilter_FilterRole_OverwriteValue(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
 
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})

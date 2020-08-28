@@ -65,9 +65,7 @@ func configurePropeller(ctx context.Context, c config.Config, path string) (Orig
 
 // NewPropeller returns a Propeller origin struct
 func NewPropeller(ctx context.Context, c config.Config, getter urlGetter) (*Propeller, error) {
-	c.Propeller.UpdateContext(c.Client.Context)
-
-	propellerURL, err := getter.GetURL(&c.Propeller.Client)
+	propellerURL, err := getter.GetURL(ctx, &c.Propeller.Client)
 	if err != nil {
 		return &Propeller{}, fmt.Errorf("fetching propeller channel: %w", err)
 	}
@@ -83,8 +81,8 @@ func (p *Propeller) GetPlaybackURL() string {
 }
 
 // FetchManifest will grab manifest contents of configured origin
-func (p *Propeller) FetchManifest(c config.Client) (ManifestInfo, error) {
-	return fetch(c, p.URL)
+func (p *Propeller) FetchManifest(ctx context.Context, c config.Client) (ManifestInfo, error) {
+	return fetch(ctx, c, p.URL)
 }
 
 // parsePropellerPath matches path against all proellerPaths patterns and return a map
@@ -110,14 +108,14 @@ func parsePropellerPath(path string) (map[string]string, error) {
 
 // propellerClient interface is the subset of methods from propeller-go client used by this module
 type propellerClient interface {
-	GetChannel(orgID string, channelID string) (propeller.Channel, error)
-	GetClip(orgID string, clipID string) (propeller.Clip, error)
+	GetChannel(ctx context.Context, orgID string, channelID string) (propeller.Channel, error)
+	GetClip(ctx context.Context, orgID string, clipID string) (propeller.Clip, error)
 }
 
 // urlGetter defines an interface for types that given a Propeller API Client know how to retrieve
 // the playback url of that entity
 type urlGetter interface {
-	GetURL(client propellerClient) (string, error)
+	GetURL(ctx context.Context, client propellerClient) (string, error)
 }
 
 // channelURLGetter is a urlGetter for a Propeller channel
@@ -129,10 +127,10 @@ type channelURLGetter struct {
 	channelID string
 }
 
-func (g *channelURLGetter) GetURL(client propellerClient) (string, error) {
-	channel, err := client.GetChannel(g.orgID, g.channelID)
+func (g *channelURLGetter) GetURL(ctx context.Context, client propellerClient) (string, error) {
+	channel, err := client.GetChannel(ctx, g.orgID, g.channelID)
 	if err != nil {
-		return handleGetUrlChannelNotFound(err, g.orgID, g.channelID, client)
+		return handleGetUrlChannelNotFound(ctx, err, g.orgID, g.channelID, client)
 	}
 	return g.getURL(channel)
 }
@@ -166,14 +164,14 @@ type outputURLGetter struct {
 	outputID  string
 }
 
-func (g *outputURLGetter) GetURL(client propellerClient) (string, error) {
-	channel, err := client.GetChannel(g.orgID, g.channelID)
+func (g *outputURLGetter) GetURL(ctx context.Context, client propellerClient) (string, error) {
+	channel, err := client.GetChannel(ctx, g.orgID, g.channelID)
 	if err != nil {
-		return handleGetUrlChannelNotFound(err, g.orgID, g.channelID, client)
+		return handleGetUrlChannelNotFound(ctx, err, g.orgID, g.channelID, client)
 	}
-	output, err := channel.FindOutput(g.outputID)
-	if err != nil {
-		return "", fmt.Errorf("finding channel output: %w", err)
+	output := channel.FindOutput(g.outputID)
+	if output == nil {
+		return "", fmt.Errorf("finding channel output: %v", g.outputID)
 	}
 	return g.getURL(&channel, output)
 }
@@ -195,14 +193,14 @@ func (g *outputURLGetter) getURL(channel *propeller.Channel, output *propeller.C
 // in Propeller API and it failed
 //
 // When a channel is not found in Propeller we try to get the Clip archive URL
-func handleGetUrlChannelNotFound(err error, orgID string, channelID string, client propellerClient) (string, error) {
+func handleGetUrlChannelNotFound(ctx context.Context, err error, orgID string, channelID string, client propellerClient) (string, error) {
 	var se propeller.StatusError
 	if errors.As(err, &se) && se.NotFound() {
 		clipGetter := &clipURLGetter{
 			orgID:  orgID,
 			clipID: fmt.Sprintf("%v-archive", channelID),
 		}
-		archive, clipErr := clipGetter.GetURL(client)
+		archive, clipErr := clipGetter.GetURL(ctx, client)
 		if clipErr != nil {
 			return "", fmt.Errorf("Channel %v Not Found", channelID)
 		}
@@ -219,8 +217,8 @@ type clipURLGetter struct {
 	clipID string
 }
 
-func (g *clipURLGetter) GetURL(client propellerClient) (string, error) {
-	clip, err := client.GetClip(g.orgID, g.clipID)
+func (g *clipURLGetter) GetURL(ctx context.Context, client propellerClient) (string, error) {
+	clip, err := client.GetClip(ctx, g.orgID, g.clipID)
 	if err != nil {
 		return "", fmt.Errorf("fetching clip: %w", err)
 	}

@@ -14,10 +14,6 @@ import (
 // LoadHandler loads the handler for all the requests
 func LoadHandler(c config.Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		//set context on client which is copied over
-		//when fetching manifest and configuring origins
-		c.Client.SetContext(r)
-
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		// parse all the filters from the URL
@@ -39,7 +35,7 @@ func LoadHandler(c config.Config) http.Handler {
 		logging.UpdateCtx(r.Context(), logging.Params{"playbackURL": manifestOrigin.GetPlaybackURL()})
 
 		// fetch manifest from origin
-		manifestInfo, err := manifestOrigin.FetchManifest(c.Client)
+		manifestInfo, err := manifestOrigin.FetchManifest(r.Context(), c.Client)
 		if err != nil {
 			e := NewErrorResponse("failed fetching manifest", err)
 			e.HandleError(r.Context(), w, http.StatusInternalServerError)
@@ -67,7 +63,7 @@ func LoadHandler(c config.Config) http.Handler {
 		}
 
 		// apply the filters to the origin manifest
-		filteredManifest, err := f.FilterManifest(mediaFilters)
+		filteredManifest, err := f.FilterManifest(r.Context(), mediaFilters)
 		if err != nil {
 			e := NewErrorResponse("failed to filter manifest", err)
 			e.HandleError(r.Context(), w, http.StatusInternalServerError)

@@ -1,7 +1,6 @@
 package config
 
 import (
-	"context"
 	"net/http"
 	"time"
 
@@ -15,7 +14,6 @@ type HTTPClient interface {
 
 // Client holds configuration for http clients
 type Client struct {
-	Context context.Context
 	Timeout time.Duration `envconfig:"CLIENT_TIMEOUT" default:"5s"`
 	Tracer  tracing.Tracer
 	HTTPClient
@@ -27,9 +25,4 @@ func (c *Client) init(t tracing.Tracer) {
 	c.HTTPClient = c.Tracer.Client(&http.Client{
 		Timeout: c.Timeout,
 	})
-}
-
-// SetContext will set the context on the incoming requests
-func (c *Client) SetContext(r *http.Request) {
-	c.Context = r.Context()
 }

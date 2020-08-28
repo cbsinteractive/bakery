@@ -17,7 +17,7 @@ type mockUrlGetter struct {
 	err error
 }
 
-func (mock *mockUrlGetter) GetURL(c propellerClient) (string, error) {
+func (mock *mockUrlGetter) GetURL(ctx context.Context, c propellerClient) (string, error) {
 	return mock.url, mock.err
 }
 
@@ -35,11 +35,11 @@ type mockPropellerClient struct {
 	getClipCalled    map[string]string
 }
 
-func (mock *mockPropellerClient) GetChannel(orgID string, channelID string) (propeller.Channel, error) {
+func (mock *mockPropellerClient) GetChannel(ctx context.Context, orgID string, channelID string) (propeller.Channel, error) {
 	mock.getChannelCalled = map[string]string{"orgID": orgID, "channelID": channelID}
 	return mock.getChannel, mock.getChannelError
 }
-func (mock *mockPropellerClient) GetClip(orgID string, clipID string) (propeller.Clip, error) {
+func (mock *mockPropellerClient) GetClip(ctx context.Context, orgID string, clipID string) (propeller.Clip, error) {
 	mock.getClipCalled = map[string]string{"orgID": orgID, "clipID": clipID}
 	return mock.getClip, mock.getClipError
 }
@@ -140,7 +140,7 @@ func TestPropeller_channelURLGetter(t *testing.T) {
 			for _, channel := range tc.channels {
 				client := &mockPropellerClient{getChannel: channel}
 				getter := &channelURLGetter{orgID: "org", channelID: "ch123"}
-				u, err := getter.GetURL(client)
+				u, err := getter.GetURL(context.Background(), client)
 
 				if err != nil && tc.expectErrStr == "" {
 					t.Errorf("channelURLGetter.GetURL() didn't expect an error, got %v", err)
@@ -208,7 +208,7 @@ func TestPropeller_channelURLGetter_getArchive(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			u, err := tc.getter.GetURL(tc.client)
+			u, err := tc.getter.GetURL(context.Background(), tc.client)
 			if err != nil && tc.expectErrStr == "" {
 				t.Errorf("returned unexpected error: %q", err)
 			} else if err == nil && tc.expectErrStr != "" {
@@ -295,7 +295,7 @@ func TestPropeller_outputURLGetter(t *testing.T) {
 			channels: []propeller.Channel{
 				{ID: "ch123", Outputs: []propeller.ChannelOutput{{}}},
 			},
-			expectErrStr: "finding channel output: Propeller Channel ch123 has no output with ID out123",
+			expectErrStr: "finding channel output: out123",
 		},
 	}
 
@@ -304,7 +304,7 @@ func TestPropeller_outputURLGetter(t *testing.T) {
 			for _, channel := range tc.channels {
 				client := &mockPropellerClient{getChannel: channel}
 				getter := &outputURLGetter{orgID: "org", channelID: "ch123", outputID: "out123"}
-				u, err := getter.GetURL(client)
+				u, err := getter.GetURL(context.Background(), client)
 
 				if err != nil && tc.expectErrStr == "" {
 					t.Errorf("outputURLGetter.GetURL() didn't expect an error, got %q", err)
@@ -357,7 +357,7 @@ func TestPropeller_clipURLGetter(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			client := &mockPropellerClient{getClip: tc.clip}
 			getter := &clipURLGetter{orgID: "org", clipID: "cl123"}
-			u, err := getter.GetURL(client)
+			u, err := getter.GetURL(context.Background(), client)
 
 			if err != nil && tc.expectErrStr == "" {
 				t.Errorf("clipURLGetter.GetURL() didn't expect an error, got %v", err)

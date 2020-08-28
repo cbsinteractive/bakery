@@ -1,7 +1,6 @@
 package config
 
 import (
-	"context"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -37,9 +36,8 @@ func getDefaultConfig(c Client, t Tracer, p Propeller) Config {
 }
 
 // getClientConfig will return a Cient config to use in tests based on provided values
-func getClientConfig(c context.Context, t time.Duration, trace tracing.Tracer) Client {
+func getClientConfig(t time.Duration, trace tracing.Tracer) Client {
 	return Client{
-		Context:    c,
 		Timeout:    t,
 		Tracer:     trace,
 		HTTPClient: trace.Client(&http.Client{Timeout: t}),
@@ -90,7 +88,7 @@ func TestConfig_LoadConfig(t *testing.T) {
 	disabledTraceConfig := getTracerConfig(false, false)
 
 	defaultTime := time.Duration(5 * time.Second)
-	defaultClientConfig := getClientConfig(nil, defaultTime, noopTracer)
+	defaultClientConfig := getClientConfig(defaultTime, noopTracer)
 
 	tests := []struct {
 		name         string
@@ -240,7 +238,7 @@ func TestConfig_Middleware(t *testing.T) {
 	disabledTraceConfig := getTracerConfig(false, false)
 
 	defaultTime := time.Duration(5 * time.Second)
-	defaultClientConfig := getClientConfig(nil, defaultTime, noopTracer)
+	defaultClientConfig := getClientConfig(defaultTime, noopTracer)
 
 	c := getDefaultConfig(defaultClientConfig, disabledTraceConfig, Propeller{})
 

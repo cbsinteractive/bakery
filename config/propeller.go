@@ -1,7 +1,6 @@
 package config
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -41,9 +40,4 @@ func (p *Propeller) init(trace tracing.Tracer, timeout time.Duration) error {
 	}
 
 	return nil
-}
-
-//UpdateContext will update client context
-func (p *Propeller) UpdateContext(ctx context.Context) {
-	p.Client.Context = ctx
 }

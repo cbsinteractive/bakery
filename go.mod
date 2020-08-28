@@ -4,6 +4,8 @@ replace github.com/zencoder/go-dash => github.com/cbsinteractive/go-dash v0.0.0-
 
 replace github.com/grafov/m3u8 => github.com/cbsinteractive/m3u8 v0.11.2-0.20200411022055-4abfe1f82646
 
+replace github.com/cbsinteractive/propeller-go => github.com/cbsinteractive/propeller-go v0.0.0-20200828160349-e31e5d2b12de
+
 go 1.13
 
 require (

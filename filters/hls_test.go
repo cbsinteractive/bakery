@@ -131,18 +131,18 @@ http://existing.base/uri/link_3.m3u8
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("", tt.manifestContent, config.Config{})
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -332,20 +332,20 @@ http://existing.base/uri/link_8.m3u8
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("", tt.manifestContent, config.Config{})
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			} else if err != nil && tt.expectErr {
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -541,18 +541,18 @@ http://existing.base/uri/link_9.m3u8
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("", tt.manifestContent, config.Config{})
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -664,18 +664,18 @@ http://existing.base/uri/link_7.m3u8
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("", tt.manifestContent, config.Config{})
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -886,18 +886,18 @@ http://existing.base/uri/link_14.m3u8
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("", tt.manifestContent, config.Config{})
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -1117,18 +1117,18 @@ http://existing.base/uri/link_13.m3u8
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("", tt.manifestContent, config.Config{})
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -1264,20 +1264,20 @@ http://existi\ng.base/uri/link_1.m3u8
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("http://existing.base/uri/nested/folders/manifest_link.m3u8", tt.manifestContent, config.Config{})
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			} else if err != nil && tt.expectErr {
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -1303,19 +1303,19 @@ http://existi\ng.base/uri/link_1.m3u8
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("existi\ng.base/uri/manifest_link.m3u8", tt.manifestContent, config.Config{})
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			} else if err != nil && tt.expectErr {
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})
@@ -1584,18 +1584,18 @@ https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9jYnNzNjRlYi1jYnNzNjRlYi1tcy
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("https://existing.base/path/master.m3u8", tt.manifestContent, tt.config)
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -1877,18 +1877,18 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00025.ts
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("https://existing.base/path/master.m3u8", tt.manifestContent, config.Config{Hostname: "bakery.cbsi.video"})
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -2248,18 +2248,18 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00029.ts
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("https://existing.base/path/master.m3u8", tt.manifestContent, config.Config{Hostname: "bakery.cbsi.video"})
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -2428,18 +2428,18 @@ https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("https://existing.base/path/master.m3u8", tt.manifestContent, config.Config{Hostname: "bakery.cbsi.video"})
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -2534,18 +2534,18 @@ https://existing.base/path/link_6.m3u8
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("https://existing.base/path/master.m3u8", tt.manifestContent, config.Config{Hostname: "bakery.cbsi.video"})
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -2635,18 +2635,18 @@ https://existing.base/path/link_5.m3u8
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("https://existing.base/path/master.m3u8", tt.manifestContent, config.Config{Hostname: "bakery.cbsi.video"})
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -2812,25 +2812,24 @@ https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_te
 			cfg := config.Config{
 				Hostname: "bakery.cbsi.video",
 				Client: config.Client{
-					Context:    context.Background(),
 					Timeout:    5 * time.Second,
 					Tracer:     tracing.NoopTracer{},
 					HTTPClient: test.MockClient(tt.mockResp),
 				},
 			}
 			filter := NewHLSFilter("https://existing.base/path/master.m3u8", redundant, cfg)
-			manifest, err := filter.FilterManifest(tt.filters)
+			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest() didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest() expected an error, got nil")
+				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifest; g != e {
-				t.Errorf("FilterManifest() wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})

@@ -16,7 +16,7 @@ import (
 //Origin interface is implemented by DefaultOrigin and Propeller struct
 type Origin interface {
 	GetPlaybackURL() string
-	FetchManifest(c config.Client) (ManifestInfo, error)
+	FetchManifest(ctx context.Context, c config.Client) (ManifestInfo, error)
 }
 
 //DefaultOrigin struct holds Origin and Path of DefaultOrigin
@@ -76,17 +76,17 @@ func (d *DefaultOrigin) GetPlaybackURL() string {
 }
 
 //FetchManifest will grab DefaultOrigin contents of configured origin
-func (d *DefaultOrigin) FetchManifest(c config.Client) (ManifestInfo, error) {
-	return fetch(c, d.GetPlaybackURL())
+func (d *DefaultOrigin) FetchManifest(ctx context.Context, c config.Client) (ManifestInfo, error) {
+	return fetch(ctx, c, d.GetPlaybackURL())
 }
 
-func fetch(client config.Client, manifestURL string) (ManifestInfo, error) {
+func fetch(parentCtx context.Context, client config.Client, manifestURL string) (ManifestInfo, error) {
 	req, err := http.NewRequest(http.MethodGet, manifestURL, nil)
 	if err != nil {
 		return ManifestInfo{}, fmt.Errorf("generating request to fetch manifest: %w", err)
 	}
 
-	ctx, cancel := context.WithTimeout(client.Context, client.Timeout)
+	ctx, cancel := context.WithTimeout(parentCtx, client.Timeout)
 	defer cancel()
 
 	resp, err := client.Do(req.WithContext(ctx))

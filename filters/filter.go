@@ -1,6 +1,7 @@
 package filters
 
 import (
+	"context"
 	"strings"
 
 	"github.com/cbsinteractive/bakery/parsers"
@@ -8,7 +9,7 @@ import (
 
 // Filter is an interface for HLS and DASH filters
 type Filter interface {
-	FilterManifest(filters *parsers.MediaFilters) (string, error)
+	FilterManifest(ctx context.Context, filters *parsers.MediaFilters) (string, error)
 	GetMaxAge() string
 }
 

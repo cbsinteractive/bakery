@@ -1,6 +1,7 @@
 package filters
 
 import (
+	"context"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -55,7 +56,7 @@ func (h *HLSFilter) GetMaxAge() string {
 
 // FilterManifest will be responsible for filtering the manifest
 // according  to the MediaFilters
-func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error) {
+func (h *HLSFilter) FilterManifest(ctx context.Context, filters *parsers.MediaFilters) (string, error) {
 	m, manifestType, err := m3u8.DecodeFrom(strings.NewReader(h.manifestContent), true)
 	if err != nil {
 		return "", err
@@ -73,7 +74,7 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 	//evaluate pipeline if DeWeaved filter is set
 	var pipeline pipelineType
 	if filters.DeWeave && pipeline == "" {
-		p, err := h.filterPipeline(manifest.Variants[0].URI)
+		p, err := h.filterPipeline(ctx, manifest.Variants[0].URI)
 		if err != nil {
 			return "", fmt.Errorf("filtering pipeline: %w", err)
 		}
@@ -131,7 +132,7 @@ func (h *HLSFilter) FilterManifest(filters *parsers.MediaFilters) (string, error
 	return filteredManifest.String(), nil
 }
 
-func (h *HLSFilter) filterPipeline(uri string) (pipelineType, error) {
+func (h *HLSFilter) filterPipeline(ctx context.Context, uri string) (pipelineType, error) {
 	absolute, err := getAbsoluteURL(h.manifestURL)
 	if err != nil {
 		return "", fmt.Errorf("formatting segment URLs: %w", err)
@@ -142,7 +143,7 @@ func (h *HLSFilter) filterPipeline(uri string) (pipelineType, error) {
 		return "", fmt.Errorf("formatting segment URLs: %w", err)
 	}
 
-	healthy, err := healthCheckVariant(uri, h.config.Client)
+	healthy, err := healthCheckVariant(ctx, uri, h.config.Client)
 	if err != nil {
 		return "", err
 	}
@@ -535,13 +536,13 @@ func isValidPipeline(pipeline pipelineType, index int) bool {
 }
 
 //Health check variant of redundant manifest
-func healthCheckVariant(variantURL string, client config.Client) (bool, error) {
+func healthCheckVariant(ctx context.Context, variantURL string, client config.Client) (bool, error) {
 	manifestOrigin, err := origin.NewDefaultOrigin("", variantURL)
 	if err != nil {
 		return false, fmt.Errorf("health checking variant: %w", err)
 	}
 
-	manifestInfo, err := manifestOrigin.FetchManifest(client)
+	manifestInfo, err := manifestOrigin.FetchManifest(ctx, client)
 	if err != nil {
 		return false, fmt.Errorf("health checking variant: %w", err)
 	}

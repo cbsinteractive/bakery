@@ -23,6 +23,8 @@ github.com/cbsinteractive/pkg/xrayutil v0.0.0-20200409233703-f2037b1185c6/go.mod
 github.com/cbsinteractive/propeller-go v0.0.0-20200503222720-e53e98ec6b80 h1:nODZ99MBUdIbvroZauGKOLjy146f1uzljkqihMQSzNY=
 github.com/cbsinteractive/propeller-go v0.0.0-20200503222720-e53e98ec6b80/go.mod h1:mS6OTFQu4wkebJQGeiDAm7JqkL18ua6RoZR4CwgN/2U=
 github.com/cbsinteractive/propeller-go v0.0.0-20200508205817-f613608c0251 h1:1hgZqWnjCRd/HbvbkuJBy0KXQWqclGAn1oHiIMmpNPo=
+github.com/cbsinteractive/propeller-go v0.0.0-20200828160349-e31e5d2b12de h1:z/QNFtX2D+SQDJ97JDrcbqQJsNN6+0qM07NRa40OtmM=
+github.com/cbsinteractive/propeller-go v0.0.0-20200828160349-e31e5d2b12de/go.mod h1:kEPvrrAaFufSkTd/ofH5nNFsBa3uzTJRRV+0ztx1nCQ=
 github.com/coreos/go-systemd v0.0.0-20190321100706-95778dfbb74e/go.mod h1:F5haX7vjVVG0kc13fIWeqUViNPyEJxv/OmvnBo0Yme4=
 github.com/davecgh/go-spew v0.0.0-20160907170601-6d212800a42e/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

@@ -38,7 +38,7 @@ func (d *DASHFilter) GetMaxAge() string {
 }
 
 // FilterManifest will be responsible for filtering the manifest according  to the MediaFilters
-func (d *DASHFilter) FilterManifest(ctx context.Context, filters *parsers.MediaFilters) (string, error) {
+func (d *DASHFilter) FilterManifest(_ context.Context, filters *parsers.MediaFilters) (string, error) {
 	manifest, err := mpd.ReadFromString(d.manifestContent)
 	if err != nil {
 		return "", err

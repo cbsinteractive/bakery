@@ -37,6 +37,15 @@ To request a Propeller clip via Bakery:
 
     https://bakery.dev.cbsi.video/propeller/<org-id>/clip/<clip-id>.m3u8
 
+**Note** Clips are not enabled for DASH
+
+### Outputs
+
+To request a Propeller output via Bakery:
+
+    https://bakery.dev.cbsi.video/propeller/<org-id>/<channel-id>/<output-id>.m3u8
+
+**Note** Outputs are not currently enabled for DASH but a feature implementation is in the backlog. To prioritize this feature, feel free to reach out on slack!
 
 
 ## Help

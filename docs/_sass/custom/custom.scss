@@ -53,14 +53,18 @@ a:not([class]) {
   font-size: 0.9rem;
 }
 
-.navigation-list-link.active{
-    color: #ffffff;
+.site-title:hover {
+  background-image: none;
 }
 
-.navigation-list-child-list .navigation-list-link {
-    color: #bdbbc0;
+.nav-list .nav-list-item .nav-list-link:hover, .nav-list .nav-list-item .nav-list-link.active {
+  background-image: none;
+}
 
-    &.active {
-        color: #ffffff;
-    }
+.nav-list .nav-list-item > .nav-list .nav-list-item .nav-list-link {
+  color: #bdbbc0;
+
+  &.active {
+    color: #ffffff;
+  }
 }

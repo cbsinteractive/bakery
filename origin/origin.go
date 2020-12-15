@@ -40,6 +40,9 @@ func Configure(ctx context.Context, c config.Config, path string) (Origin, error
 	}
 
 	//check if rendition URL
+	//idk why you'd put your manifest at root of origin but maybe we add "bakery"
+	//origin key followed by base64 encdoded path to ensure its meant to serve
+	//variant/rendition manifest
 	parts := strings.Split(path, "/")
 	if len(parts) == 2 { //["", "base64.m3u8"]
 		variantURL, err := decodeVariantURL(parts[1])

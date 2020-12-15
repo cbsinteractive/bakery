@@ -588,6 +588,30 @@ func TestURLParseUrl(t *testing.T) {
 			false,
 		},
 		{
+			"LiveWindowFilter",
+			"lw(10)/some/path/to/manifest.m3u8",
+			MediaFilters{
+				LiveWindow: 10,
+				Protocol:   ProtocolHLS,
+			},
+			"/some/path/to/manifest.m3u8",
+			false,
+		},
+		{
+			"LiveWindowFilterValueNotSet",
+			"lw()/some/path/to/manifest.m3u8",
+			MediaFilters{},
+			"",
+			true,
+		},
+		{
+			"LiveWindowFilterValueNotSet",
+			"lw(10,10)/some/path/to/manifest.m3u8",
+			MediaFilters{},
+			"",
+			true,
+		},
+		{
 			"ensure DeWeaved filter is set to true",
 			"dw(true)/some/path/to/manifest.m3u8",
 			MediaFilters{

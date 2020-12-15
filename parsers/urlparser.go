@@ -22,6 +22,7 @@ type MediaFilters struct {
 	Bitrate      *Bitrate      `json:",omitempty"`
 	FrameRate    []string      `json:",omitempty"`
 	DeWeave      bool          `json:",omitempty"`
+	LiveWindow   int           `json:",omitempty"`
 	Protocol     Protocol      `json:"protocol"`
 }
 
@@ -186,6 +187,17 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 				fr := strings.ReplaceAll(framerate, ":", "/")
 				mf.FrameRate = append(mf.FrameRate, fr)
 			}
+		case "lw":
+			if len(filters) > 1 {
+				return keyError("Live Window", fmt.Errorf("Only accepts one integer value"))
+			}
+
+			lw, err := strconv.Atoi(filters[0])
+			if err != nil {
+				return keyError("Live Window", err)
+			}
+
+			mf.LiveWindow = lw
 		case "dw":
 			if len(filters) > 1 {
 				return keyError("DeWeave", fmt.Errorf("Only accepts one boolean value"))

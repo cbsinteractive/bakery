@@ -126,6 +126,13 @@ func (h *HLSFilter) FilterManifest(ctx context.Context, filters *parsers.MediaFi
 			}
 		}
 
+		if filters.LiveWindow > 0 {
+			uri, err = h.normalizeLiveWindowVariant(filters, uri)
+			if err != nil {
+				return "", err
+			}
+		}
+
 		filteredManifest.Append(uri, normalizedVariant.Chunklist, normalizedVariant.VariantParams)
 	}
 
@@ -372,6 +379,25 @@ func (h *HLSFilter) normalizeTrimmedVariant(filters *parsers.MediaFilters, uri s
 	return fmt.Sprintf("%v://%v/t(%v,%v)/%v.m3u8", u.Scheme, h.config.Hostname, start, end, encoded), nil
 }
 
+func (h *HLSFilter) normalizeLiveWindowVariant(filters *parsers.MediaFilters, uri string) (string, error) {
+	encoded := base64.RawURLEncoding.EncodeToString([]byte(uri))
+	u, err := url.Parse(uri)
+	if err != nil {
+		return "", err
+	}
+
+	switch {
+	case h.config.IsLocalHost() && filters.SuppressAds():
+		return fmt.Sprintf("http://%v%v/lw(%v)/tags(ads)/%v.m3u8", h.config.Hostname, h.config.Listen, filters.LiveWindow, encoded), nil
+	case h.config.IsLocalHost():
+		return fmt.Sprintf("http://%v%v/lw(%v)/%v.m3u8", h.config.Hostname, h.config.Listen, filters.LiveWindow, encoded), nil
+	case filters.SuppressAds():
+		return fmt.Sprintf("%v://%v/lw(%v)/tags(ads)/%v.m3u8", u.Scheme, h.config.Hostname, filters.LiveWindow, encoded), nil
+	}
+
+	return fmt.Sprintf("%v://%v/lw(%v)/%v.m3u8", u.Scheme, h.config.Hostname, filters.LiveWindow, encoded), nil
+}
+
 func combinedIfRelative(uri string, absolute url.URL) (string, error) {
 	if len(uri) == 0 {
 		return uri, nil
@@ -406,6 +432,52 @@ func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3
 		return "", fmt.Errorf("filtering Rendition Manifest: %w", err)
 	}
 
+	if filters.Trim != nil {
+		if h.maxSegmentSize, err = h.trimManifest(filters, filteredPlaylist, m.Segments); err != nil {
+			return "", fmt.Errorf("Trimming Rendition Manifest: %w", err)
+		}
+	}
+
+	if filters.LiveWindow > 0 {
+		if h.maxSegmentSize, err = h.trimLiveWindowManifest(filters, filteredPlaylist, m.Segments, filters.LiveWindow); err != nil {
+			return "", fmt.Errorf("Trimming Live Window Manifest: %w", err)
+		}
+	}
+
+	return isEmpty(filteredPlaylist.Encode().String())
+}
+
+func (h *HLSFilter) trimLiveWindowManifest(filters *parsers.MediaFilters, playlist *m3u8.MediaPlaylist, segments []*m3u8.MediaSegment, window int) (float64, error) {
+	var maxSize float64
+	for n, i := 0, len(segments)-1; i > 0; i-- {
+		segment := segments[i]
+
+		if segment == nil {
+			continue
+		}
+
+		if filters.SuppressAds() && segment.SCTE != nil {
+			segment.SCTE = nil
+		}
+
+		if err := appendSegment(h.manifestURL, segment, playlist); err != nil {
+			return 0, fmt.Errorf("trimming live window: %w", err)
+		}
+
+		n++
+		if n == filters.LiveWindow {
+			break
+		}
+
+		if maxSize < segment.Duration {
+			maxSize = segment.Duration
+		}
+	}
+
+	return maxSize, nil
+}
+
+func (h *HLSFilter) trimManifest(filters *parsers.MediaFilters, playlist *m3u8.MediaPlaylist, segments []*m3u8.MediaSegment) (float64, error) {
 	// timestamps in milliseconds
 	startFilter := filters.Trim.Start * 1000
 	endFilter := filters.Trim.End * 1000
@@ -415,7 +487,7 @@ func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3
 	// EX: #EXT-X-ASSET, #EXT-OATCLS-SCTE35, or any other custom tags advertised in playlist
 	var append bool
 	var maxSize float64
-	for _, segment := range m.Segments {
+	for _, segment := range segments {
 		if segment == nil {
 			continue
 		}
@@ -425,8 +497,8 @@ func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3
 		}
 
 		if segment.ProgramDateTime == (time.Time{}) && append {
-			if err := appendSegment(h.manifestURL, segment, filteredPlaylist); err != nil {
-				return "", fmt.Errorf("trimming segments: %w", err)
+			if err := appendSegment(h.manifestURL, segment, playlist); err != nil {
+				return 0, fmt.Errorf("trimming segments: %w", err)
 			}
 			continue
 		}
@@ -440,8 +512,8 @@ func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3
 		}
 
 		if append {
-			if err := appendSegment(h.manifestURL, segment, filteredPlaylist); err != nil {
-				return "", fmt.Errorf("trimming segments: %w", err)
+			if err := appendSegment(h.manifestURL, segment, playlist); err != nil {
+				return 0, fmt.Errorf("trimming segments: %w", err)
 			}
 		}
 
@@ -450,10 +522,9 @@ func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3
 		}
 	}
 
-	h.maxSegmentSize = maxSize
-	filteredPlaylist.Close()
+	playlist.Close()
 
-	return isEmpty(filteredPlaylist.Encode().String())
+	return maxSize, nil
 }
 
 func isEmpty(p string) (string, error) {

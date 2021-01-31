@@ -641,6 +641,13 @@ func TestURLParseUrl(t *testing.T) {
 			"/base64string.vtt",
 			false,
 		},
+		{
+			"parse the http status error fallback filter throws error if multiple values are passed",
+			"phe(true,false)/base64string.vtt",
+			MediaFilters{},
+			"",
+			true,
+		},
 	}
 	for _, test := range tests {
 		test := test

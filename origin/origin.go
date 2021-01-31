@@ -40,7 +40,7 @@ func Configure(ctx context.Context, c config.Config, path string) (Origin, error
 		return configurePropeller(ctx, c, path)
 	}
 
-	// check if path is base64 encoded rendition url
+	// check if path is base64 encoded url
 	if strings.Count(path, "/") == 1 && (strings.HasSuffix(path, ".m3u8") || strings.HasSuffix(path, ".vtt")) {
 		decodedPath, err := trimAndDecodePath(strings.TrimPrefix(path, "/"))
 		if err != nil {

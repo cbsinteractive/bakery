@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -40,12 +41,12 @@ func Configure(ctx context.Context, c config.Config, path string) (Origin, error
 	}
 
 	// check if path is base64 encoded rendition url
-	if strings.Count(path, "/") == 1 && strings.HasSuffix(path, ".m3u8") {
-		variantURL, err := decodeVariantURL(strings.TrimPrefix(path, "/"))
+	if strings.Count(path, "/") == 1 && (strings.HasSuffix(path, ".m3u8") || strings.HasSuffix(path, ".vtt")) {
+		decodedPath, err := trimAndDecodePath(strings.TrimPrefix(path, "/"))
 		if err != nil {
-			return &DefaultOrigin{}, fmt.Errorf("decoding variant manifest url %q: %w", path, err)
+			return &DefaultOrigin{}, fmt.Errorf("decoding base64 url %q: %w", path, err)
 		}
-		path = variantURL
+		path = decodedPath
 	}
 
 	return NewDefaultOrigin("", path)
@@ -114,9 +115,9 @@ func fetch(ctx context.Context, client config.Client, manifestURL string) (Origi
 	}, nil
 }
 
-func decodeVariantURL(variant string) (string, error) {
-	variant = strings.TrimSuffix(variant, ".m3u8")
-	url, err := base64.RawURLEncoding.DecodeString(variant)
+func trimAndDecodePath(encodedPath string) (string, error) {
+	encodedPath = strings.TrimSuffix(encodedPath, filepath.Ext(encodedPath))
+	url, err := base64.RawURLEncoding.DecodeString(encodedPath)
 	if err != nil {
 		return "", err
 	}

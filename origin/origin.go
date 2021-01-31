@@ -39,7 +39,8 @@ func Configure(ctx context.Context, c config.Config, path string) (Origin, error
 		return configurePropeller(ctx, c, path)
 	}
 
-	if strings.HasSuffix(path, ".m3u8") {
+	// check if path is base64 encoded rendition url
+	if strings.Count(path, "/") == 1 && strings.HasSuffix(path, ".m3u8") {
 		variantURL, err := decodeVariantURL(strings.TrimPrefix(path, "/"))
 		if err != nil {
 			return &DefaultOrigin{}, fmt.Errorf("decoding variant manifest url %q: %w", path, err)

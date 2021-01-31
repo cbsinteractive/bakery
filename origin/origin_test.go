@@ -65,7 +65,6 @@ func TestOrigin_FetchOriginContent(t *testing.T) {
 		mockResp     func(*http.Request) (*http.Response, error)
 		expectStr    string
 		expectStatus int
-		expectErr    bool
 	}{
 		{
 			name:         "when fetching propeller channel, return response message if code < 300",
@@ -103,11 +102,8 @@ func TestOrigin_FetchOriginContent(t *testing.T) {
 
 			got, err := tc.origin.FetchOriginContent(context.Background(), c.Client)
 
-			if err != nil && !tc.expectErr {
+			if err != nil {
 				t.Errorf("Configure() didnt expect an error to be returned, got: %v", err)
-				return
-			} else if err == nil && tc.expectErr {
-				t.Error("Configure() expected an error, got nil")
 				return
 			}
 

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/cbsinteractive/bakery/config"
+	"github.com/cbsinteractive/bakery/filters"
 	test "github.com/cbsinteractive/bakery/tests"
 	"github.com/cbsinteractive/pkg/tracing"
 	"github.com/google/go-cmp/cmp"
@@ -58,6 +59,21 @@ func default200Response(msg string) func(req *http.Request) (*http.Response, err
 	}
 }
 
+func default404Response(msg string) func(req *http.Request) (*http.Response, error) {
+	return func(*http.Request) (*http.Response, error) {
+		resp := &http.Response{
+			StatusCode: 404,
+			Body:       ioutil.NopCloser(bytes.NewBufferString(msg)),
+			Header:     http.Header{},
+		}
+
+		lastModified := time.Now().UTC().Format(http.TimeFormat)
+		resp.Header.Add("Last-Modified", lastModified)
+
+		return resp, nil
+	}
+}
+
 func getManifest() string {
 	return `#EXTM3U
 #EXT-X-VERSION:3
@@ -92,6 +108,22 @@ func TestHandler(t *testing.T) {
 			expectStatus:   200,
 			expectManifest: getManifest(),
 		},
+		{
+			name:           "when FallbackHTTPStatusError (fhe) filter is enabled, should prevent returning 404 for m3u8",
+			url:            "fhe(true)/aHR0cHM6Ly8wODc2M2JmMGIxZ2IuYWlyc3BhY2UtY2RuLmNic2l2aWRlby5jb20vbXR2LWVtYS11ay1obHMvbWFzdGVyLzQwNC5tM3U4.m3u8",
+			auth:           "authenticate-me",
+			mockResp:       default404Response("404"),
+			expectStatus:   200,
+			expectManifest: filters.EmptyHLSManifestContent,
+		},
+		{
+			name:           "when FallbackHTTPStatusError (fhe) filter is enabled, should prevent returning 404 for vtt",
+			url:            "fhe(true)/aHR0cHM6Ly8wODc2M2JmMGIxZ2IuYWlyc3BhY2UtY2RuLmNic2l2aWRlby5jb20vbXR2LWVtYS11ay1obHMvbWFzdGVyLzQwNC5tM3U4.vtt",
+			auth:           "authenticate-me",
+			mockResp:       default404Response("404"),
+			expectStatus:   200,
+			expectManifest: filters.EmptyVTTContent,
+		},
 	}
 
 	for _, tc := range tests {
@@ -121,5 +153,4 @@ func TestHandler(t *testing.T) {
 				got, tc.expectManifest, cmp.Diff(got, tc.expectManifest))
 		}
 	}
-
 }

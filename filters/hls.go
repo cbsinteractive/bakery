@@ -18,6 +18,8 @@ import (
 
 type execPluginHLS func(variant *m3u8.Variant)
 
+const EmptyHLSManifestContent = "#EXTM3U"
+
 // HLSFilter implements the Filter interface for HLS
 // manifests
 type HLSFilter struct {

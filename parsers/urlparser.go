@@ -12,17 +12,18 @@ import (
 
 // MediaFilters is a struct that carry all the information passed via url
 type MediaFilters struct {
-	Videos       NestedFilters `json:",omitempty"`
-	Audios       NestedFilters `json:",omitempty"`
-	Captions     NestedFilters `json:",omitempty"`
-	ContentTypes []string      `json:",omitempty"`
-	Plugins      []string      `json:",omitempty"`
-	Tags         *Tags         `json:",omitempty"`
-	Trim         *Trim         `json:",omitempty"`
-	Bitrate      *Bitrate      `json:",omitempty"`
-	FrameRate    []string      `json:",omitempty"`
-	DeWeave      bool          `json:",omitempty"`
-	Protocol     Protocol      `json:"protocol"`
+	Videos                  NestedFilters `json:",omitempty"`
+	Audios                  NestedFilters `json:",omitempty"`
+	Captions                NestedFilters `json:",omitempty"`
+	ContentTypes            []string      `json:",omitempty"`
+	Plugins                 []string      `json:",omitempty"`
+	Tags                    *Tags         `json:",omitempty"`
+	Trim                    *Trim         `json:",omitempty"`
+	Bitrate                 *Bitrate      `json:",omitempty"`
+	FrameRate               []string      `json:",omitempty"`
+	DeWeave                 bool          `json:",omitempty"`
+	FallbackHTTPStatusError bool          `json:",omitempty"`
+	Protocol                Protocol      `json:"protocol"`
 }
 
 // NestedFilters is a struct that holds values of filters
@@ -41,6 +42,8 @@ const (
 	ProtocolHLS Protocol = "hls"
 	// ProtocolDASH for manifests in dash
 	ProtocolDASH Protocol = "dash"
+	// ProtocolVTT for WebVTT captions
+	ProtocolVTT Protocol = "vtt"
 )
 
 // Trim is a struct that carries the start and end times to trim playlist
@@ -104,6 +107,8 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 		mf.Protocol = ProtocolHLS
 	} else if strings.Contains(urlpath, ".mpd") {
 		mf.Protocol = ProtocolDASH
+	} else if strings.Contains(urlpath, ".vtt") {
+		mf.Protocol = ProtocolVTT
 	} else {
 		return keyError("Protocol", fmt.Errorf("unsupported protocol"))
 	}
@@ -197,6 +202,17 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 			}
 
 			mf.DeWeave = w
+		case "fhe":
+			if len(filters) > 1 {
+				return keyError("FallbackHTTPStatusError", fmt.Errorf("Only accepts one boolean value"))
+			}
+
+			f, err := parseAndValidateBooleanString(filters[0])
+			if err != nil {
+				return keyError("FallbackHTTPStatusError", err)
+			}
+
+			mf.FallbackHTTPStatusError = f
 		}
 	}
 

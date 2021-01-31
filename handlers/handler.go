@@ -44,6 +44,17 @@ func LoadHandler(c config.Config) http.Handler {
 
 		//throw status error if not 2xx
 		if manifestInfo.Status/100 > 3 {
+			if mediaFilters.FallbackHTTPStatusError {
+				switch mediaFilters.Protocol {
+				case parsers.ProtocolHLS:
+					w.Header().Set("Content-Type", "application/x-mpegURL")
+					fmt.Fprint(w, filters.EmptyHLSManifestContent)
+				case parsers.ProtocolVTT:
+					w.Header().Set("Content-Type", "text/vtt")
+					fmt.Fprint(w, filters.EmptyVTTContent)
+				}
+				return
+			}
 			err := fmt.Errorf("fetching manifest: returning http status of %v", manifestInfo.Status)
 			e := NewErrorResponse("manifest origin error", err)
 			e.HandleError(r.Context(), w, manifestInfo.Status)

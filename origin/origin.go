@@ -39,10 +39,8 @@ func Configure(ctx context.Context, c config.Config, path string) (Origin, error
 		return configurePropeller(ctx, c, path)
 	}
 
-	//check if rendition URL
-	parts := strings.Split(path, "/")
-	if len(parts) == 2 { //["", "base64.m3u8"]
-		variantURL, err := decodeVariantURL(parts[1])
+	if strings.HasSuffix(path, ".m3u8") {
+		variantURL, err := decodeVariantURL(strings.TrimPrefix(path, "/"))
 		if err != nil {
 			return &DefaultOrigin{}, fmt.Errorf("decoding variant manifest url %q: %w", path, err)
 		}

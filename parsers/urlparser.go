@@ -12,18 +12,18 @@ import (
 
 // MediaFilters is a struct that carry all the information passed via url
 type MediaFilters struct {
-	Videos                  NestedFilters `json:",omitempty"`
-	Audios                  NestedFilters `json:",omitempty"`
-	Captions                NestedFilters `json:",omitempty"`
-	ContentTypes            []string      `json:",omitempty"`
-	Plugins                 []string      `json:",omitempty"`
-	Tags                    *Tags         `json:",omitempty"`
-	Trim                    *Trim         `json:",omitempty"`
-	Bitrate                 *Bitrate      `json:",omitempty"`
-	FrameRate               []string      `json:",omitempty"`
-	DeWeave                 bool          `json:",omitempty"`
-	FallbackHTTPStatusError bool          `json:",omitempty"`
-	Protocol                Protocol      `json:"protocol"`
+	Videos                 NestedFilters `json:",omitempty"`
+	Audios                 NestedFilters `json:",omitempty"`
+	Captions               NestedFilters `json:",omitempty"`
+	ContentTypes           []string      `json:",omitempty"`
+	Plugins                []string      `json:",omitempty"`
+	Tags                   *Tags         `json:",omitempty"`
+	Trim                   *Trim         `json:",omitempty"`
+	Bitrate                *Bitrate      `json:",omitempty"`
+	FrameRate              []string      `json:",omitempty"`
+	DeWeave                bool          `json:",omitempty"`
+	PreventHTTPStatusError bool          `json:",omitempty"`
+	Protocol               Protocol      `json:"protocol"`
 }
 
 // NestedFilters is a struct that holds values of filters
@@ -202,17 +202,17 @@ func URLParse(urlpath string) (string, *MediaFilters, error) {
 			}
 
 			mf.DeWeave = w
-		case "fhe":
+		case "phe":
 			if len(filters) > 1 {
-				return keyError("FallbackHTTPStatusError", fmt.Errorf("Only accepts one boolean value"))
+				return keyError("PreventHTTPStatusError", fmt.Errorf("Only accepts one boolean value"))
 			}
 
 			f, err := parseAndValidateBooleanString(filters[0])
 			if err != nil {
-				return keyError("FallbackHTTPStatusError", err)
+				return keyError("PreventHTTPStatusError", err)
 			}
 
-			mf.FallbackHTTPStatusError = f
+			mf.PreventHTTPStatusError = f
 		}
 	}
 

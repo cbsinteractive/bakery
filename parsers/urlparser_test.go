@@ -623,20 +623,20 @@ func TestURLParseUrl(t *testing.T) {
 		},
 		{
 			"parse the http status error fallback filter and HLS protocol for m3u8",
-			"fhe(true)/base64string.m3u8",
+			"phe(true)/base64string.m3u8",
 			MediaFilters{
-				Protocol:                ProtocolHLS,
-				FallbackHTTPStatusError: true,
+				Protocol:               ProtocolHLS,
+				PreventHTTPStatusError: true,
 			},
 			"/base64string.m3u8",
 			false,
 		},
 		{
 			"parse the http status error fallback filter and VTT protocol for WebVTT",
-			"fhe(true)/base64string.vtt",
+			"phe(true)/base64string.vtt",
 			MediaFilters{
-				Protocol:                ProtocolVTT,
-				FallbackHTTPStatusError: true,
+				Protocol:               ProtocolVTT,
+				PreventHTTPStatusError: true,
 			},
 			"/base64string.vtt",
 			false,

@@ -44,7 +44,7 @@ func LoadHandler(c config.Config) http.Handler {
 
 		//throw status error if not 2xx
 		if manifestInfo.Status/100 > 3 {
-			if mediaFilters.FallbackHTTPStatusError {
+			if mediaFilters.PreventHTTPStatusError {
 				switch mediaFilters.Protocol {
 				case parsers.ProtocolHLS:
 					w.Header().Set("Content-Type", "application/x-mpegURL")

@@ -233,6 +233,13 @@ func TestOrigin_Configure(t *testing.T) {
 			c:        config.Config{LogLevel: "panic", OriginHost: "host"},
 			expected: &DefaultOrigin{Host: "", URL: *relTestURL},
 		},
+		{
+			name:      "when origin path is at root but corrupt base64 encoded string",
+			path:      "/invalid_base64_string_here.m3u8",
+			c:         config.Config{LogLevel: "panic"},
+			expected:  &DefaultOrigin{},
+			expectErr: true,
+		},
 	}
 
 	for _, tc := range tests {

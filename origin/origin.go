@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"path/filepath"
+	"path"
 	"strings"
 	"time"
 
@@ -116,7 +116,7 @@ func fetch(ctx context.Context, client config.Client, originURL string) (OriginC
 }
 
 func trimAndDecodePath(encodedPath string) (string, error) {
-	encodedPath = strings.TrimSuffix(encodedPath, filepath.Ext(encodedPath))
+	encodedPath = strings.TrimSuffix(encodedPath, path.Ext(encodedPath))
 	url, err := base64.RawURLEncoding.DecodeString(encodedPath)
 	if err != nil {
 		return "", err

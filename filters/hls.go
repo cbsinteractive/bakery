@@ -561,7 +561,7 @@ func healthCheckVariant(ctx context.Context, variantURL string, client config.Cl
 		return false, nil
 	}
 
-	return evaluateStaleness(manifestInfo.Manifest, manifestInfo.LastModified)
+	return evaluateStaleness(manifestInfo.Payload, manifestInfo.LastModified)
 }
 
 func evaluateStaleness(variant string, lastModified time.Time) (bool, error) {

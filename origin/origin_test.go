@@ -107,8 +107,8 @@ func TestOrigin_FetchOriginContent(t *testing.T) {
 				return
 			}
 
-			if got.Manifest != tc.expectStr {
-				t.Errorf("Wrong Manifest response: expect: %q, got %q", tc.expectStr, got.Manifest)
+			if got.Payload != tc.expectStr {
+				t.Errorf("Wrong Payload response: expect: %q, got %q", tc.expectStr, got.Payload)
 			}
 
 			if got.Status != tc.expectStatus {

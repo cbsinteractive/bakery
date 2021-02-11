@@ -25,17 +25,17 @@ func LoadHandler(c config.Config) http.Handler {
 		}
 
 		//configure origin from path
-		manifestOrigin, err := origin.Configure(r.Context(), c, masterManifestPath)
+		o, err := origin.Configure(r.Context(), c, masterManifestPath)
 		if err != nil {
 			e := NewErrorResponse("failed configuring origin", err)
 			e.HandleError(r.Context(), w, http.StatusInternalServerError)
 			return
 		}
 
-		logging.UpdateCtx(r.Context(), logging.Params{"playbackURL": manifestOrigin.GetPlaybackURL()})
+		logging.UpdateCtx(r.Context(), logging.Params{"playbackURL": o.GetPlaybackURL()})
 
 		// fetch manifest from origin
-		manifestInfo, err := manifestOrigin.FetchOriginContent(r.Context(), c.Client)
+		contentInfo, err := o.FetchOriginContent(r.Context(), c.Client)
 		if err != nil {
 			e := NewErrorResponse("failed fetching manifest", err)
 			e.HandleError(r.Context(), w, http.StatusInternalServerError)
@@ -43,7 +43,7 @@ func LoadHandler(c config.Config) http.Handler {
 		}
 
 		//throw status error if not 2xx
-		if manifestInfo.Status/100 > 3 {
+		if contentInfo.Status/100 > 3 {
 			if mediaFilters.PreventHTTPStatusError {
 				switch mediaFilters.Protocol {
 				case parsers.ProtocolHLS:
@@ -55,9 +55,9 @@ func LoadHandler(c config.Config) http.Handler {
 				}
 				return
 			}
-			err := fmt.Errorf("fetching manifest: returning http status of %v", manifestInfo.Status)
+			err := fmt.Errorf("fetching manifest: returning http status of %v", contentInfo.Status)
 			e := NewErrorResponse("manifest origin error", err)
-			e.HandleError(r.Context(), w, manifestInfo.Status)
+			e.HandleError(r.Context(), w, contentInfo.Status)
 			return
 		}
 
@@ -66,11 +66,14 @@ func LoadHandler(c config.Config) http.Handler {
 		var f filters.Filter
 		switch mediaFilters.Protocol {
 		case parsers.ProtocolHLS:
-			f = filters.NewHLSFilter(manifestOrigin.GetPlaybackURL(), manifestInfo.Manifest, c)
+			f = filters.NewHLSFilter(o.GetPlaybackURL(), contentInfo.Payload, c)
 			w.Header().Set("Content-Type", "application/x-mpegURL")
 		case parsers.ProtocolDASH:
-			f = filters.NewDASHFilter(manifestOrigin.GetPlaybackURL(), manifestInfo.Manifest, c)
+			f = filters.NewDASHFilter(o.GetPlaybackURL(), contentInfo.Payload, c)
 			w.Header().Set("Content-Type", "application/dash+xml")
+    case parsers.ProtocolVTT:
+			f = filters.NewVTTFilter(o.GetPlaybackURL(), contentInfo.Payload, c)
+			w.Header().Set("Content-Type", "text/vtt")
 		}
 
 		// apply the filters to the origin manifest

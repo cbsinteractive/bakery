@@ -29,7 +29,7 @@ type DefaultOrigin struct {
 
 //OriginContentInfo holds http response info from manifest request
 type OriginContentInfo struct {
-	Manifest     string
+	Payload string
 	LastModified time.Time
 	Status       int
 }
@@ -80,10 +80,10 @@ func (d *DefaultOrigin) FetchOriginContent(ctx context.Context, c config.Client)
 	return fetch(ctx, c, d.GetPlaybackURL())
 }
 
-func fetch(ctx context.Context, client config.Client, manifestURL string) (OriginContentInfo, error) {
-	req, err := http.NewRequest(http.MethodGet, manifestURL, nil)
+func fetch(ctx context.Context, client config.Client, originURL string) (OriginContentInfo, error) {
+	req, err := http.NewRequest(http.MethodGet, originURL, nil)
 	if err != nil {
-		return OriginContentInfo{}, fmt.Errorf("generating request to fetch manifest: %w", err)
+		return OriginContentInfo{}, fmt.Errorf("generating request to fetch origin: %w", err)
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, client.Timeout)
@@ -91,13 +91,13 @@ func fetch(ctx context.Context, client config.Client, manifestURL string) (Origi
 
 	resp, err := client.Do(req.WithContext(ctx))
 	if err != nil {
-		return OriginContentInfo{}, fmt.Errorf("fetching manifest: %w", err)
+		return OriginContentInfo{}, fmt.Errorf("fetching origin: %w", err)
 	}
 	defer resp.Body.Close()
 
-	manifest, err := ioutil.ReadAll(resp.Body)
+	origin, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return OriginContentInfo{}, fmt.Errorf("reading manifest response body: %w", err)
+		return OriginContentInfo{}, fmt.Errorf("reading origin response body: %w", err)
 	}
 
 	var lastModified time.Time
@@ -109,7 +109,7 @@ func fetch(ctx context.Context, client config.Client, manifestURL string) (Origi
 	}
 
 	return OriginContentInfo{
-		Manifest:     string(manifest),
+		Payload:     string(origin),
 		LastModified: lastModified,
 		Status:       resp.StatusCode,
 	}, nil

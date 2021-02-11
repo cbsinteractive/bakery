@@ -71,7 +71,7 @@ func LoadHandler(c config.Config) http.Handler {
 		case parsers.ProtocolDASH:
 			f = filters.NewDASHFilter(o.GetPlaybackURL(), contentInfo.Payload, c)
 			w.Header().Set("Content-Type", "application/dash+xml")
-    case parsers.ProtocolVTT:
+		case parsers.ProtocolVTT:
 			f = filters.NewVTTFilter(o.GetPlaybackURL(), contentInfo.Payload, c)
 			w.Header().Set("Content-Type", "text/vtt")
 		}

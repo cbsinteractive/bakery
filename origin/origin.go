@@ -29,7 +29,7 @@ type DefaultOrigin struct {
 
 //OriginContentInfo holds http response info from manifest request
 type OriginContentInfo struct {
-	Payload string
+	Payload      string
 	LastModified time.Time
 	Status       int
 }

@@ -35,7 +35,7 @@ func LoadHandler(c config.Config) http.Handler {
 		logging.UpdateCtx(r.Context(), logging.Params{"playbackURL": manifestOrigin.GetPlaybackURL()})
 
 		// fetch manifest from origin
-		manifestInfo, err := manifestOrigin.FetchManifest(r.Context(), c.Client)
+		manifestInfo, err := manifestOrigin.FetchOriginContent(r.Context(), c.Client)
 		if err != nil {
 			e := NewErrorResponse("failed fetching manifest", err)
 			e.HandleError(r.Context(), w, http.StatusInternalServerError)

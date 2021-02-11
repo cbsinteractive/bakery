@@ -52,7 +52,7 @@ func getMockResp(code int, msg string) func(*http.Request) (*http.Response, erro
 	}
 }
 
-func TestOrigin_FetchManifest(t *testing.T) {
+func TestOrigin_FetchOriginContent(t *testing.T) {
 	relativeURL, err := url.Parse("/path/to/manifest/master.m3u8")
 	absoluteURL, err := url.Parse("https://origin.com/path/to/manifest/master.m3u8")
 	if err != nil {
@@ -101,7 +101,7 @@ func TestOrigin_FetchManifest(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			c := testConfig(test.MockClient(tc.mockResp))
 
-			got, err := tc.origin.FetchManifest(context.Background(), c.Client)
+			got, err := tc.origin.FetchOriginContent(context.Background(), c.Client)
 
 			if err != nil && !tc.expectErr {
 				t.Errorf("Configure() didnt expect an error to be returned, got: %v", err)

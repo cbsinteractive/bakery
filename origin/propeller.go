@@ -80,8 +80,8 @@ func (p *Propeller) GetPlaybackURL() string {
 	return p.URL
 }
 
-// FetchManifest will grab manifest contents of configured origin
-func (p *Propeller) FetchManifest(ctx context.Context, c config.Client) (ManifestInfo, error) {
+// FetchOriginContent will grab manifest contents of configured origin
+func (p *Propeller) FetchOriginContent(ctx context.Context, c config.Client) (OriginContentInfo, error) {
 	return fetch(ctx, c, p.URL)
 }
 

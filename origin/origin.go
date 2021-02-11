@@ -16,7 +16,7 @@ import (
 //Origin interface is implemented by DefaultOrigin and Propeller struct
 type Origin interface {
 	GetPlaybackURL() string
-	FetchManifest(ctx context.Context, c config.Client) (ManifestInfo, error)
+	FetchOriginContent(ctx context.Context, c config.Client) (OriginContentInfo, error)
 }
 
 //DefaultOrigin struct holds Origin and Path of DefaultOrigin
@@ -26,8 +26,8 @@ type DefaultOrigin struct {
 	URL  url.URL
 }
 
-//ManifestInfo holds http response info from manifest request
-type ManifestInfo struct {
+//OriginContentInfo holds http response info from manifest request
+type OriginContentInfo struct {
 	Manifest     string
 	LastModified time.Time
 	Status       int
@@ -75,15 +75,15 @@ func (d *DefaultOrigin) GetPlaybackURL() string {
 	return d.Host + d.URL.String()
 }
 
-//FetchManifest will grab DefaultOrigin contents of configured origin
-func (d *DefaultOrigin) FetchManifest(ctx context.Context, c config.Client) (ManifestInfo, error) {
+//FetchOriginContent will grab DefaultOrigin contents of configured origin
+func (d *DefaultOrigin) FetchOriginContent(ctx context.Context, c config.Client) (OriginContentInfo, error) {
 	return fetch(ctx, c, d.GetPlaybackURL())
 }
 
-func fetch(ctx context.Context, client config.Client, manifestURL string) (ManifestInfo, error) {
+func fetch(ctx context.Context, client config.Client, manifestURL string) (OriginContentInfo, error) {
 	req, err := http.NewRequest(http.MethodGet, manifestURL, nil)
 	if err != nil {
-		return ManifestInfo{}, fmt.Errorf("generating request to fetch manifest: %w", err)
+		return OriginContentInfo{}, fmt.Errorf("generating request to fetch manifest: %w", err)
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, client.Timeout)
@@ -91,24 +91,24 @@ func fetch(ctx context.Context, client config.Client, manifestURL string) (Manif
 
 	resp, err := client.Do(req.WithContext(ctx))
 	if err != nil {
-		return ManifestInfo{}, fmt.Errorf("fetching manifest: %w", err)
+		return OriginContentInfo{}, fmt.Errorf("fetching manifest: %w", err)
 	}
 	defer resp.Body.Close()
 
 	manifest, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return ManifestInfo{}, fmt.Errorf("reading manifest response body: %w", err)
+		return OriginContentInfo{}, fmt.Errorf("reading manifest response body: %w", err)
 	}
 
 	var lastModified time.Time
 	if header := resp.Header.Get("Last-Modified"); header != "" {
 		lastModified, err = http.ParseTime(header)
 		if err != nil {
-			return ManifestInfo{}, err
+			return OriginContentInfo{}, err
 		}
 	}
 
-	return ManifestInfo{
+	return OriginContentInfo{
 		Manifest:     string(manifest),
 		LastModified: lastModified,
 		Status:       resp.StatusCode,

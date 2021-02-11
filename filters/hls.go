@@ -537,12 +537,12 @@ func isValidPipeline(pipeline pipelineType, index int) bool {
 
 //Health check variant of redundant manifest
 func healthCheckVariant(ctx context.Context, variantURL string, client config.Client) (bool, error) {
-	manifestOrigin, err := origin.NewDefaultOrigin("", variantURL)
+	o, err := origin.NewDefaultOrigin("", variantURL)
 	if err != nil {
 		return false, fmt.Errorf("health checking variant: %w", err)
 	}
 
-	manifestInfo, err := manifestOrigin.FetchManifest(ctx, client)
+	manifestInfo, err := o.FetchOriginContent(ctx, client)
 	if err != nil {
 		return false, fmt.Errorf("health checking variant: %w", err)
 	}

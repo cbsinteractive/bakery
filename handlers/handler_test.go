@@ -124,6 +124,22 @@ func TestHandler(t *testing.T) {
 			expectStatus:   200,
 			expectManifest: filters.EmptyVTTContent,
 		},
+    {
+			name:           "when PreventHTTPStatusError filter is not enabled, should passthrough vtt content",
+			url:            "phe(false)/aHR0cHM6Ly8wODc2M2JmMGIxZ2IuYWlyc3BhY2UtY2RuLmNic2l2aWRlby5jb20vbXR2LWVtYS11ay1obHMvbWFzdGVyLzQwNC5tM3U4.vtt",
+			auth:           "authenticate-me",
+			mockResp:       default200Response(filters.EmptyVTTContent),
+			expectStatus:   200,
+			expectManifest: filters.EmptyVTTContent,
+		},
+    {
+			name:           "when requesting vtt, should passthrough vtt content",
+			url:            "/aHR0cHM6Ly8wODc2M2JmMGIxZ2IuYWlyc3BhY2UtY2RuLmNic2l2aWRlby5jb20vbXR2LWVtYS11ay1obHMvbWFzdGVyLzQwNC5tM3U4.vtt",
+			auth:           "authenticate-me",
+			mockResp:       default200Response(filters.EmptyVTTContent),
+			expectStatus:   200,
+			expectManifest: filters.EmptyVTTContent,
+		},
 	}
 
 	for _, tc := range tests {

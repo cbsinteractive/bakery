@@ -21,8 +21,8 @@ type execPluginHLS func(variant *m3u8.Variant)
 // HLSFilter implements the Filter interface for HLS
 // manifests
 type HLSFilter struct {
-	manifestURL     string
-	manifestContent string
+	originURL     string
+	originContent string
 	maxSegmentSize  float64
 	config          config.Config
 }
@@ -41,10 +41,10 @@ const (
 )
 
 // NewHLSFilter is the HLS filter constructor
-func NewHLSFilter(manifestURL, manifestContent string, c config.Config) *HLSFilter {
+func NewHLSFilter(originURL, originContent string, c config.Config) *HLSFilter {
 	return &HLSFilter{
-		manifestURL:     manifestURL,
-		manifestContent: manifestContent,
+		originURL:     originURL,
+		originContent: originContent,
 		config:          c,
 	}
 }
@@ -54,10 +54,10 @@ func (h *HLSFilter) GetMaxAge() string {
 	return fmt.Sprintf("%.0f", h.maxSegmentSize/2)
 }
 
-// FilterManifest will be responsible for filtering the manifest
+// FilterContent will be responsible for filtering the manifest
 // according  to the MediaFilters
-func (h *HLSFilter) FilterManifest(ctx context.Context, filters *parsers.MediaFilters) (string, error) {
-	m, manifestType, err := m3u8.DecodeFrom(strings.NewReader(h.manifestContent), true)
+func (h *HLSFilter) FilterContent(ctx context.Context, filters *parsers.MediaFilters) (string, error) {
+	m, manifestType, err := m3u8.DecodeFrom(strings.NewReader(h.originContent), true)
 	if err != nil {
 		return "", err
 	}
@@ -95,9 +95,9 @@ func (h *HLSFilter) FilterManifest(ctx context.Context, filters *parsers.MediaFi
 			continue
 		}
 
-		absolute, aErr := getAbsoluteURL(h.manifestURL)
+		absolute, aErr := getAbsoluteURL(h.originURL)
 		if aErr != nil {
-			return h.manifestContent, aErr
+			return h.originContent, aErr
 		}
 
 		normalizedVariant, err := h.normalizeVariant(v, *absolute)
@@ -133,7 +133,7 @@ func (h *HLSFilter) FilterManifest(ctx context.Context, filters *parsers.MediaFi
 }
 
 func (h *HLSFilter) filterPipeline(ctx context.Context, uri string) (pipelineType, error) {
-	absolute, err := getAbsoluteURL(h.manifestURL)
+	absolute, err := getAbsoluteURL(h.originURL)
 	if err != nil {
 		return "", fmt.Errorf("formatting segment URLs: %w", err)
 	}
@@ -425,7 +425,7 @@ func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3
 		}
 
 		if segment.ProgramDateTime == (time.Time{}) && append {
-			if err := appendSegment(h.manifestURL, segment, filteredPlaylist); err != nil {
+			if err := appendSegment(h.originURL, segment, filteredPlaylist); err != nil {
 				return "", fmt.Errorf("trimming segments: %w", err)
 			}
 			continue
@@ -440,7 +440,7 @@ func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3
 		}
 
 		if append {
-			if err := appendSegment(h.manifestURL, segment, filteredPlaylist); err != nil {
+			if err := appendSegment(h.originURL, segment, filteredPlaylist); err != nil {
 				return "", fmt.Errorf("trimming segments: %w", err)
 			}
 		}

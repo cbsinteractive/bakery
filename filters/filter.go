@@ -9,7 +9,7 @@ import (
 
 // Filter is an interface for HLS and DASH filters
 type Filter interface {
-	FilterManifest(ctx context.Context, filters *parsers.MediaFilters) (string, error)
+	FilterContent(ctx context.Context, filters *parsers.MediaFilters) (string, error)
 	GetMaxAge() string
 }
 

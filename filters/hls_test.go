@@ -16,7 +16,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestHLSFilter_FilterManifest_BandwidthFilter(t *testing.T) {
+func TestHLSFilter_FilterContent_BandwidthFilter(t *testing.T) {
 
 	baseManifest := `#EXTM3U
 #EXT-X-VERSION:4
@@ -131,18 +131,18 @@ http://existing.base/uri/link_3.m3u8
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("", tt.manifestContent, config.Config{})
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -150,7 +150,7 @@ http://existing.base/uri/link_3.m3u8
 	}
 }
 
-func TestHLSFilter_FilterManifest_AudioFilter(t *testing.T) {
+func TestHLSFilter_FilterContent_AudioFilter(t *testing.T) {
 	manifestWithAllAudio := `#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="ec-3"
@@ -332,20 +332,20 @@ http://existing.base/uri/link_8.m3u8
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("", tt.manifestContent, config.Config{})
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			} else if err != nil && tt.expectErr {
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -353,7 +353,7 @@ http://existing.base/uri/link_8.m3u8
 	}
 }
 
-func TestHLSFilter_FilterManifest_VideoFilter(t *testing.T) {
+func TestHLSFilter_FilterContent_VideoFilter(t *testing.T) {
 	manifestWithAllVideo := `#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="avc1.640020"
@@ -541,18 +541,18 @@ http://existing.base/uri/link_9.m3u8
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("", tt.manifestContent, config.Config{})
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -560,7 +560,7 @@ http://existing.base/uri/link_9.m3u8
 	}
 }
 
-func TestHLSFilter_FilterManifest_CaptionsFilter(t *testing.T) {
+func TestHLSFilter_FilterContent_CaptionsFilter(t *testing.T) {
 	manifestWithAllCaptions := `#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="wvtt"
@@ -664,18 +664,18 @@ http://existing.base/uri/link_7.m3u8
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("", tt.manifestContent, config.Config{})
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -683,7 +683,7 @@ http://existing.base/uri/link_7.m3u8
 	}
 }
 
-func TestHLSFilter_FilterManifest_MultiCodecFilter(t *testing.T) {
+func TestHLSFilter_FilterContent_MultiCodecFilter(t *testing.T) {
 	manifestWithAllCodecs := `#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="ac-3"
@@ -886,18 +886,18 @@ http://existing.base/uri/link_14.m3u8
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("", tt.manifestContent, config.Config{})
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -905,7 +905,7 @@ http://existing.base/uri/link_14.m3u8
 	}
 }
 
-func TestHLSFilter_FilterManifest_MultiFilter(t *testing.T) {
+func TestHLSFilter_FilterContent_MultiFilter(t *testing.T) {
 
 	manifestWithAllCodecsAndBandwidths := `#EXTM3U
 #EXT-X-VERSION:3
@@ -1117,18 +1117,18 @@ http://existing.base/uri/link_13.m3u8
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("", tt.manifestContent, config.Config{})
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -1136,7 +1136,7 @@ http://existing.base/uri/link_13.m3u8
 	}
 }
 
-func TestHLSFilter_FilterManifest_NormalizeVariant(t *testing.T) {
+func TestHLSFilter_FilterContent_NormalizeVariant(t *testing.T) {
 
 	manifestWithRelativeOnly := `#EXTM3U
 #EXT-X-VERSION:4
@@ -1264,20 +1264,20 @@ http://existi\ng.base/uri/link_1.m3u8
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("http://existing.base/uri/nested/folders/manifest_link.m3u8", tt.manifestContent, config.Config{})
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			} else if err != nil && tt.expectErr {
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -1303,26 +1303,26 @@ http://existi\ng.base/uri/link_1.m3u8
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("existi\ng.base/uri/manifest_link.m3u8", tt.manifestContent, config.Config{})
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			} else if err != nil && tt.expectErr {
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})
 	}
 }
 
-func TestHLSFilter_FilterManifest_TrimFilter_MasterManifest(t *testing.T) {
+func TestHLSFilter_FilterContent_TrimFilter_MasterManifest(t *testing.T) {
 
 	masterManifestWithAbsoluteURLs := `#EXTM3U
 #EXT-X-VERSION:3
@@ -1584,18 +1584,18 @@ https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9jYnNzNjRlYi1jYnNzNjRlYi1tcy
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("https://existing.base/path/master.m3u8", tt.manifestContent, tt.config)
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -1603,7 +1603,7 @@ https://bakery.cbsi.video/t(10000,100000)/aHR0cHM6Ly9jYnNzNjRlYi1jYnNzNjRlYi1tcy
 	}
 }
 
-func TestHLSFilter_FilterManifest_TrimFilter_VariantManifest(t *testing.T) {
+func TestHLSFilter_FilterContent_TrimFilter_VariantManifest(t *testing.T) {
 
 	variantManifestWithRelativeURLs := `#EXTM3U
 #EXT-X-VERSION:3
@@ -1877,18 +1877,18 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00025.ts
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("https://existing.base/path/master.m3u8", tt.manifestContent, config.Config{Hostname: "bakery.cbsi.video"})
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -1901,7 +1901,7 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00025.ts
 	}
 }
 
-func TestHLSFilter_FilterManifest_TrimFilter_VariantManifest_AdSuppression(t *testing.T) {
+func TestHLSFilter_FilterContent_TrimFilter_VariantManifest_AdSuppression(t *testing.T) {
 
 	variantManifestWithAds := `#EXTM3U
 #EXT-X-VERSION:3
@@ -2248,18 +2248,18 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00029.ts
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("https://existing.base/path/master.m3u8", tt.manifestContent, config.Config{Hostname: "bakery.cbsi.video"})
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -2272,7 +2272,7 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00029.ts
 	}
 }
 
-func TestHLSFilter_FilterManifest_LanguageFilter(t *testing.T) {
+func TestHLSFilter_FilterContent_LanguageFilter(t *testing.T) {
 
 	masterManifestWithMultipleLangs := `#EXTM3U
 #EXT-X-VERSION:4
@@ -2428,18 +2428,18 @@ https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("https://existing.base/path/master.m3u8", tt.manifestContent, config.Config{Hostname: "bakery.cbsi.video"})
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -2447,7 +2447,7 @@ https://cbss64eb-cbss64eb-ms-dev.global.ssl.fastly.net/cbssc0a7/master/cbssc0a7_
 	}
 }
 
-func TestHLSFilter_FilterManifest_IFrameFilter(t *testing.T) {
+func TestHLSFilter_FilterContent_IFrameFilter(t *testing.T) {
 	masterManifestWithSingleIFrame := `#EXTM3U
 #EXT-X-VERSION:4
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
@@ -2534,18 +2534,18 @@ https://existing.base/path/link_6.m3u8
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("https://existing.base/path/master.m3u8", tt.manifestContent, config.Config{Hostname: "bakery.cbsi.video"})
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -2553,7 +2553,7 @@ https://existing.base/path/link_6.m3u8
 	}
 }
 
-func TestHLSFilter_FilterManifest_FrameRate(t *testing.T) {
+func TestHLSFilter_FilterContent_FrameRate(t *testing.T) {
 	masterManifestWithMultipleFrameRates := `#EXTM3U
 #EXT-X-VERSION:4
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
@@ -2635,18 +2635,18 @@ https://existing.base/path/link_5.m3u8
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewHLSFilter("https://existing.base/path/master.m3u8", tt.manifestContent, config.Config{Hostname: "bakery.cbsi.video"})
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 
@@ -2654,7 +2654,7 @@ https://existing.base/path/link_5.m3u8
 	}
 }
 
-func TestHLSFilter_FilterManifest_RedundantManifests(t *testing.T) {
+func TestHLSFilter_FilterContent_RedundantManifests(t *testing.T) {
 	redundant := `#EXTM3U
 #EXT-X-VERSION:4
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",INSTREAM-ID="CC1"
@@ -2818,18 +2818,18 @@ https://cbsi679d-cbsi679d-ms-dev.global.ssl.fastly.net/testa5fe/master/backup_te
 				},
 			}
 			filter := NewHLSFilter("https://existing.base/path/master.m3u8", redundant, cfg)
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifest; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})

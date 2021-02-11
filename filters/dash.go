@@ -17,16 +17,16 @@ type execFilter func(filters *parsers.MediaFilters, manifest *mpd.MPD)
 
 // DASHFilter implements the Filter interface for DASH manifests
 type DASHFilter struct {
-	manifestURL     string
-	manifestContent string
+	originURL     string
+	originContent string
 	config          config.Config
 }
 
 // NewDASHFilter is the DASH filter constructor
-func NewDASHFilter(manifestURL, manifestContent string, c config.Config) *DASHFilter {
+func NewDASHFilter(originURL, originContent string, c config.Config) *DASHFilter {
 	return &DASHFilter{
-		manifestURL:     manifestURL,
-		manifestContent: manifestContent,
+		originURL:     originURL,
+		originContent: originContent,
 		config:          c,
 	}
 }
@@ -37,14 +37,14 @@ func (d *DASHFilter) GetMaxAge() string {
 	return ""
 }
 
-// FilterManifest will be responsible for filtering the manifest according  to the MediaFilters
-func (d *DASHFilter) FilterManifest(_ context.Context, filters *parsers.MediaFilters) (string, error) {
-	manifest, err := mpd.ReadFromString(d.manifestContent)
+// FilterContent will be responsible for filtering the manifest according  to the MediaFilters
+func (d *DASHFilter) FilterContent(_ context.Context, filters *parsers.MediaFilters) (string, error) {
+	manifest, err := mpd.ReadFromString(d.originContent)
 	if err != nil {
 		return "", err
 	}
 
-	u, err := url.Parse(d.manifestURL)
+	u, err := url.Parse(d.originURL)
 	if err != nil {
 		return "", fmt.Errorf("parsing manifest url: %w", err)
 	}

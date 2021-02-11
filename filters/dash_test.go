@@ -11,7 +11,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestDASHFilter_FilterManifest_baseURL(t *testing.T) {
+func TestDASHFilter_FilterContent_baseURL(t *testing.T) {
 	manifestWithoutBaseURL := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
 </MPD>
@@ -65,24 +65,24 @@ func TestDASHFilter_FilterManifest_baseURL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewDASHFilter(tt.manifestURL, tt.manifestContent, config.Config{})
 
-			manifest, err := filter.FilterManifest(context.Background(), &parsers.MediaFilters{})
+			manifest, err := filter.FilterContent(context.Background(), &parsers.MediaFilters{})
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})
 	}
 }
 
-func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
+func TestDASHFilter_FilterContent_videoCodecs(t *testing.T) {
 	manifestWithMultiVideoCodec := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
@@ -336,24 +336,24 @@ func TestDASHFilter_FilterManifest_videoCodecs(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
 
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})
 	}
 }
 
-func TestDASHFilter_FilterManifest_audioCodecs(t *testing.T) {
+func TestDASHFilter_FilterContent_audioCodecs(t *testing.T) {
 	manifestWithEAC3AndAC3AudioCodec := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
@@ -458,24 +458,24 @@ func TestDASHFilter_FilterManifest_audioCodecs(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
 
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})
 	}
 }
 
-func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
+func TestDASHFilter_FilterContent_captionTypes(t *testing.T) {
 	manifestWithWVTTAndSTPPCaptions := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
@@ -570,24 +570,24 @@ func TestDASHFilter_FilterManifest_captionTypes(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
 
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})
 	}
 }
 
-func TestDASHFilter_FilterManifest_filterStreams(t *testing.T) {
+func TestDASHFilter_FilterContent_filterStreams(t *testing.T) {
 	manifestWithAudioAndVideoStreams := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
@@ -698,21 +698,21 @@ func TestDASHFilter_FilterManifest_filterStreams(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
 
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 			if err != nil {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})
 	}
 }
 
-func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
+func TestDASHFilter_FilterContent_bitrate(t *testing.T) {
 	baseManifest := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
@@ -942,23 +942,23 @@ func TestDASHFilter_FilterManifest_bitrate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
 
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didn't expect error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didn't expect error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Fatalf("FilterManifest(context.Background(), ) returned wrong manifest\ngot %v\nexpected %v\ndiff: %v", g, e, cmp.Diff(g, e))
+				t.Fatalf("FilterContent(context.Background(), ) returned wrong manifest\ngot %v\nexpected %v\ndiff: %v", g, e, cmp.Diff(g, e))
 			}
 		})
 	}
 }
 
-func TestDASHFilter_FilterManifest_LanguageFilter(t *testing.T) {
+func TestDASHFilter_FilterContent_LanguageFilter(t *testing.T) {
 	manifestWithMultiLanguages := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <BaseURL>http://existing.base/url/</BaseURL>
@@ -1108,17 +1108,17 @@ func TestDASHFilter_FilterManifest_LanguageFilter(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
 
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})
@@ -1225,17 +1225,17 @@ func TestDASHFilter_FilterFrameRate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
 
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})
@@ -1319,17 +1319,17 @@ func TestDASHFilter_FilterRole_OverwriteValue(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			filter := NewDASHFilter("", tt.manifestContent, config.Config{})
 
-			manifest, err := filter.FilterManifest(context.Background(), tt.filters)
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
 			if err != nil && !tt.expectErr {
-				t.Errorf("FilterManifest(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
 				return
 			} else if err == nil && tt.expectErr {
-				t.Error("FilterManifest(context.Background(), ) expected an error, got nil")
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
 				return
 			}
 
 			if g, e := manifest, tt.expectManifestContent; g != e {
-				t.Errorf("FilterManifest(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
 					cmp.Diff(g, e))
 			}
 		})

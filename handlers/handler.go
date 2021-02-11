@@ -63,7 +63,7 @@ func LoadHandler(c config.Config) http.Handler {
 		}
 
 		// apply the filters to the origin manifest
-		filteredManifest, err := f.FilterManifest(r.Context(), mediaFilters)
+		filteredManifest, err := f.FilterContent(r.Context(), mediaFilters)
 		if err != nil {
 			e := NewErrorResponse("failed to filter manifest", err)
 			e.HandleError(r.Context(), w, http.StatusInternalServerError)

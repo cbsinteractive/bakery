@@ -25,7 +25,7 @@ yes | no  |
 
 | values       | example           |
 |:------------:|:-----------------:|
-| (true|false) | phe(true)         |
+| (true\|false) | phe(true)         |
 
 
 ## Usage

@@ -7,7 +7,8 @@ import (
 	"github.com/cbsinteractive/bakery/parsers"
 )
 
-const EmptyVTTContent = "WEBVTT"
+const EmptyVTTContent = "WEBVTT\nX-TIMESTAMP-MAP=LOCAL:00:00:00.000,MPEGTS:0\n\nNOTE Failed to fetch origin WebVTT, preventing HTTP status error.\n"
+
 
 // VTTFilter implements the Filter interface for VTT files
 type VTTFilter struct {

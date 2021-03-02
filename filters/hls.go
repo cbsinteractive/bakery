@@ -65,7 +65,10 @@ func (h *HLSFilter) FilterContent(ctx context.Context, filters *parsers.MediaFil
 	}
 
 	if manifestType != m3u8.MASTER {
-		return h.filterRenditionManifest(filters, m.(*m3u8.MediaPlaylist))
+		if filters.Trim != nil {
+			return h.trimRenditionManifest(filters, m.(*m3u8.MediaPlaylist))
+		}
+		return isEmpty(m.Encode().String())
 	}
 
 	// convert into the master playlist type
@@ -402,14 +405,10 @@ func isRelative(urlStr string) (bool, error) {
 
 // FilterRenditionManifest will be responsible for filtering the manifest
 // according  to the MediaFilters
-func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3u8.MediaPlaylist) (string, error) {
+func (h *HLSFilter) trimRenditionManifest(filters *parsers.MediaFilters, m *m3u8.MediaPlaylist) (string, error) {
 	filteredPlaylist, err := m3u8.NewMediaPlaylist(m.Count(), m.Count())
 	if err != nil {
 		return "", fmt.Errorf("filtering Rendition Manifest: %w", err)
-	}
-
-	if filters.Trim == nil {
-		return isEmpty(m.Encode().String())
 	}
 
 	// timestamps in milliseconds

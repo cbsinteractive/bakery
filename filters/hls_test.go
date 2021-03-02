@@ -2272,6 +2272,91 @@ https://existing.base/path/chan_1/chan_1_20200311T202818_1_00029.ts
 	}
 }
 
+func TestHLSFilter_FilterContent_PreventHTTPError(t *testing.T) {
+	variantManifestContent := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-MEDIA-SEQUENCE:17738
+#EXT-X-TARGETDURATION:8
+#EXT-X-PROGRAM-DATE-TIME:2021-02-23T05:59:55.633Z
+#EXTINF:6.000,
+http://bakery.cbsi.video/phe(true)/aHR0cHM6Ly9kaWN0YTU0ODczYTIuYWlyc3BhY2UtY2RuLmNic2l2aWRlby5jb20va2VpdGhoOTdoLXRlc3QvZW4vY2FwdGlvbnNfMTc3MzgudnR0.vtt
+#EXT-X-PROGRAM-DATE-TIME:2021-02-23T06:00:01.633Z
+#EXTINF:6.000,
+http://bakery.cbsi.video/phe(true)/aHR0cHM6Ly9kaWN0YTU0ODczYTIuYWlyc3BhY2UtY2RuLmNic2l2aWRlby5jb20va2VpdGhoOTdoLXRlc3QvZW4vY2FwdGlvbnNfMTc3MzkudnR0.vtt
+#EXT-X-PROGRAM-DATE-TIME:2021-02-23T06:00:07.633Z
+#EXTINF:6.000,
+http://bakery.cbsi.video/phe(true)/aHR0cHM6Ly9kaWN0YTU0ODczYTIuYWlyc3BhY2UtY2RuLmNic2l2aWRlby5jb20va2VpdGhoOTdoLXRlc3QvZW4vY2FwdGlvbnNfMTc3NDAudnR0.vtt
+#EXT-X-PROGRAM-DATE-TIME:2021-02-23T06:00:13.633Z
+#EXTINF:6.000,
+http://bakery.cbsi.video/phe(true)/aHR0cHM6Ly9kaWN0YTU0ODczYTIuYWlyc3BhY2UtY2RuLmNic2l2aWRlby5jb20va2VpdGhoOTdoLXRlc3QvZW4vY2FwdGlvbnNfMTc3NDEudnR0.vtt
+#EXT-X-PROGRAM-DATE-TIME:2021-02-23T06:00:19.633Z
+#EXTINF:6.000,
+http://bakery.cbsi.video/phe(true)/aHR0cHM6Ly9kaWN0YTU0ODczYTIuYWlyc3BhY2UtY2RuLmNic2l2aWRlby5jb20va2VpdGhoOTdoLXRlc3QvZW4vY2FwdGlvbnNfMTc3NDIudnR0.vtt
+#EXT-X-PROGRAM-DATE-TIME:2021-02-23T06:00:25.633Z
+#EXTINF:6.000,
+http://bakery.cbsi.video/phe(true)/aHR0cHM6Ly9kaWN0YTU0ODczYTIuYWlyc3BhY2UtY2RuLmNic2l2aWRlby5jb20va2VpdGhoOTdoLXRlc3QvZW4vY2FwdGlvbnNfMTc3NDMudnR0.vtt
+`
+
+	expectedFilteredManifestWithTrimFilter := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-MEDIA-SEQUENCE:0
+#EXT-X-TARGETDURATION:6
+#EXT-X-PROGRAM-DATE-TIME:2021-02-23T06:00:07.633Z
+#EXTINF:6.000,
+http://bakery.cbsi.video/phe(true)/aHR0cHM6Ly9kaWN0YTU0ODczYTIuYWlyc3BhY2UtY2RuLmNic2l2aWRlby5jb20va2VpdGhoOTdoLXRlc3QvZW4vY2FwdGlvbnNfMTc3NDAudnR0.vtt
+#EXT-X-PROGRAM-DATE-TIME:2021-02-23T06:00:13.633Z
+#EXTINF:6.000,
+http://bakery.cbsi.video/phe(true)/aHR0cHM6Ly9kaWN0YTU0ODczYTIuYWlyc3BhY2UtY2RuLmNic2l2aWRlby5jb20va2VpdGhoOTdoLXRlc3QvZW4vY2FwdGlvbnNfMTc3NDEudnR0.vtt
+#EXT-X-PROGRAM-DATE-TIME:2021-02-23T06:00:19.633Z
+#EXTINF:6.000,
+http://bakery.cbsi.video/phe(true)/aHR0cHM6Ly9kaWN0YTU0ODczYTIuYWlyc3BhY2UtY2RuLmNic2l2aWRlby5jb20va2VpdGhoOTdoLXRlc3QvZW4vY2FwdGlvbnNfMTc3NDIudnR0.vtt
+#EXT-X-ENDLIST
+`
+
+	tests := []struct {
+		name                  string
+		filters               *parsers.MediaFilters
+		manifestContent       string
+		expectManifestContent string
+	}{
+		{
+			name:                  "when preventing http error on rendition manifest, should not apply trim filter if not present",
+			filters:               &parsers.MediaFilters{},
+			manifestContent:       variantManifestContent,
+			expectManifestContent: variantManifestContent,
+		},
+		{
+			name: "when preventing http error on rendition manifest, should apply trim filter",
+			filters: &parsers.MediaFilters{
+				Trim: &parsers.Trim{
+					Start: 1614060008, // 2021-02-23T06:00:08
+					End:   1614060020, // 2021-02-23T06:00:20
+				},
+			},
+			manifestContent:       variantManifestContent,
+			expectManifestContent: expectedFilteredManifestWithTrimFilter,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			filter := NewHLSFilter("https://existing.base/path/variant.m3u8", tt.manifestContent, config.Config{Hostname: "bakery.cbsi.video"})
+			manifest, err := filter.FilterContent(context.Background(), tt.filters)
+
+			if err != nil {
+				t.Errorf("FilterContent(context.Background(), ) got an error: %v", err)
+				return
+			}
+
+			if g, e := manifest, tt.expectManifestContent; g != e {
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned)\ngot %v\nexpected: %v\ndiff: %v", g, e,
+					cmp.Diff(g, e))
+			}
+		})
+	}
+}
+
 func TestHLSFilter_FilterContent_LanguageFilter(t *testing.T) {
 
 	masterManifestWithMultipleLangs := `#EXTM3U

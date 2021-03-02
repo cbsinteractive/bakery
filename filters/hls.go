@@ -408,6 +408,10 @@ func (h *HLSFilter) filterRenditionManifest(filters *parsers.MediaFilters, m *m3
 		return "", fmt.Errorf("filtering Rendition Manifest: %w", err)
 	}
 
+	if filters.Trim == nil {
+		return isEmpty(m.Encode().String())
+	}
+
 	// timestamps in milliseconds
 	startFilter := filters.Trim.Start * 1000
 	endFilter := filters.Trim.End * 1000

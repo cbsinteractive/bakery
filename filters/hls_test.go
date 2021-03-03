@@ -2313,6 +2313,12 @@ http://bakery.cbsi.video/phe(true)/aHR0cHM6Ly9kaWN0YTU0ODczYTIuYWlyc3BhY2UtY2RuL
 #EXT-X-ENDLIST
 `
 
+	longWebvttManifest, err := ioutil.ReadFile("../tests/long_vtt_manifest.m3u8")
+	if err != nil {
+		panic(err)
+	}
+	longWebvttManifestContent := string(longWebvttManifest)
+
 	tests := []struct {
 		name                  string
 		filters               *parsers.MediaFilters
@@ -2324,6 +2330,12 @@ http://bakery.cbsi.video/phe(true)/aHR0cHM6Ly9kaWN0YTU0ODczYTIuYWlyc3BhY2UtY2RuL
 			filters:               &parsers.MediaFilters{},
 			manifestContent:       variantManifestContent,
 			expectManifestContent: variantManifestContent,
+		},
+		{
+			name:                  "when preventing http error on rendition manifest, should be able to return long manifest",
+			filters:               &parsers.MediaFilters{},
+			manifestContent:       longWebvttManifestContent,
+			expectManifestContent: longWebvttManifestContent,
 		},
 		{
 			name: "when preventing http error on rendition manifest, should apply trim filter",

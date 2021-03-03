@@ -68,7 +68,7 @@ func (h *HLSFilter) FilterContent(ctx context.Context, filters *parsers.MediaFil
 		if filters.Trim != nil {
 			return h.trimRenditionManifest(filters, m.(*m3u8.MediaPlaylist))
 		}
-		return isEmpty(m.Encode().String())
+		return isEmpty(h.originContent)
 	}
 
 	// convert into the master playlist type

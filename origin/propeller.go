@@ -37,6 +37,10 @@ type Propeller struct {
 //
 // Return error if 'path' doesn't match with any of propellerPaths
 func configurePropeller(ctx context.Context, c config.Config, path string) (Origin, error) {
+	if !c.Propeller.IsEnabled() {
+		return &Propeller{}, errors.New("propeller orgin is not enabled")
+	}
+
 	logging.UpdateCtx(ctx, logging.Params{"origin": "propeller"})
 
 	urlValues, err := parsePropellerPath(path)

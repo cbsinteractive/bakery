@@ -21,7 +21,7 @@ import (
 type env map[string]string
 
 // getConfig will return a config to use in tests based on provided values
-func getDefaultConfig(c Client, t Tracer, p Propeller) Config {
+func getDefaultConfig(auth bool, c Client, t Tracer, p Propeller) Config {
 	return Config{
 		Listen:      "8080",
 		LogLevel:    "panic",
@@ -29,6 +29,7 @@ func getDefaultConfig(c Client, t Tracer, p Propeller) Config {
 		Hostname:    "hostname",
 		OriginKey:   "x-bakery-origin-token",
 		OriginToken: "authenticate-me",
+		AuthEnabled: auth,
 		Client:      c,
 		Tracer:      t,
 		Propeller:   p,
@@ -53,7 +54,7 @@ func getTracerConfig(xray, plugin bool) Tracer {
 }
 
 // getPropellerConfig will return a Propeller config to use in tests based on provided values
-func getPropellerConfig(scheme, hostname, usr, pw string, t time.Duration, client HTTPClient) Propeller {
+func getPropellerConfig(enabled bool, scheme, hostname, usr, pw string, t time.Duration, client HTTPClient) Propeller {
 	var creds, host string
 
 	if usr != "" && pw != "" {
@@ -65,8 +66,9 @@ func getPropellerConfig(scheme, hostname, usr, pw string, t time.Duration, clien
 	}
 
 	return Propeller{
-		Host:  host,
-		Creds: creds,
+		Enabled: enabled,
+		Host:    host,
+		Creds:   creds,
 		Client: propeller.Client{
 			Auth: propeller.Auth{
 				User: usr,
@@ -97,7 +99,7 @@ func TestConfig_LoadConfig(t *testing.T) {
 		expectErr    bool
 	}{
 		{
-			name: "When loading Config, if env vars not set, throw error for propeller creds for client",
+			name: "When loading Config, if env vars not set, DO NOT throw error for propeller creds for client",
 			expectConfig: Config{
 				Listen:      ":8080",
 				LogLevel:    "debug",
@@ -106,13 +108,13 @@ func TestConfig_LoadConfig(t *testing.T) {
 				OriginToken: "",
 				Client:      defaultClientConfig,
 				Tracer:      disabledTraceConfig,
-				Propeller:   getPropellerConfig("", "", "", "", time.Duration(0*time.Second), nil),
+				Propeller:   getPropellerConfig(false, "", "", "", "", time.Duration(0*time.Second), nil),
 			},
-			expectErr: true,
 		},
 		{
 			name: "When loading Config, if env vars are set for propeller, return config with propeller client",
 			envs: []env{
+				map[string]string{"BAKERY_PROPELLER_ENABLED": "true"},
 				map[string]string{"BAKERY_PROPELLER_CREDS": "usr:pw"},
 				map[string]string{"BAKERY_PROPELLER_HOST": "http://propeller.dev.com"},
 			},
@@ -124,7 +126,7 @@ func TestConfig_LoadConfig(t *testing.T) {
 				OriginToken: "",
 				Client:      defaultClientConfig,
 				Tracer:      disabledTraceConfig,
-				Propeller:   getPropellerConfig("http", "propeller.dev.com", "usr", "pw", defaultTime, noopTracer.Client(&http.Client{})),
+				Propeller:   getPropellerConfig(true, "http", "propeller.dev.com", "usr", "pw", defaultTime, noopTracer.Client(&http.Client{})),
 			},
 		},
 	}
@@ -197,7 +199,7 @@ func TestConfig_ValidateAuthHeader(t *testing.T) {
 	}{
 		{
 			name: "Don't throw error when authentication properly set",
-			c:    Config{OriginToken: "sometoken", OriginKey: "somekey"},
+			c:    Config{AuthEnabled: true, OriginToken: "sometoken", OriginKey: "somekey"},
 		},
 		{
 			name: "Don't throw error when localhost",
@@ -205,17 +207,17 @@ func TestConfig_ValidateAuthHeader(t *testing.T) {
 		},
 		{
 			name:      "Throw error when authenticaion token not set",
-			c:         Config{OriginKey: "somekey"},
+			c:         Config{AuthEnabled: true, OriginKey: "somekey"},
 			expectErr: true,
 		},
 		{
 			name:      "Throw error when authenticaion key not set",
-			c:         Config{OriginToken: "sometoken"},
+			c:         Config{AuthEnabled: true, OriginToken: "sometoken"},
 			expectErr: true,
 		},
 		{
 			name:      "Throw error when authenticaion not set",
-			c:         Config{},
+			c:         Config{AuthEnabled: true},
 			expectErr: true,
 		},
 	}
@@ -240,26 +242,27 @@ func TestConfig_Middleware(t *testing.T) {
 	defaultTime := time.Duration(5 * time.Second)
 	defaultClientConfig := getClientConfig(defaultTime, noopTracer)
 
-	c := getDefaultConfig(defaultClientConfig, disabledTraceConfig, Propeller{})
-
-	handler := c.SetupMiddleware().Then(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}))
-
 	tests := []struct {
 		name         string
 		authtoken    string
+		authEnabled  bool
 		expectErr    string
 		expectStatus int
 	}{
 		{
-			name:         "when request is made with the correct auth token",
+			name:         "when request is made with the correct auth token and auth is enabled",
 			authtoken:    "authenticate-me",
+			authEnabled:  true,
+			expectStatus: 200,
+		},
+		{
+			name:         "when request is made with no auth token and auth is disabled",
 			expectStatus: 200,
 		},
 		{
 			name:         "when request is made with bad auth token, expect a 403 and error message",
 			authtoken:    "bad-auth-token",
+			authEnabled:  true,
 			expectStatus: 403,
 			expectErr:    "you must pass a valid api token as \"x-bakery-origin-token\"\n",
 		},
@@ -273,6 +276,11 @@ func TestConfig_Middleware(t *testing.T) {
 
 			req.Header.Set("x-bakery-origin-token", tc.authtoken)
 			rec := httptest.NewRecorder()
+
+			c := getDefaultConfig(tc.authEnabled, defaultClientConfig, disabledTraceConfig, Propeller{})
+			handler := c.SetupMiddleware().Then(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusOK)
+			}))
 			handler.ServeHTTP(rec, req)
 
 			res := rec.Result()

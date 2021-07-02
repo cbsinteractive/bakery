@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -89,6 +90,14 @@ http://existing.base/uri/link_4.m3u8
 http://existing.base/uri/link_5.m3u8
 `
 }
+func readManifestTestFixtures(fileName string) string {
+	manifest, err := ioutil.ReadFile(fmt.Sprintf("../tests/%v", fileName))
+	if err != nil {
+		panic(err)
+	}
+
+	return string(manifest)
+}
 
 func TestHandler(t *testing.T) {
 
@@ -124,7 +133,7 @@ func TestHandler(t *testing.T) {
 			expectStatus:   200,
 			expectManifest: filters.EmptyVTTContent,
 		},
-    {
+		{
 			name:           "when PreventHTTPStatusError filter is not enabled, should passthrough vtt content",
 			url:            "phe(false)/aHR0cHM6Ly8wODc2M2JmMGIxZ2IuYWlyc3BhY2UtY2RuLmNic2l2aWRlby5jb20vbXR2LWVtYS11ay1obHMvbWFzdGVyLzQwNC5tM3U4.vtt",
 			auth:           "authenticate-me",
@@ -132,13 +141,21 @@ func TestHandler(t *testing.T) {
 			expectStatus:   200,
 			expectManifest: filters.EmptyVTTContent,
 		},
-    {
+		{
 			name:           "when requesting vtt, should passthrough vtt content",
 			url:            "/aHR0cHM6Ly8wODc2M2JmMGIxZ2IuYWlyc3BhY2UtY2RuLmNic2l2aWRlby5jb20vbXR2LWVtYS11ay1obHMvbWFzdGVyLzQwNC5tM3U4.vtt",
 			auth:           "authenticate-me",
 			mockResp:       default200Response(filters.EmptyVTTContent),
 			expectStatus:   200,
 			expectManifest: filters.EmptyVTTContent,
+		},
+		{
+			name:           "when no filters are set, passthrough",
+			url:            "/aHR0cHM6Ly8wODc2M2JmMGIxZ2IuYWlyc3BhY2UtY2RuLmNic2l2aWRlby5jb20vbXR2LWVtYS11ay1obHMvbWFzdGVyLzQwNC5tM3U4.vtt",
+			auth:           "authenticate-me",
+			mockResp:       default200Response(readManifestTestFixtures("default_manifest.m3u8")),
+			expectStatus:   200,
+			expectManifest: readManifestTestFixtures("default_manifest.m3u8"),
 		},
 	}
 

@@ -1,4 +1,5 @@
-# github.com/aws/aws-sdk-go v1.30.7
+# github.com/aws/aws-sdk-go v1.38.64
+## explicit
 github.com/aws/aws-sdk-go/aws
 github.com/aws/aws-sdk-go/aws/awserr
 github.com/aws/aws-sdk-go/aws/awsutil
@@ -9,6 +10,7 @@ github.com/aws/aws-sdk-go/aws/credentials
 github.com/aws/aws-sdk-go/aws/credentials/ec2rolecreds
 github.com/aws/aws-sdk-go/aws/credentials/endpointcreds
 github.com/aws/aws-sdk-go/aws/credentials/processcreds
+github.com/aws/aws-sdk-go/aws/credentials/ssocreds
 github.com/aws/aws-sdk-go/aws/credentials/stscreds
 github.com/aws/aws-sdk-go/aws/csm
 github.com/aws/aws-sdk-go/aws/defaults
@@ -34,6 +36,8 @@ github.com/aws/aws-sdk-go/private/protocol/query/queryutil
 github.com/aws/aws-sdk-go/private/protocol/rest
 github.com/aws/aws-sdk-go/private/protocol/restjson
 github.com/aws/aws-sdk-go/private/protocol/xml/xmlutil
+github.com/aws/aws-sdk-go/service/sso
+github.com/aws/aws-sdk-go/service/sso/ssoiface
 github.com/aws/aws-sdk-go/service/sts
 github.com/aws/aws-sdk-go/service/sts/stsiface
 github.com/aws/aws-sdk-go/service/xray
@@ -52,13 +56,23 @@ github.com/aws/aws-xray-sdk-go/strategy/sampling
 github.com/aws/aws-xray-sdk-go/utils
 github.com/aws/aws-xray-sdk-go/xray
 github.com/aws/aws-xray-sdk-go/xraylog
-# github.com/cbsinteractive/pkg/tracing v0.0.0-20200409233703-f2037b1185c6
+# github.com/cbsinteractive/pkg/tracing v0.0.0-20210104155054-0951c16e08d6
+## explicit
 github.com/cbsinteractive/pkg/tracing
-# github.com/cbsinteractive/pkg/xrayutil v0.0.0-20200409233703-f2037b1185c6
+# github.com/cbsinteractive/pkg/xrayutil v0.0.0-20210104155054-0951c16e08d6
+## explicit
 github.com/cbsinteractive/pkg/xrayutil
 # github.com/cbsinteractive/propeller-go v0.0.0-20200828205819-d02e4f54c5bc
+## explicit
 github.com/cbsinteractive/propeller-go/client
-# github.com/google/go-cmp v0.4.0
+# github.com/coreos/go-systemd v0.0.0-20190321100706-95778dfbb74e
+## explicit
+# github.com/davecgh/go-spew v1.1.1
+## explicit
+# github.com/go-sql-driver/mysql v1.5.0
+## explicit
+# github.com/google/go-cmp v0.5.6
+## explicit
 github.com/google/go-cmp/cmp
 github.com/google/go-cmp/cmp/cmpopts
 github.com/google/go-cmp/cmp/internal/diff
@@ -66,28 +80,38 @@ github.com/google/go-cmp/cmp/internal/flags
 github.com/google/go-cmp/cmp/internal/function
 github.com/google/go-cmp/cmp/internal/value
 # github.com/grafov/m3u8 v0.11.1 => github.com/cbsinteractive/m3u8 v0.11.2-0.20200411022055-4abfe1f82646
+## explicit
 github.com/grafov/m3u8
-# github.com/jmespath/go-jmespath v0.3.0
+# github.com/jmespath/go-jmespath v0.4.0
 github.com/jmespath/go-jmespath
 # github.com/justinas/alice v1.2.0
+## explicit
 github.com/justinas/alice
 # github.com/kelseyhightower/envconfig v1.4.0
+## explicit
 github.com/kelseyhightower/envconfig
 # github.com/pkg/errors v0.9.1
 github.com/pkg/errors
 # github.com/rs/xid v1.2.1
 github.com/rs/xid
-# github.com/rs/zerolog v1.18.0
+# github.com/rs/zerolog v1.23.0
+## explicit
 github.com/rs/zerolog
 github.com/rs/zerolog/hlog
+github.com/rs/zerolog/hlog/internal/mutil
 github.com/rs/zerolog/internal/cbor
 github.com/rs/zerolog/internal/json
 github.com/rs/zerolog/log
+# github.com/stretchr/testify v1.5.1
+## explicit
 # github.com/zenazn/goji v0.9.0
-github.com/zenazn/goji/web/mutil
-# github.com/zencoder/go-dash v0.0.0-20200221191004-4c1e141085cb => github.com/cbsinteractive/go-dash v0.0.0-20200617014501-54010516d9b0
+## explicit
+# github.com/zencoder/go-dash v0.0.0-20201006100653-2f93b14912b2 => github.com/cbsinteractive/go-dash v0.0.0-20200617014501-54010516d9b0
+## explicit
 github.com/zencoder/go-dash/helpers/ptrs
 github.com/zencoder/go-dash/mpd
-# golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
+# golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 golang.org/x/xerrors
 golang.org/x/xerrors/internal
+# github.com/zencoder/go-dash => github.com/cbsinteractive/go-dash v0.0.0-20200617014501-54010516d9b0
+# github.com/grafov/m3u8 => github.com/cbsinteractive/m3u8 v0.11.2-0.20200411022055-4abfe1f82646

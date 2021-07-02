@@ -21,7 +21,7 @@ func main() {
 
 	handler := c.SetupMiddleware().Then(handlers.LoadHandler(c))
 
-	c.Logger.Info().Str("port", c.Listen).Msg("Starting Bakery")
+	c.Logger.Info().Str("port", c.Listen).Str("hostname", c.Hostname).Msg("Starting Bakery")
 	http.Handle("/", c.Client.Tracer.Handle(tracing.FixedNamer("bakery"), handler))
 	if err := http.ListenAndServe(c.Listen, nil); err != nil {
 		log.Fatal(err)

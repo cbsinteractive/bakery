@@ -18,11 +18,9 @@ test:
 test_cover:
 	GOFLAGS=-p=8 $(GOTEST) -v -count 1 ./... -race -coverprofile=coverage.txt -covermode=atomic
 
-
 clean: 
 	$(GOCLEAN) ./...
 	rm -f $(BINARY_NAME)
 
 run:
 	$(GORUN) $(WEBSERVER)
-

@@ -21,6 +21,7 @@ type Config struct {
 	Hostname    string `envconfig:"HOSTNAME"  default:"localhost"`
 	OriginKey   string `encovnfig:"ORIGIN_KEY" default:"x-bakery-origin-token"`
 	OriginToken string `envconfig:"ORIGIN_TOKEN"`
+	AuthEnabled bool   `envconfig:"ENABLE_AUTH" default:"false"`
 	Logger      zerolog.Logger
 	Tracer
 	Client
@@ -45,11 +46,7 @@ func LoadConfig() (Config, error) {
 
 // IsLocalHost returns true if env is localhost
 func (c Config) IsLocalHost() bool {
-	if c.Hostname == "localhost" {
-		return true
-	}
-
-	return false
+	return c.Hostname == "localhost"
 }
 
 // GetLogger generates a logger
@@ -68,12 +65,12 @@ func (c Config) getLogger() zerolog.Logger {
 
 //ValidateAuthHeader returns key,value or error if not set
 func (c Config) ValidateAuthHeader() error {
-	if c.IsLocalHost() {
+	if c.IsLocalHost() || !c.AuthEnabled {
 		return nil
 	}
 
 	if c.OriginKey == "" || c.OriginToken == "" {
-		return fmt.Errorf("Authentication not set.\nKey: %v,Value: %v", c.OriginKey, c.OriginToken)
+		return fmt.Errorf("authentication not set.\nKey: %v,Value: %v", c.OriginKey, c.OriginToken)
 	}
 
 	return nil
@@ -108,7 +105,7 @@ func (c Config) SetupMiddleware() alice.Chain {
 func (c Config) authMiddleware() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.Header.Get(c.OriginKey) != c.OriginToken {
+			if c.AuthEnabled && r.Header.Get(c.OriginKey) != c.OriginToken {
 				logging.UpdateCtx(r.Context(), logging.Params{"headers": r.Header, "error": "failed authenticating request"})
 
 				http.Error(w, fmt.Sprintf("you must pass a valid api token as %q", c.OriginKey),

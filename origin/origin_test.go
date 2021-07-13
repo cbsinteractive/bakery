@@ -33,6 +33,7 @@ func testConfig(fc test.FakeClient) config.Config {
 			HTTPClient: fc,
 		},
 		Propeller: config.Propeller{
+			Enabled: true,
 			Client: propeller.Client{
 				Timeout:    timeout,
 				HTTPClient: fc,
@@ -305,6 +306,7 @@ func configMockPropellerAPI(tb testing.TB) (cfg config.Config, teardown func()) 
 		tb.Fatalf("go httptest server returned invalid url: %v (%v)", ts.URL, err)
 	}
 	cfg = config.Config{LogLevel: "panic"}
+	cfg.Propeller.Enabled = true
 	cfg.Propeller.Client.HostURL = tsURL
 
 	return cfg, ts.Close

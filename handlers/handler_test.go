@@ -23,10 +23,14 @@ func testConfig(fc test.FakeClient) config.Config {
 		Hostname:    "hostname",
 		OriginKey:   "x-bakery-origin-token",
 		OriginToken: "authenticate-me",
+		AuthEnabled: true,
 		Client: config.Client{
 			Timeout:    5 * time.Second,
 			Tracer:     tracing.NoopTracer{},
 			HTTPClient: fc,
+		},
+		Propeller: config.Propeller{
+			Enabled: true,
 		},
 	}
 }

@@ -12,12 +12,21 @@ import (
 
 // Propeller holds associated credentials for propeller api
 type Propeller struct {
-	Host  string `envconfig:"PROPELLER_HOST"`
-	Creds string `envconfig:"PROPELLER_CREDS"`
+	Enabled bool   `envconfig:"PROPELLER_ENABLED" default:"false"`
+	Host    string `envconfig:"PROPELLER_HOST"`
+	Creds   string `envconfig:"PROPELLER_CREDS"`
 	propeller.Client
 }
 
+func (p *Propeller) IsEnabled() bool {
+	return p.Enabled
+}
+
 func (p *Propeller) init(trace tracing.Tracer, timeout time.Duration) error {
+	if !p.Enabled {
+		return nil
+	}
+
 	if p.Host == "" || p.Creds == "" {
 		return fmt.Errorf("your Propeller configs are not set")
 	}

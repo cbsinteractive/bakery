@@ -2,7 +2,7 @@ module github.com/cbsinteractive/bakery
 
 replace github.com/zencoder/go-dash => github.com/cbsinteractive/go-dash v0.0.0-20200617014501-54010516d9b0
 
-replace github.com/grafov/m3u8 => github.com/cbsinteractive/m3u8 v0.11.2-0.20200411022055-4abfe1f82646
+replace github.com/grafov/m3u8 => github.com/cbsinteractive/m3u8 v0.11.2-0.20210702182805-556854f1e40f
 
 go 1.13
 

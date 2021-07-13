@@ -16,6 +16,59 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+func TestHLSFilter_FilterContent_copyPlaylistDefaults(t *testing.T) {
+
+	baseManifest := `#EXTM3U
+#EXT-X-VERSION:4
+## random comment
+#EXT-X-INDEPENDENT-SEGMENTS
+#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,CODECS="avc",CLOSED-CAPTIONS="CC"
+http://existing.base/uri/link_1.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CODECS="avc",CLOSED-CAPTIONS="CC"
+http://existing.base/uri/link_2.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=6000,AVERAGE-BANDWIDTH=6000,CODECS="avc",CLOSED-CAPTIONS="CC"
+http://existing.base/uri/link_3.m3u8
+#EXT-X-I-FRAME-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=300,AVERAGE-BANDWIDTH=300,CODECS="avc",RESOLUTION=768x432,URI="http://existing.base/uri/iframe.m3u8"
+`
+
+	tests := []struct {
+		name                  string
+		filters               *parsers.MediaFilters
+		manifestContent       string
+		expectManifestContent string
+		expectErr             bool
+	}{
+		{
+			name:                  "PassthroughDefaultSettings",
+			manifestContent:       baseManifest,
+			expectManifestContent: baseManifest,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			filter := NewHLSFilter("", tt.manifestContent, config.Config{})
+			manifest, err := filter.FilterContent(context.Background(), &parsers.MediaFilters{})
+
+			if err != nil && !tt.expectErr {
+				t.Errorf("FilterContent(context.Background(), ) didnt expect an error to be returned, got: %v", err)
+				return
+			} else if err == nil && tt.expectErr {
+				t.Error("FilterContent(context.Background(), ) expected an error, got nil")
+				return
+			}
+
+			if g, e := manifest, tt.expectManifestContent; g != e {
+				t.Errorf("FilterContent(context.Background(), ) wrong manifest returned\ngot %v\nexpected: %v\ndiff: %v", g, e,
+					cmp.Diff(g, e))
+			}
+
+		})
+	}
+}
+
 func TestHLSFilter_FilterContent_BandwidthFilter(t *testing.T) {
 
 	baseManifest := `#EXTM3U
@@ -1140,10 +1193,10 @@ func TestHLSFilter_FilterContent_NormalizeVariant(t *testing.T) {
 
 	manifestWithRelativeOnly := `#EXTM3U
 #EXT-X-VERSION:4
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="audio.m3u8"
-#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VID",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="video.m3u8"
+#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VIDEO",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="video.m3u8"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AUDIO",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="audio.m3u8"
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
-#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AU",VIDEO="VID",CLOSED-CAPTIONS="CC"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AUDIO",VIDEO="VIDEO",CLOSED-CAPTIONS="CC"
 link_1.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CLOSED-CAPTIONS="CC"
 link_2.m3u8
@@ -1153,10 +1206,10 @@ link_2.m3u8
 
 	manifestWithAbsoluteOnly := `#EXTM3U
 #EXT-X-VERSION:4
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/audio.m3u8"
-#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VID",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/video.m3u8"
+#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VIDEO",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/video.m3u8"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AUDIO",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/audio.m3u8"
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
-#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AU",VIDEO="VID",CLOSED-CAPTIONS="CC"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AUDIO",VIDEO="VIDEO",CLOSED-CAPTIONS="CC"
 http://existing.base/uri/nested/folders/link_1.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CLOSED-CAPTIONS="CC"
 http://existing.base/uri/nested/folders/link_2.m3u8
@@ -1166,10 +1219,10 @@ http://existing.base/uri/link_3.m3u8
 
 	manifestWithRelativeAndAbsolute := `#EXTM3U
 #EXT-X-VERSION:4
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/audio.m3u8"
-#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VID",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/video.m3u8"
+#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VIDEO",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/video.m3u8"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AUDIO",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/audio.m3u8"
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
-#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AU",VIDEO="VID",CLOSED-CAPTIONS="CC"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AUDIO",VIDEO="VIDEO",CLOSED-CAPTIONS="CC"
 link_1.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CLOSED-CAPTIONS="CC"
 http://existing.base/uri/nested/folders/link_2.m3u8
@@ -1179,10 +1232,10 @@ http://existing.base/uri/nested/folders/link_2.m3u8
 
 	manifestWithDifferentAbsolute := `#EXTM3U
 #EXT-X-VERSION:4
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="audio.m3u8"
-#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VID",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://different.base/uri/video.m3u8"
+#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VIDEO",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://different.base/uri/video.m3u8"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AUDIO",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="audio.m3u8"
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
-#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AU",VIDEO="VID",CLOSED-CAPTIONS="CC"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AUDIO",VIDEO="VIDEO",CLOSED-CAPTIONS="CC"
 link_1.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CLOSED-CAPTIONS="CC"
 http://different.base/uri/link_2.m3u8
@@ -1190,10 +1243,10 @@ http://different.base/uri/link_2.m3u8
 
 	manifestWithDifferentAbsoluteExpected := `#EXTM3U
 #EXT-X-VERSION:4
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/audio.m3u8"
-#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VID",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://different.base/uri/video.m3u8"
+#EXT-X-MEDIA:TYPE=VIDEO,GROUP-ID="VIDEO",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://different.base/uri/video.m3u8"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AUDIO",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://existing.base/uri/nested/folders/audio.m3u8"
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
-#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AU",VIDEO="VID",CLOSED-CAPTIONS="CC"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AUDIO",VIDEO="VIDEO",CLOSED-CAPTIONS="CC"
 http://existing.base/uri/nested/folders/link_1.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=4000,AVERAGE-BANDWIDTH=4000,CLOSED-CAPTIONS="CC"
 http://different.base/uri/link_2.m3u8
@@ -1202,16 +1255,16 @@ http://different.base/uri/link_2.m3u8
 	manifestWithIllegalAlternativeURLs := `#EXTM3U
 #EXT-X-VERSION:4
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://exist\ing.base/uri/illegal.m3u8"
-#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AU",VIDEO="VID",CLOSED-CAPTIONS="CC"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AUDIO",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="http://exist\ing.base/uri/illegal.m3u8"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AUDIO",VIDEO="VIDEO",CLOSED-CAPTIONS="CC"
 http://existing.base/uri/nested/folders/link_1.m3u8
 `
 
 	manifestWithIllegalVariantURLs := `#EXTM3U
 #EXT-X-VERSION:4
 #EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID="CC",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG"
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AU",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="\nillegal.m3u8"
-#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AU",VIDEO="VID",CLOSED-CAPTIONS="CC"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="AUDIO",NAME="ENGLISH",DEFAULT=NO,LANGUAGE="ENG",URI="\nillegal.m3u8"
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=1000,AVERAGE-BANDWIDTH=1000,AUDIO="AUDIO",VIDEO="VIDEO",CLOSED-CAPTIONS="CC"
 http://existi\ng.base/uri/link_1.m3u8
 `
 

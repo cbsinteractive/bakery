@@ -23,10 +23,10 @@ const EmptyHLSManifestContent = "#EXTM3U"
 // HLSFilter implements the Filter interface for HLS
 // manifests
 type HLSFilter struct {
-	originURL     string
-	originContent string
-	maxSegmentSize  float64
-	config          config.Config
+	originURL      string
+	originContent  string
+	maxSegmentSize float64
+	config         config.Config
 }
 
 var matchFunctions = map[ContentType]func(string) bool{
@@ -47,7 +47,7 @@ func NewHLSFilter(originURL, originContent string, c config.Config) *HLSFilter {
 	return &HLSFilter{
 		originURL:     originURL,
 		originContent: originContent,
-		config:          c,
+		config:        c,
 	}
 }
 
@@ -73,8 +73,7 @@ func (h *HLSFilter) FilterContent(ctx context.Context, filters *parsers.MediaFil
 
 	// convert into the master playlist type
 	manifest := m.(*m3u8.MasterPlaylist)
-	filteredManifest := m3u8.NewMasterPlaylist()
-	filteredManifest.Twitch = manifest.Twitch
+	filteredManifest := copyPlaylistDefaults(manifest)
 
 	//evaluate pipeline if DeWeaved filter is set
 	var pipeline pipelineType
@@ -137,6 +136,17 @@ func (h *HLSFilter) FilterContent(ctx context.Context, filters *parsers.MediaFil
 	return filteredManifest.String(), nil
 }
 
+// copyPlaylistDefaults will create a new master playlist and copy default settings
+// from provided manifest
+func copyPlaylistDefaults(manifest *m3u8.MasterPlaylist) *m3u8.MasterPlaylist {
+	filteredManifest := m3u8.NewMasterPlaylist()
+	filteredManifest.SetIndependentSegments(manifest.IndependentSegments())
+	filteredManifest.Comments = manifest.Comments
+	filteredManifest.Twitch = manifest.Twitch
+
+	return filteredManifest
+}
+
 func (h *HLSFilter) filterPipeline(ctx context.Context, uri string) (pipelineType, error) {
 	absolute, err := getAbsoluteURL(h.originURL)
 	if err != nil {
@@ -163,6 +173,12 @@ func (h *HLSFilter) filterPipeline(ctx context.Context, uri string) (pipelineTyp
 // Returns true if specified variant should be removed from filter
 func (h *HLSFilter) filterVariant(filters *parsers.MediaFilters, v *m3u8.Variant) (bool, error) {
 	variantCodecs := strings.Split(v.Codecs, ",")
+
+	// we do not apply filters to iframe playlists. we need to create a nested filter.
+	// for now, iframe playlists are explicitly removed via tags(iframe) filter
+	if v.Iframe {
+		return false, nil
+	}
 
 	if filters.Videos.Bitrate != nil || filters.Audios.Bitrate != nil {
 		if h.filterVariantBandwidth(int(v.VariantParams.Bandwidth), variantCodecs, filters) {

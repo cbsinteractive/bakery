@@ -16,6 +16,10 @@ github.com/cbsinteractive/go-dash v0.0.0-20200617014501-54010516d9b0 h1:YtEn3STT
 github.com/cbsinteractive/go-dash v0.0.0-20200617014501-54010516d9b0/go.mod h1:c8Gxxfmh0jmZ6G+ISlpa315WBVkzd8mEhu6gN9mn5Qg=
 github.com/cbsinteractive/m3u8 v0.11.2-0.20200411022055-4abfe1f82646 h1:5FPuHdYTN/fea6rZUuizVZ1A/zJsDGHWdBbw+egpKQE=
 github.com/cbsinteractive/m3u8 v0.11.2-0.20200411022055-4abfe1f82646/go.mod h1:nqzOkfBiZJENr52zTVd/Dcl03yzphIMbJqkXGu+u080=
+github.com/cbsinteractive/m3u8 v0.11.2-0.20210225000951-9d7befb06bca h1:6UIKZWT7LW4rxfNRXuz3DkYxfcUWY2H+dXYiYHq9MyQ=
+github.com/cbsinteractive/m3u8 v0.11.2-0.20210225000951-9d7befb06bca/go.mod h1:nqzOkfBiZJENr52zTVd/Dcl03yzphIMbJqkXGu+u080=
+github.com/cbsinteractive/m3u8 v0.11.2-0.20210702182805-556854f1e40f h1:3FCwsEjR740vohA8J1DlIkFCvdMHBIWEUySQTPW329c=
+github.com/cbsinteractive/m3u8 v0.11.2-0.20210702182805-556854f1e40f/go.mod h1:nqzOkfBiZJENr52zTVd/Dcl03yzphIMbJqkXGu+u080=
 github.com/cbsinteractive/pkg/tracing v0.0.0-20200409233703-f2037b1185c6 h1:Ihm3IQDu+hq68YEPkudbij7537amAX0ptYjP5Rd226c=
 github.com/cbsinteractive/pkg/tracing v0.0.0-20200409233703-f2037b1185c6/go.mod h1:HFeRRYVH/vq7+SG8nVn6bNElj1ibrvYx8GdynukgY/w=
 github.com/cbsinteractive/pkg/xrayutil v0.0.0-20200409233703-f2037b1185c6 h1:frSn2FyipuQVGIVN8GrHn8jH1avD7zs8HgYwl9GfWWI=

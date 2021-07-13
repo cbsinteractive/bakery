@@ -65,7 +65,7 @@ github.com/google/go-cmp/cmp/internal/diff
 github.com/google/go-cmp/cmp/internal/flags
 github.com/google/go-cmp/cmp/internal/function
 github.com/google/go-cmp/cmp/internal/value
-# github.com/grafov/m3u8 v0.11.1 => github.com/cbsinteractive/m3u8 v0.11.2-0.20200411022055-4abfe1f82646
+# github.com/grafov/m3u8 v0.11.1 => github.com/cbsinteractive/m3u8 v0.11.2-0.20210702182805-556854f1e40f
 github.com/grafov/m3u8
 # github.com/jmespath/go-jmespath v0.3.0
 github.com/jmespath/go-jmespath

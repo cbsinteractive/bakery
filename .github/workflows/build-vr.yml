@@ -1,48 +1,79 @@
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
   pull_request:
-    branches:
-      - master
+    branches: [master ]
 
 name: VideoRobot-Bakery Build
 
 env:
   DOCKER_IMAGE: "bakery"
-  AWS_ACCOUNT_ID: "706024611688"
-  REGION: "us-east-1"
+
 jobs:
   GCP_DEV_BUILD:
     name: GCP_DEV_BUILD
     runs-on: ubuntu-latest
-    environment: UI-Dev
+    environment: Bakery-Dev
     env:
       DOCKER_TAG: "dev"
-      GCP_PROJECT_NAME: "i-bakery-dev"
+      GCP_PROJECT_NAME: "i-vidbot-dev"
     steps:
       - name: checkout
       # TODO: checkout to master
-        uses: actions/checkout@vr-github-actions
-
+        uses: actions/checkout@master
+  
       - name: Set short-sha
         id: vars
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
-      - name: build PR for build safety
+      - name: Build and tag image
         run: |
-          docker build -f dockerfile -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
-          docker tag $DOCKER_IMAGE:$DOCKER_TAG gcr.io/${{ secrets.GCLOUD_ENT_PROJECT }}/$DOCKER_IMAGE:$DOCKER_TAG
-          docker tag $DOCKER_IMAGE:$DOCKER_TAG gcr.io/${{ secrets.GCLOUD_ENT_PROJECT }}/$DOCKER_IMAGE:$DOCKER_TAG-${{ steps.vars.outputs.sha_short }}    
+          docker build -f Dockerfile -t $DOCKER_IMAGE:$DOCKER_TAG .
+          docker tag $DOCKER_IMAGE:$DOCKER_TAG gcr.io/$GCP_PROJECT_NAME/$DOCKER_IMAGE:$DOCKER_TAG
+          docker tag $DOCKER_IMAGE:$DOCKER_TAG gcr.io/$GCP_PROJECT_NAME/$DOCKER_IMAGE:$DOCKER_TAG-${{ steps.vars.outputs.sha_short }}    
 
       - name: Setup Cloud SDK
         uses: google-github-actions/setup-gcloud@v0.2.0
         with:
-          project_id: ${{ env.GCLOUD_ENT_PROJECT }}
+          project_id: $GCP_PROJECT_NAME
           service_account_key: ${{ secrets.GCLOUD_CI_APPLICATION_CREDENTIAL }}
 
       - name: Authorize Docker push
         run: gcloud auth configure-docker -q
         
       - name: push to GCR
-        run: docker push --all-tags gcr.io/${{ secrets.GCLOUD_ENT_PROJECT }}/$DOCKER_IMAGE
+        run: docker push --all-tags gcr.io/$GCP_PROJECT_NAME/$DOCKER_IMAGE
+
+  GCP_PROD_BUILD:
+    name: GCP_PROD_BUILD
+    if: ${{ github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    environment: Bakery-Prod
+    env:
+      DOCKER_TAG: "release"
+      GCP_PROJECT_NAME: "i-cbsent-vidbot-prod"
+    steps:
+      - name: checkout
+        uses: actions/checkout@master
+  
+      - name: Set short-sha
+        id: vars
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
+      - name: build PR for build safety
+        run: |
+          docker build -f Dockerfile -t $DOCKER_IMAGE:$DOCKER_TAG .
+          docker tag $DOCKER_IMAGE:$DOCKER_TAG gcr.io/$GCP_PROJECT_NAME/$DOCKER_IMAGE:$DOCKER_TAG
+          docker tag $DOCKER_IMAGE:$DOCKER_TAG gcr.io/$GCP_PROJECT_NAME/$DOCKER_IMAGE:$DOCKER_TAG-${{ steps.vars.outputs.sha_short }}    
+
+      - name: Setup Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.2.0
+        with:
+          project_id: $GCP_PROJECT_NAME
+          service_account_key: ${{ secrets.GCLOUD_CI_APPLICATION_CREDENTIAL }}
+
+      - name: Authorize Docker push
+        run: gcloud auth configure-docker -q
+        
+      - name: push to GCR
+        run: docker push --all-tags gcr.io/$GCP_PROJECT_NAME/$DOCKER_IMAGE

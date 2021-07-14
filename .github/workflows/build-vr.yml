@@ -1,8 +1,8 @@
 on:
-  test:
-    branches: [master]
+  push:
+    branches: [ master ]
   pull_request:
-    branches: [master ]
+    branches: [ master ]
 
 name: VideoRobot-Bakery Build
 
